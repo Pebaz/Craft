@@ -1,0 +1,34 @@
+Program:
+    - import:
+        - wing.lang.BuiltIns
+
+    - importas:
+        - [wing.lang.Array, Array]
+
+    - call: [print, Hello World!]
+    - set: [age, 23]
+    - set: [age, call: [ SomeClass, arg1, arg2 ]]
+    - set: [fortitude, '+' : [2, 3] ]
+
+    - for:
+        - i: [0, 10, 1]
+        - call: [print, i]
+
+    - set: [x, 3]
+
+    - while:
+        - '<' : [x, 10] # Has to be boolean condition here
+        - call: [print, x]
+        - set: [x, '-' : [x, 1]]
+
+# This will overwrite for testing
+Program:
+    - set: [x, 3]
+    - call: [print, x]
+
+Main:
+    - call: [print, Hello there traveler!]
+    - func:
+        - name: do_this
+        - args: [arg1]
+        - call: [print, arg1]
