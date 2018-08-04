@@ -1,5 +1,6 @@
 import yaml, pprint
 
+pp = pprint.PrettyPrinter(width=1)
 
 def wing_recursive_get(dictn, keys):
 	"""
@@ -32,43 +33,111 @@ def wing_set(name, value, parent):
 	# Handle expressions
 	parent[name] = value
 
+def wing_if():
+	pass
+
+def wing_hash():
+	"""
+	- set: [asdf, [[key, value], [key, value], [key, value]]]
+	"""
+
+
+
+def wing_add(*args):
+	return sum(args)
+
+
+def wing_program(*args):
+	pass
+
 def getkey(symbol):
 	return [i for i in symbol.keys()][0]
+
 
 def getvalue(symbol):
 	return symbol[getkey(symbol)]
 
-def query_symbol_table(name, ast, scope):
-	pass
+def push_scope():
+	global SCOPE, SYMBOL_TABLE
+	SCOPE += 1
+	SYMBOL_TABLE.append(dict())
+
+def pop_scope():
+	global SCOPE, SYMBOL_TABLE
+	SYMBOL_TABLE[SCOPE]
+	SYMBOL_TABLE.pop()
 
 
-
-def handle_function(line, ast, keys):
-	print(ast)
-	#print(line)
-	operation = getkey(line)
-
-	if operation == 'set':
-
-		value = getvalue(line)
-
-		# Expressions are dictionaries
-		if isinstance(value, dict):
-			result = handle_op(getvalue(line))
-			print(result)
-
-		# Should
-		elif isinstance(value, list):
-			if len(value) == 2:
-				name = value[0]
-
-				# For right now, we are assuming that there is no expression
-				# (dict) here:
-				set_to_value = value[1]
-
-				ast = [{ name : set_to_value }] + ast # <-------------- doesn't change it because ast is local copy
+# Represents a list of lists of key-value pairs (variables/names)
+SYMBOL_TABLE = [
+	{
+		'Program' : wing_program, # Everyone has access to names in level 0
+		'print' : print,
+		'+' : wing_add
+	}
+]
+SCOPE = 0 # For now, functions have to increment and decrement scope
 
 
+def query_symbol_table(name, scope):
+	"""
+	Looks at each scope starting at the scope index given and works its way up
+	to zero.
+	"""
+
+	global SYMBOL_TABLE
+
+	if name not in SYMBOL_TABLE[scope]:
+		if scope > 0:
+			return query_symbol_table(name, scope - 1)
+		else:
+			raise Exception(f'"{name}" not found.')
+
+	else:
+		try:
+			return getvalue(SYMBOL_TABLE[scope])
+		except KeyError as e:
+			raise Exception(f'"{name}" not found.') from e
+
+
+def handle_value(value):
+	"""
+	Can be a raw value or a name.
+
+	Checks to see if the value is a straight value or a name. If a name is
+	suspected, check to see if a leading tick: '`' is used, denoting that a
+	string value is being passed, not a variable.
+	"""
+
+	# Is it a variable:
+	if isinstance(value, str):
+
+		# Force string value
+		if value.startswith('`'):
+			return value[1:]
+
+		if value.isidentifier():
+			return query_symbol_table(value, SCOPE)
+
+	else:
+		return value
+
+
+def handle_expression(dictn):
+	print('\n')
+	global pp, SCOPE
+	pp.pprint(dictn)
+
+	args = [
+		handle_expression(i)
+		if isinstance(i, dict)
+		else handle_value(i)
+		for i in dictn
+	]
+
+	func = query_symbol_table(getkey(dictn), SCOPE)
+
+	return func(*args)
 
 
 with open('test/test.yaml') as file:
@@ -76,15 +145,10 @@ with open('test/test.yaml') as file:
 
 	ast['imported_modules'] = list()
 	ast['built-ins'] = dict()
+	ast['variables'] = dict()
 
-	#pprint.pprint(ast)
-
-	for line in ast['Program']:
-
-		if not isinstance(line, dict):
-			raise Exception('Line is not dictionary: %s' % repr(line))
-
-		handle_function(line, ast['Program'], [])
+	# Handle the top-level function named "Program" recursively
+	handle_expression({ 'Program' : ast['Program'] })
 
 		
 

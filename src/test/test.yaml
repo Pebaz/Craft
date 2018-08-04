@@ -23,11 +23,18 @@ Program:
 
 # This will overwrite for testing
 Program:
-    - set: [x, 3]
+    - { set: [x, 3] }
+    - set:
+        - x
+        - '+':
+            - x
+            - 1
     - call: [print, x]
+    - print: [x, z]
 
-Main:
-    - call: [print, Hello there traveler!]
-    - func:
-        - args: [arg1]
-        - call: [print, arg1]
+Main: []
+
+Program:
+    - set: [message, "Hello World!"]
+    - print: [message]
+    - print: ["`message"] # This will print "message" not "Hello World!"
