@@ -127,15 +127,18 @@ def handle_value(value):
 		if value.isidentifier():
 			return query_symbol_table(value, SCOPE)
 
+		else:
+			return value
+
 	else:
 		return value
 
 
 def handle_expression(dictn):
 	global pp, SCOPE
-	print('\n')
-	print(f'Handling Expression: {getkey(dictn)}')
-	pp.pprint(dictn)
+	#print('\n')
+	#print(f'Handling Expression: {getkey(dictn)}')
+	#pp.pprint(dictn)
 
 
 	args = [
@@ -146,7 +149,6 @@ def handle_expression(dictn):
 	]
 
 	func = query_symbol_table(getkey(dictn), SCOPE)
-	print(f'\tRunning Function: {getkey(dictn)}')
 
 	return func(*args)
 

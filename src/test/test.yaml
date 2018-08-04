@@ -36,5 +36,14 @@ Main: []
 
 Program:
     - set: [$message, "Hello World!"]
-    - print: [message]
-    - print: [$some_variable] # This will print "some_variable" not look for var: some_variable
+    - print: [message] # Treat all strings (that qualify as identifiers) as names
+    - print: [$message] # Treat strings with '$' as strings, not names
+    - print: [this should be some text] # This will print "some_variable" not look for var: some_variable
+    - print: ["\n"]
+    - set: [$name, "$Pebaz"]
+    - print: ["Hello "]
+    - print: [name]
+    - set: [$age, 23]
+    - print: ["Your age is:"]
+    - print: [age]
+
