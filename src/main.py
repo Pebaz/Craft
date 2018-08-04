@@ -37,10 +37,17 @@ def wing_hash():
 	- set: [asdf, [[key, value], [key, value], [key, value]]]
 	"""
 
-
-
 def wing_add(*args):
-	return sum(args)
+	v = args[0]
+	for i in args[1:]:
+		v += i
+	return v
+
+def wing_sub(*args):
+	v = args[0]
+	for i in args[1:]:
+		v -= i
+	return v
 
 
 def wing_set(name, value):
@@ -81,6 +88,7 @@ SYMBOL_TABLE = [
 	{
 		'Program' : wing_program, # Everyone has access to names in level 0
 		'+' : wing_add,
+		'-' : wing_sub,
 		'print' : print,
 		'set' : wing_set
 	}

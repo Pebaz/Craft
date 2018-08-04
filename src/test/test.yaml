@@ -5,14 +5,9 @@ Program:
     - importas:
         - [wing.lang.Array, Array]
 
-    - call: [print, Hello World!]
-    - set: [age, 23]
-    - set: [age, call: [ SomeClass, arg1, arg2 ]]
-    - set: [fortitude, '+' : [2, 3] ]
-
     - for:
-        - i: [0, 10, 1]
-        - call: [print, i]
+        - [i, 0, 10, 1]
+        - print: [$i]
 
     - set: [x, 3]
 
@@ -21,10 +16,20 @@ Program:
         - call: [print, x]
         - set: [x, '-' : [x, 1]]
 
+    - if:
+        - '>' : [$age, 23]
+
 Main: []
 
 Program:
     - set: [name, "Pebaz"]
     #- set: [mary had a little lamb, 123] # Syntax error
-    - print: [Hello] # Prints "name"
-    - print: [$name] # $ means 'look-up': prints "Pebaz"
+    #- print: [Hello] # Prints "name"
+    #- print: [$name] # $ means 'look-up': prints "Pebaz"
+    - print: [+ : ["Hello ", $name]]
+
+    - set: [age, 23]
+    - set: [age, + : [$age, 1]]
+    - print: [$age]
+    - set: [age, '-' : [$age, 2]]
+    - print: [$age]
