@@ -29,6 +29,5 @@ Program:
 Main:
     - call: [print, Hello there traveler!]
     - func:
-        - name: do_this
         - args: [arg1]
         - call: [print, arg1]
