@@ -1,0 +1,7 @@
+Program:
+    - print: [Hello World!]
+    - set: [name, "Pebaz"]
+    - print: [+ : ["Hello ", $name]]
+    - set: [age, + : [2, 54]]
+    - print: [$age]
+    - set: [age, '-' : [5, 3]]

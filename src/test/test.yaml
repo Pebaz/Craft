@@ -20,19 +20,3 @@ Program:
         - '>' : [$age, 23]
 
 Main: []
-
-Program:
-    - print: [Hello World!]
-    - set: [name, "Pebaz"]
-    - print: [+ : ["Hello ", $name]]
-    - set: [age, + : [2, 54]]
-    - print: [$age]
-    #- set: [mary had a little lamb, 123] # Syntax error
-    #- print: [Hello] # Prints "name"
-    #- print: [$name] # $ means 'look-up': prints "Pebaz"
-
-    #- set: [age, 23]
-    #- set: [age, + : [$age, 1]]
-    #- print: [$age]
-    #- set: [age, '-' : [$age, 2]]
-    #- print: [$age]

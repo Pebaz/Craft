@@ -202,22 +202,11 @@ def handle_expression(dictn):
 	#print(f'Handling Expression: {getkey(dictn)}')
 	#pp.pprint(dictn)
 
-	'''
-	args = [
-		handle_expression(i)
-		if isinstance(i, dict)
-		else handle_value(i)
-		for i in getvalue(dictn)
-	]
-	'''
-
 	func = query_symbol_table(getkey(dictn), SCOPE)
-
-	#return func(*args)
 	return func(*getvalue(dictn))
 
 
-with open('test/test.yaml') as file:
+with open('test/main.yaml') as file:
 	ast = yaml.load(file)
 
 	ast['imported_modules'] = list()
