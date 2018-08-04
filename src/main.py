@@ -37,13 +37,37 @@ def wing_hash():
 	- set: [asdf, [[key, value], [key, value], [key, value]]]
 	"""
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def wing_add(*args):
+	args = get_args(args)
 	v = args[0]
 	for i in args[1:]:
 		v += i
 	return v
 
 def wing_sub(*args):
+	args = get_args(args)
 	v = args[0]
 	for i in args[1:]:
 		v -= i
@@ -56,11 +80,37 @@ def wing_set(name, value):
 	if not name.isidentifier():
 		raise Exception(f'"{name}" not a valid identifier.')
 
-	SYMBOL_TABLE[SCOPE][name] = value
+	SYMBOL_TABLE[SCOPE][name] = get_arg_value(value)
+
+
+def wing_print(*args):
+	print(*get_args(args))
 
 
 def wing_program(*args):
-	pass
+	#print('Wing Programming Language\nVersion: 0.1.1\n')
+	return get_args(args)
+
+
+def get_arg_value(arg):
+	if isinstance(arg, dict):
+		return handle_expression(arg)
+	else:
+		return handle_value(arg)
+
+
+def get_args(args):
+	"""
+	Args:
+		args: a list of expressions or values.
+	"""
+	return [
+		handle_expression(i)
+		if isinstance(i, dict)
+		else handle_value(i)
+		for i in args
+	]
+
 
 def getkey(symbol):
 	return [i for i in symbol.keys()][0]
@@ -69,10 +119,12 @@ def getkey(symbol):
 def getvalue(symbol):
 	return symbol[getkey(symbol)]
 
+
 def push_scope():
 	global SCOPE, SYMBOL_TABLE
 	SCOPE += 1
 	SYMBOL_TABLE.append(dict())
+
 
 def pop_scope():
 	global SCOPE, SYMBOL_TABLE
@@ -89,7 +141,7 @@ SYMBOL_TABLE = [
 		'Program' : wing_program, # Everyone has access to names in level 0
 		'+' : wing_add,
 		'-' : wing_sub,
-		'print' : print,
+		'print' : wing_print,
 		'set' : wing_set
 	}
 ]
@@ -150,17 +202,19 @@ def handle_expression(dictn):
 	#print(f'Handling Expression: {getkey(dictn)}')
 	#pp.pprint(dictn)
 
-
+	'''
 	args = [
 		handle_expression(i)
 		if isinstance(i, dict)
 		else handle_value(i)
 		for i in getvalue(dictn)
 	]
+	'''
 
 	func = query_symbol_table(getkey(dictn), SCOPE)
 
-	return func(*args)
+	#return func(*args)
+	return func(*getvalue(dictn))
 
 
 with open('test/test.yaml') as file:
