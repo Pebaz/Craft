@@ -29,10 +29,6 @@ def wing_recursive_get(dictn, keys):
 def wing_while(condition, statements):
 	pass
 
-def wing_set(name, value, parent):
-	# Handle expressions
-	parent[name] = value
-
 def wing_if():
 	pass
 
@@ -45,6 +41,12 @@ def wing_hash():
 
 def wing_add(*args):
 	return sum(args)
+
+
+def wing_set(name, value):
+	global SYMBOL_TABLE, SCOPE
+	print('SETTING VARIABLE')
+	SYMBOL_TABLE[SCOPE][name] = value
 
 
 def wing_program(*args):
@@ -70,10 +72,14 @@ def pop_scope():
 
 # Represents a list of lists of key-value pairs (variables/names)
 SYMBOL_TABLE = [
+	# Program
+	# Operators
+	# Built-Ins
 	{
 		'Program' : wing_program, # Everyone has access to names in level 0
+		'+' : wing_add,
 		'print' : print,
-		'+' : wing_add
+		'set' : wing_set
 	}
 ]
 SCOPE = 0 # For now, functions have to increment and decrement scope
@@ -91,11 +97,13 @@ def query_symbol_table(name, scope):
 		if scope > 0:
 			return query_symbol_table(name, scope - 1)
 		else:
+			pp.pprint(SYMBOL_TABLE)
 			raise Exception(f'"{name}" not found.')
 
 	else:
 		try:
-			return getvalue(SYMBOL_TABLE[scope])
+			#return getvalue(SYMBOL_TABLE[scope])
+			return SYMBOL_TABLE[scope][name]
 		except KeyError as e:
 			raise Exception(f'"{name}" not found.') from e
 
@@ -105,7 +113,7 @@ def handle_value(value):
 	Can be a raw value or a name.
 
 	Checks to see if the value is a straight value or a name. If a name is
-	suspected, check to see if a leading tick: '`' is used, denoting that a
+	suspected, check to see if a leading tick: '$' is used, denoting that a
 	string value is being passed, not a variable.
 	"""
 
@@ -113,7 +121,7 @@ def handle_value(value):
 	if isinstance(value, str):
 
 		# Force string value
-		if value.startswith('`'):
+		if value.startswith('$'):
 			return value[1:]
 
 		if value.isidentifier():
@@ -124,18 +132,21 @@ def handle_value(value):
 
 
 def handle_expression(dictn):
-	print('\n')
 	global pp, SCOPE
+	print('\n')
+	print(f'Handling Expression: {getkey(dictn)}')
 	pp.pprint(dictn)
+
 
 	args = [
 		handle_expression(i)
 		if isinstance(i, dict)
 		else handle_value(i)
-		for i in dictn
+		for i in getvalue(dictn)
 	]
 
 	func = query_symbol_table(getkey(dictn), SCOPE)
+	print(f'\tRunning Function: {getkey(dictn)}')
 
 	return func(*args)
 

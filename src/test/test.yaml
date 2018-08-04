@@ -35,6 +35,6 @@ Program:
 Main: []
 
 Program:
-    - set: [message, "Hello World!"]
+    - set: [$message, "Hello World!"]
     - print: [message]
-    - print: ["`message"] # This will print "message" not "Hello World!"
+    - print: [$some_variable] # This will print "some_variable" not look for var: some_variable
