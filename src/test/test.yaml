@@ -21,29 +21,10 @@ Program:
         - call: [print, x]
         - set: [x, '-' : [x, 1]]
 
-# This will overwrite for testing
-Program:
-    - { set: [x, 3] }
-    - set:
-        - x
-        - '+':
-            - x
-            - 1
-    - call: [print, x]
-    - print: [x, z]
-
 Main: []
 
 Program:
-    - set: [$message, "Hello World!"]
-    - print: [message] # Treat all strings (that qualify as identifiers) as names
-    - print: [$message] # Treat strings with '$' as strings, not names
-    - print: [this should be some text] # This will print "some_variable" not look for var: some_variable
-    - print: ["\n"]
-    - set: [$name, "$Pebaz"]
-    - print: ["Hello "]
-    - print: [name]
-    - set: [$age, 23]
-    - print: ["Your age is:"]
-    - print: [age]
-
+    - set: [name, "Pebaz"]
+    #- set: [mary had a little lamb, 123] # Syntax error
+    - print: [Hello] # Prints "name"
+    - print: [$name] # $ means 'look-up': prints "Pebaz"

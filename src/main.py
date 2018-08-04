@@ -45,7 +45,10 @@ def wing_add(*args):
 
 def wing_set(name, value):
 	global SYMBOL_TABLE, SCOPE
-	print('SETTING VARIABLE')
+
+	if not name.isidentifier():
+		raise Exception(f'"{name}" not a valid identifier.')
+
 	SYMBOL_TABLE[SCOPE][name] = value
 
 
@@ -122,11 +125,10 @@ def handle_value(value):
 
 		# Force string value
 		if value.startswith('$'):
-			return value[1:]
-
-		if value.isidentifier():
-			return query_symbol_table(value, SCOPE)
-
+			if value[1] != '$':
+				return query_symbol_table(value[1:], SCOPE)
+			else:
+				return value[1:]
 		else:
 			return value
 
