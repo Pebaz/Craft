@@ -48,7 +48,8 @@ def wing_hash():
 
 
 
-
+def wing_for(*args):
+	pass
 
 
 def wing_if(*args):
