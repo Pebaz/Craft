@@ -5,3 +5,14 @@ Program:
     - set: [age, + : [2, 54]]
     - print: [$age]
     - set: [age, '-' : [5, 3]]
+    - comment:
+        - print: ["THIS IS HIDDEN"]
+
+    - if:
+        - '<' : [$age, 3]
+
+        - then:
+            - print: ["You are 2 years or younger."]
+
+        - else:
+            - print: ["You are 3 years or older."]

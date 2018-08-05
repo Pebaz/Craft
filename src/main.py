@@ -29,8 +29,6 @@ def wing_recursive_get(dictn, keys):
 def wing_while(condition, statements):
 	pass
 
-def wing_if():
-	pass
 
 def wing_hash():
 	"""
@@ -53,10 +51,30 @@ def wing_hash():
 
 
 
+def wing_if(*args):
+	if len(args) > 3 or len(args) < 2:
+		raise Exception(f'Malformed if statement at:\n{args}')
+	pp.pprint(args)
+
+	condition = args[0]
+	
+	if handle_expression(condition):
+		handle_expression(args[1])
+
+	elif len(args) == 3:
+		handle_expression(args[2])
 
 
+def wing_then(*args):
+	args = get_args(args)
 
 
+def wing_else(*args):
+	args = get_args(args)
+
+
+def wing_comment(*args):
+	pass
 
 
 def wing_add(*args):
@@ -72,6 +90,19 @@ def wing_sub(*args):
 	for i in args[1:]:
 		v -= i
 	return v
+
+def wing_greater_than(*args):
+	args = get_args(args)
+	if len(args) > 2:
+		raise Exception(f'Too many values ({len(args)}) to compare for greater than operator.')
+	return args[0] > args[1]
+
+
+def wing_less_than(*args):
+	args = get_args(args)
+	if len(args) > 2:
+		raise Exception(f'Too many values ({len(args)}) to compare for greater than operator.')
+	return args[0] < args[1]
 
 
 def wing_set(name, value):
@@ -141,8 +172,14 @@ SYMBOL_TABLE = [
 		'Program' : wing_program, # Everyone has access to names in level 0
 		'+' : wing_add,
 		'-' : wing_sub,
+		'>' : wing_greater_than,
+		'<' : wing_less_than,
+		'set' : wing_set,
+		'if' : wing_if,
+		'then' : wing_then,
+		'else' : wing_else,
 		'print' : wing_print,
-		'set' : wing_set
+		'comment' : wing_comment,
 	}
 ]
 SCOPE = 0 # For now, functions have to increment and decrement scope
