@@ -54,15 +54,17 @@ def wing_hash():
 def wing_if(*args):
 	if len(args) > 3 or len(args) < 2:
 		raise Exception(f'Malformed if statement at:\n{args}')
-	pp.pprint(args)
-
-	condition = args[0]
 	
-	if handle_expression(condition):
+	condition = args[0]
+	if (handle_expression(condition) if isinstance(condition, dict) else handle_value(condition)):
+		push_scope()
 		handle_expression(args[1])
+		pop_scope()
 
 	elif len(args) == 3:
+		push_scope()
 		handle_expression(args[2])
+		pop_scope()
 
 
 def wing_then(*args):
@@ -159,7 +161,7 @@ def push_scope():
 
 def pop_scope():
 	global SCOPE, SYMBOL_TABLE
-	SYMBOL_TABLE[SCOPE]
+	SCOPE -= 1
 	SYMBOL_TABLE.pop()
 
 

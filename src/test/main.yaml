@@ -13,6 +13,14 @@ Program:
 
         - then:
             - print: ["You are 2 years or younger."]
+            - print: ["Actual age:"]
+            - print: [$age]
+            - set: [scope1_var, "This is it's value!"]
+
+            - if:
+                - True
+                - then:
+                    - print: [$scope1_var]
 
         - else:
             - print: ["You are 3 years or older."]
