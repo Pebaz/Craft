@@ -40,10 +40,21 @@ def wing_foreach(*args):
 
 
 def wing_for(*args):
-	if len(args[0]) != 4:
-		raise Exception(f'Malformed control value: (var, start, stop, step)')
+	control = args[0]
 
-	var, start, stop, step = get_args(args[0])
+	var, start, stop, step = [None] * 4
+
+	if len(control) == 4:
+		var, start, stop, step = get_arg_value(control)
+
+	elif len(control) == 3:
+		var, start, stop, step = *get_arg_value(control), 1
+
+	elif len(control) == 2:
+		var, stop, start, step = *get_arg_value(control), 0, 1
+
+	else:
+		raise Exception(f'Malformed control value: (var, start, stop, step)')
 
 	wing_push_scope()
 
@@ -53,10 +64,6 @@ def wing_for(*args):
 		get_args(args[1:])
 
 	wing_pop_scope()
-
-
-
-
 
 
 def wing_if(*args):
@@ -95,6 +102,13 @@ def wing_add(*args):
 	v = args[0]
 	for i in args[1:]:
 		v += i
+	return v
+
+def wing_mod(*args):
+	args = get_args(args)
+	v = args[0]
+	for i in args[1:]:
+		v %= i
 	return v
 
 def wing_sub(*args):
@@ -187,6 +201,7 @@ SYMBOL_TABLE = [
 		'-' : wing_sub,
 		'>' : wing_greater_than,
 		'<' : wing_less_than,
+		'%' : wing_mod,
 		'push-scope' : wing_push_scope,
 		'pop-scope' : wing_pop_scope,
 		'quit' : wing_exit,
