@@ -1,27 +1,31 @@
-import yaml, pprint
+"""Wing Programming Language
+Usage:
+  {0} FILE
+"""
+
+'''
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+  -r --run 		Run a Wing program.
+
+  --speed=<kn>  Speed in knots [default: 10].
+  --moored      Moored (anchored) mine.
+  --drifting    Drifting mine.
+
+  main.py ship new <name>...
+  main.py ship <name> move <x> <y> [--speed=<kn>]
+  main.py ship shoot <x> <y>
+  main.py mine (set|remove) <x> <y> [--moored | --drifting]
+  main.py (-h | --help)
+  main.py --version
+'''
+
+
+import sys, pprint, yaml
+from docopt import docopt
 
 pp = pprint.PrettyPrinter(width=1)
-
-def wing_recursive_get(dictn, keys):
-	"""
-	Recursively indexes a dictionary to retrieve a value.
-
-	Equivalent to:
-	dictn[keys[0]][keys[1]][keys[2]][keys[n]]
-
-	Args:
-		dictn(dict): the dictionary to index.
-		keys(list): the list of keys to index with.
-
-	Returns:
-		The value of the very last nested dict in the base dict.
-	"""
-	if len(keys) == 1:
-		return dictn[keys[0]]
-	else:
-		return get(dictn[keys[0]], keys[1:])
-
-
 
 # When importing, only load ast['Program']
 # When running, first run ast['Program'], then run ast['Main']
@@ -34,14 +38,6 @@ def wing_hash():
 	"""
 	- set: [asdf, [[key, value], [key, value], [key, value]]]
 	"""
-
-
-
-
-
-
-
-
 
 
 
@@ -247,16 +243,24 @@ def handle_expression(dictn):
 	func = query_symbol_table(getkey(dictn), SCOPE)
 	return func(*getvalue(dictn))
 
-
-with open('test/main.yaml') as file:
-	ast = yaml.load(file)
-
-	ast['imported_modules'] = list()
-	ast['built-ins'] = dict()
-	ast['variables'] = dict()
-
-	# Handle the top-level function named "Program" recursively
-	handle_expression({ 'Program' : ast['Program'] })
-
 		
+def main(args):
 
+	usage = __doc__.format(args[0])
+	arguments = docopt(usage, argv=args[1:], version='Wing 0.1.0')
+
+	print(arguments)
+
+	with open('test/main.yaml') as file:
+		ast = yaml.load(file)
+
+		ast['imported_modules'] = list()
+		ast['built-ins'] = dict()
+		ast['variables'] = dict()
+
+		# Handle the top-level function named "Program" recursively
+		handle_expression({ 'Program' : ast['Program'] })
+
+
+if __name__ == '__main__':
+	sys.exit(main(sys.argv))
