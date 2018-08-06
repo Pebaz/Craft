@@ -35,10 +35,28 @@ def wing_hash():
 
 
 
+def wing_foreach(*args):
+	pass
 
 
 def wing_for(*args):
-	pass
+	if len(args[0]) != 4:
+		raise Exception(f'Malformed control value: (var, start, stop, step)')
+
+	var, start, stop, step = get_args(args[0])
+
+	wing_push_scope()
+
+	for i in range(start, stop, step):
+		wing_set(var, i)
+
+		get_args(args[1:])
+
+	wing_pop_scope()
+
+
+
+
 
 
 def wing_if(*args):
@@ -174,6 +192,7 @@ SYMBOL_TABLE = [
 		'quit' : wing_exit,
 		'exit' : wing_exit,
 		'set' : wing_set,
+		'for' : wing_for,
 		'if' : wing_if,
 		'then' : wing_then,
 		'else' : wing_else,
