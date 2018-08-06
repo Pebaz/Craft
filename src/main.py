@@ -301,8 +301,9 @@ def run_cli():
 			# Run the code
 			try:
 				output = handle_expression(yaml.load(code))
-
-				print(f' -> {output}')
+				
+				if output != None:
+					print(f' -> {output}')
 
 			except Exception as e:
 				print(e)
