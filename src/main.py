@@ -15,10 +15,51 @@ To run the Wing REPL, supply no arguments:
 """
 
 
-import sys, pprint, yaml
+import sys, pprint, yaml, pyparsing
+import traceback
 from docopt import docopt
 
 pp = pprint.PrettyPrinter(width=1)
+Identifier = pyparsing.Word(pyparsing.alphas + '_', bodyChars=pyparsing.alphanums + '_-.')
+
+def is_identifier(string):
+	try:
+		Identifier.parseString(string)
+		return True
+	except:
+		return False
+
+
+
+def dict_recursive_peek(dictn, keys):
+	try:
+		if len(keys) == 1:
+			dictn[keys[0]]
+		else:
+			get(dictn[keys[0]], keys[1:])
+		return True
+	except:
+		return False
+
+
+def dict_recursive_get(dictn, keys):
+	"""
+	Recursively indexes a dictionary to retrieve a value.
+
+	Equivalent to:
+	dictn[keys[0]][keys[1]][keys[2]][keys[n]]
+
+	Args:
+		dictn(dict): the dictionary to index.
+		keys(list): the list of keys to index with.
+
+	Returns:
+		The value of the very last nested dict in the base dict.
+	"""
+	if len(keys) == 1:
+		return dictn[keys[0]]
+	else:
+		return get(dictn[keys[0]], keys[1:])
 
 # When importing, only load ast['Program']
 # When running, first run ast['Program'], then run ast['Main']
@@ -90,6 +131,10 @@ def wing_else(*args):
 	args = get_args(args)
 
 
+def wing_globals(*args):
+	pp.pprint(SYMBOL_TABLE)
+
+
 def wing_exit(*args):
 	exit()
 
@@ -135,10 +180,21 @@ def wing_less_than(*args):
 def wing_set(name, value):
 	global SYMBOL_TABLE, SCOPE
 
-	if not name.isidentifier():
+	if not is_identifier(name):
 		raise Exception(f'"{name}" not a valid identifier.')
 
-	SYMBOL_TABLE[SCOPE][name] = get_arg_value(value)
+
+	#SYMBOL_TABLE[SCOPE][name] = get_arg_value(value)
+
+	value = get_arg_value(value)
+	keys = name.split('.')
+	var_name = keys[-1]
+
+	if len(keys) > 1:
+		dict_recursive_get(SYMBOL_TABLE[SCOPE], keys[:-1])[var_name] = value
+	else:
+		SYMBOL_TABLE[SCOPE][var_name] = value
+
 
 
 def wing_print(*args):
@@ -178,6 +234,11 @@ def getvalue(symbol):
 	return symbol[getkey(symbol)]
 
 
+def wing_create_named_scope(name):
+	global SCOPE, SYMBOL_TABLE
+	SYMBOL_TABLE[SCOPE][name] = dict()
+
+
 def wing_push_scope():
 	global SCOPE, SYMBOL_TABLE
 	SCOPE += 1
@@ -204,7 +265,9 @@ SYMBOL_TABLE = [
 		'%' : wing_mod,
 		'push-scope' : wing_push_scope,
 		'pop-scope' : wing_pop_scope,
+		'create-named-scope': wing_create_named_scope,
 		'quit' : wing_exit,
+		'globals' : wing_globals,
 		'exit' : wing_exit,
 		'set' : wing_set,
 		'for' : wing_for,
@@ -223,22 +286,35 @@ def query_symbol_table(name, scope):
 	Looks at each scope starting at the scope index given and works its way up
 	to zero.
 	"""
-
 	global SYMBOL_TABLE
 
-	if name not in SYMBOL_TABLE[scope]:
+	keys = name.split('.')
+	var_name = keys[-1]
+	there = None
+
+	# TODO(Pebaz): Clean this up (jump before looking)
+
+	if len(keys) > 1 and dict_recursive_peek(SYMBOL_TABLE[scope], keys[:-1]):
+		there = var_name in dict_recursive_get(SYMBOL_TABLE[scope], keys[:-1])
+	else:
+		there = var_name in SYMBOL_TABLE[scope]
+
+	if not there:
 		if scope > 0:
 			return query_symbol_table(name, scope - 1)
 		else:
 			pp.pprint(SYMBOL_TABLE)
-			raise Exception(f'"{name}" not found.')
+			raise Exception(f'"{var_name}" not found.')
 
 	else:
 		try:
-			#return getvalue(SYMBOL_TABLE[scope])
-			return SYMBOL_TABLE[scope][name]
+			if len(keys) > 1 and dict_recursive_peek(SYMBOL_TABLE[scope], keys[:-1]):
+				return dict_recursive_get(SYMBOL_TABLE[scope], keys[:-1])[var_name]
+			else:
+				return SYMBOL_TABLE[scope][var_name]
 		except KeyError as e:
-			raise Exception(f'"{name}" not found.') from e
+			pp.pprint(SYMBOL_TABLE)
+			raise Exception(f'"{var_name}" not found.') from e
 
 
 def handle_value(value):
@@ -306,7 +382,8 @@ def run_cli():
 					print(f' -> {output}')
 
 			except Exception as e:
-				print(e)
+				print('WING ERROR:')
+				traceback.print_exc()
 				initial = True
 				code = ''
 				continue
