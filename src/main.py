@@ -1,25 +1,18 @@
 """Wing Programming Language
+
 Usage:
-  {0} FILE
-"""
+  {0}
+  {0} [-d | --debug] FILENAME
+  {0} (-v | --version)
 
-'''
 Options:
-  -h --help     Show this screen.
-  --version     Show version.
-  -r --run 		Run a Wing program.
+  FILE            Run a Wing Program From Source
+  -v --version    Display Wing Version and Exit
+  -d --debug      Debug a Wing Program
 
-  --speed=<kn>  Speed in knots [default: 10].
-  --moored      Moored (anchored) mine.
-  --drifting    Drifting mine.
-
-  main.py ship new <name>...
-  main.py ship <name> move <x> <y> [--speed=<kn>]
-  main.py ship shoot <x> <y>
-  main.py mine (set|remove) <x> <y> [--moored | --drifting]
-  main.py (-h | --help)
-  main.py --version
-'''
+To run the Wing REPL, supply no arguments:
+  {0}
+"""
 
 
 import sys, pprint, yaml
@@ -71,6 +64,9 @@ def wing_then(*args):
 def wing_else(*args):
 	args = get_args(args)
 
+
+def wing_exit(*args):
+	exit()
 
 def wing_comment(*args):
 	pass
@@ -175,6 +171,8 @@ SYMBOL_TABLE = [
 		'<' : wing_less_than,
 		'push-scope' : wing_push_scope,
 		'pop-scope' : wing_pop_scope,
+		'quit' : wing_exit,
+		'exit' : wing_exit,
 		'set' : wing_set,
 		'if' : wing_if,
 		'then' : wing_then,
@@ -236,30 +234,72 @@ def handle_value(value):
 
 def handle_expression(dictn):
 	global pp, SCOPE
-	#print('\n')
-	#print(f'Handling Expression: {getkey(dictn)}')
-	#pp.pprint(dictn)
-
 	func = query_symbol_table(getkey(dictn), SCOPE)
 	return func(*getvalue(dictn))
 
-		
+
+def run_file(filename):
+	# Handle the top-level function named "Program" recursively
+	with open(filename) as file:
+		ast = yaml.load(file)
+		handle_expression({ 'Program' : ast['Program'] })
+
+
+
+def run_cli():
+	print('Wing Programming Language')
+	print('Version: 0.1.0\n')
+	print('Press <enter> twice for running single commands.')
+	print('Type "quit" or press CTCL > C to leave the program.\n')
+
+	code = ''
+	initial = True
+	while True:
+		line = input('>>> ') if initial else input('... ')
+
+		if line.strip() != '':
+			code += line + '\n'
+			initial = False
+		else:
+			if code.strip() == '':
+				continue
+
+			# Run the code
+			try:
+				output = handle_expression(yaml.load(code))
+
+				print(f' -> {output}')
+
+			except Exception as e:
+				print(e)
+				initial = True
+				code = ''
+				continue
+
+			if code.strip().replace('\n', '') == 'quit':
+				break
+
+			initial = True
+			code = ''
+
+
+
+
 def main(args):
 
+	# Make the docstring .EXE friendly
 	usage = __doc__.format(args[0])
 	arguments = docopt(usage, argv=args[1:], version='Wing 0.1.0')
 
-	print(arguments)
+	#print(arguments)
 
-	with open('test/main.yaml') as file:
-		ast = yaml.load(file)
-
-		ast['imported_modules'] = list()
-		ast['built-ins'] = dict()
-		ast['variables'] = dict()
-
-		# Handle the top-level function named "Program" recursively
-		handle_expression({ 'Program' : ast['Program'] })
+	if arguments['FILENAME'] != None:
+		if not arguments['--debug']:
+			run_file(arguments['FILENAME'])	
+		else:
+			print('Wing debugger not yet implemented.')
+	else:
+		run_cli()
 
 
 if __name__ == '__main__':
