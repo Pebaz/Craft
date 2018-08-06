@@ -24,3 +24,9 @@ Program:
 
         - else:
             - print: ["You are 3 years or older."]
+
+    - push-scope: []
+    - set: [hidden_var, Null]
+    - print: [$hidden_var]
+    - pop-scope: []
+

@@ -58,14 +58,14 @@ def wing_if(*args):
 	
 	condition = args[0]
 	if (handle_expression(condition) if isinstance(condition, dict) else handle_value(condition)):
-		push_scope()
+		wing_push_scope()
 		handle_expression(args[1])
-		pop_scope()
+		wing_pop_scope()
 
 	elif len(args) == 3:
-		push_scope()
+		wing_push_scope()
 		handle_expression(args[2])
-		pop_scope()
+		wing_pop_scope()
 
 
 def wing_then(*args):
@@ -154,13 +154,13 @@ def getvalue(symbol):
 	return symbol[getkey(symbol)]
 
 
-def push_scope():
+def wing_push_scope():
 	global SCOPE, SYMBOL_TABLE
 	SCOPE += 1
 	SYMBOL_TABLE.append(dict())
 
 
-def pop_scope():
+def wing_pop_scope():
 	global SCOPE, SYMBOL_TABLE
 	SCOPE -= 1
 	SYMBOL_TABLE.pop()
@@ -177,6 +177,8 @@ SYMBOL_TABLE = [
 		'-' : wing_sub,
 		'>' : wing_greater_than,
 		'<' : wing_less_than,
+		'push-scope' : wing_push_scope,
+		'pop-scope' : wing_pop_scope,
 		'set' : wing_set,
 		'if' : wing_if,
 		'then' : wing_then,
