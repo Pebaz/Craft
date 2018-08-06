@@ -363,16 +363,26 @@ def run_cli():
 	print('Type "quit" or press CTCL > C to leave the program.\n')
 
 	code = ''
-	initial = True
 	while True:
-		line = input('>>> ') if initial else input('... ')
+		line = input('>>> ') if code == '' else input('... ')
 
 		if line.strip() != '':
 			code += line + '\n'
-			initial = False
+
 		else:
 			if code.strip() == '':
 				continue
+
+			# Sanitize the code to run in a "Program:"
+			new_code = 'Program:\n'
+
+			for the_line in code.split('\n'):
+				if '  ' not in the_line:
+					new_code += '  - ' + the_line + '\n'
+				else:
+					new_code += '  ' + the_line
+
+			code = new_code
 
 			# Run the code
 			try:
@@ -384,14 +394,12 @@ def run_cli():
 			except Exception as e:
 				print('WING ERROR:')
 				traceback.print_exc()
-				initial = True
 				code = ''
 				continue
 
 			if code.strip().replace('\n', '') == 'quit':
 				break
 
-			initial = True
 			code = ''
 
 
