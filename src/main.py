@@ -200,6 +200,9 @@ def wing_print(*args):
 def wing_def(*args):
 	pass
 
+def wing_call(*args):
+	pass
+
 
 def wing_lambda(*args):
 	pass
@@ -281,6 +284,7 @@ SYMBOL_TABLE = [
 		'else' : wing_else,
 		'print' : wing_print,
 		'comment' : wing_comment,
+		'call' : wing_call,
 	}
 ]
 SCOPE = 0 # For now, functions have to increment and decrement scope
