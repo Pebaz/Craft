@@ -202,8 +202,7 @@ def wing_print(*args):
 
 
 def wing_program(*args):
-	#print('Wing Programming Language\nVersion: 0.1.1\n')
-	return get_args(args)
+	get_args(args)
 
 
 def get_arg_value(arg):
@@ -356,6 +355,22 @@ def run_file(filename):
 
 
 
+
+def cli_sanitize_code(code):
+	new_code = 'Program:\n'
+
+	for the_line in code.split('\n'):
+		if the_line.strip() == '':
+			continue
+
+		if '  ' not in the_line:
+			new_code += '  - ' + the_line + '\n'
+		else:
+			new_code += '  ' + the_line + '\n'
+
+	return new_code
+
+
 def run_cli():
 	print('Wing Programming Language')
 	print('Version: 0.1.0\n')
@@ -373,16 +388,7 @@ def run_cli():
 			if code.strip() == '':
 				continue
 
-			# Sanitize the code to run in a "Program:"
-			new_code = 'Program:\n'
-
-			for the_line in code.split('\n'):
-				if '  ' not in the_line:
-					new_code += '  - ' + the_line + '\n'
-				else:
-					new_code += '  ' + the_line
-
-			code = new_code
+			code = cli_sanitize_code(code)
 
 			# Run the code
 			try:
