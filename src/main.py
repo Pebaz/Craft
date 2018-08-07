@@ -19,51 +19,29 @@ import sys, pprint, yaml, pyparsing
 import traceback
 from docopt import docopt
 
-pp = pprint.PrettyPrinter(width=1)
-Identifier = pyparsing.Word(pyparsing.alphas + '_', bodyChars=pyparsing.alphanums + '_-.')
-
-def is_identifier(string):
-	try:
-		Identifier.parseString(string)
-		return True
-	except:
-		return False
-
-def dict_recursive_peek(dictn, keys):
-	try:
-		if len(keys) == 1:
-			dictn[keys[0]]
-		else:
-			get(dictn[keys[0]], keys[1:])
-		return True
-	except:
-		return False
-
-
-def dict_recursive_get(dictn, keys):
-	"""
-	Recursively indexes a dictionary to retrieve a value.
-
-	Equivalent to:
-	dictn[keys[0]][keys[1]][keys[2]][keys[n]]
-
-	Args:
-		dictn(dict): the dictionary to index.
-		keys(list): the list of keys to index with.
-
-	Returns:
-		The value of the very last nested dict in the base dict.
-	"""
-	if len(keys) == 1:
-		return dictn[keys[0]]
-	else:
-		return get(dictn[keys[0]], keys[1:])
-
 # When importing, only load ast['Program']
 # When running, first run ast['Program'], then run ast['Main']
 
+
+
+# -----------------------------------------------------------------------------
+#                        G L O B A L   V A R I A B L E S
+# -----------------------------------------------------------------------------
+
+pp = pprint.PrettyPrinter(width=1)
+
+Identifier = pyparsing.Word(
+	pyparsing.alphas + '_', bodyChars=pyparsing.alphanums + '_-.'
+)
+
+
+# -----------------------------------------------------------------------------
+#            S T A N D A R D   L I B R A R Y   F U N C T I O N S
+# -----------------------------------------------------------------------------
+
 def wing_while(condition, statements):
-	pass
+	"""
+	"""
 
 
 def wing_hash():
@@ -73,10 +51,13 @@ def wing_hash():
 
 
 def wing_foreach(*args):
-	pass
+	"""
+	"""
 
 
 def wing_for(*args):
+	"""
+	"""
 	control = args[0]
 
 	var, start, stop, step = [None] * 4
@@ -104,6 +85,8 @@ def wing_for(*args):
 
 
 def wing_if(*args):
+	"""
+	"""
 	if len(args) > 3 or len(args) < 2:
 		raise Exception(f'Malformed if statement at:\n{args}')
 	
@@ -120,67 +103,41 @@ def wing_if(*args):
 
 
 def wing_then(*args):
+	"""
+	"""
 	args = get_args(args)
 
 
 def wing_else(*args):
+	"""
+	"""
 	args = get_args(args)
 
 
 def wing_globals(*args):
+	"""
+	"""
 	pp.pprint(SYMBOL_TABLE)
 
 
 def wing_exit(*args):
+	"""
+	"""
 	exit()
 
+
 def wing_comment(*args):
-	pass
-
-
-def wing_add(*args):
-	args = get_args(args)
-	v = args[0]
-	for i in args[1:]:
-		v += i
-	return v
-
-def wing_mod(*args):
-	args = get_args(args)
-	v = args[0]
-	for i in args[1:]:
-		v %= i
-	return v
-
-def wing_sub(*args):
-	args = get_args(args)
-	v = args[0]
-	for i in args[1:]:
-		v -= i
-	return v
-
-def wing_greater_than(*args):
-	args = get_args(args)
-	if len(args) > 2:
-		raise Exception(f'Too many values ({len(args)}) to compare for greater than operator.')
-	return args[0] > args[1]
-
-
-def wing_less_than(*args):
-	args = get_args(args)
-	if len(args) > 2:
-		raise Exception(f'Too many values ({len(args)}) to compare for greater than operator.')
-	return args[0] < args[1]
+	"""
+	"""
 
 
 def wing_set(name, value):
+	"""
+	"""
 	global SYMBOL_TABLE, SCOPE
 
 	if not is_identifier(name):
 		raise Exception(f'"{name}" not a valid identifier.')
-
-
-	#SYMBOL_TABLE[SCOPE][name] = get_arg_value(value)
 
 	value = get_arg_value(value)
 	keys = name.split('.')
@@ -192,27 +149,172 @@ def wing_set(name, value):
 		SYMBOL_TABLE[SCOPE][var_name] = value
 
 
-
 def wing_print(*args):
+	"""
+	"""
 	print(*get_args(args))
 
 
 def wing_def(*args):
-	pass
+	"""
+	"""
+
 
 def wing_call(*args):
-	pass
+	"""
+	"""
 
 
 def wing_lambda(*args):
-	pass
+	"""
+	"""
 
 
 def wing_program(*args):
+	"""
+	"""
 	get_args(args)
 
 
+def wing_create_named_scope(name):
+	"""
+	"""
+	global SCOPE, SYMBOL_TABLE
+	SYMBOL_TABLE[SCOPE][name] = dict()
+
+
+def wing_push_named_scope(name):
+	"""
+	Used in classes:
+	push "this"
+
+	this.name
+	this.age
+
+	Note that this is pushed DURING execution of a class constructor or method.
+	"""
+
+
+def wing_pop_named_scope(name):
+	"""
+	Used to remove a named scope temporarily?
+	"""
+
+
+def wing_push_scope():
+	"""
+	"""
+	global SCOPE, SYMBOL_TABLE
+	SCOPE += 1
+	SYMBOL_TABLE.append(dict())
+
+
+def wing_pop_scope():
+	"""
+	"""
+	global SCOPE, SYMBOL_TABLE
+	SCOPE -= 1
+	SYMBOL_TABLE.pop()
+
+
+# -----------------------------------------------------------------------------
+#           S T A N D A R D   L I B R A R Y   O P E R A T O R S
+# -----------------------------------------------------------------------------
+
+def wing_add(*args):
+	"""
+	"""
+	args = get_args(args)
+	v = args[0]
+	for i in args[1:]:
+		v += i
+	return v
+
+
+def wing_mod(*args):
+	"""
+	"""
+	args = get_args(args)
+	v = args[0]
+	for i in args[1:]:
+		v %= i
+	return v
+
+
+def wing_sub(*args):
+	"""
+	"""
+	args = get_args(args)
+	v = args[0]
+	for i in args[1:]:
+		v -= i
+	return v
+
+
+def wing_greater_than(*args):
+	"""
+	"""
+	args = get_args(args)
+	if len(args) > 2:
+		raise Exception(f'Too many values ({len(args)}) to compare for greater than operator.')
+	return args[0] > args[1]
+
+
+def wing_less_than(*args):
+	"""
+	"""
+	args = get_args(args)
+	if len(args) > 2:
+		raise Exception(f'Too many values ({len(args)}) to compare for greater than operator.')
+	return args[0] < args[1]
+
+# -----------------------------------------------------------------------------
+#                          W I N G   I N T E R N A L S
+# -----------------------------------------------------------------------------
+
+def is_identifier(string):
+	"""
+	"""
+	try:
+		Identifier.parseString(string)
+		return True
+	except:
+		return False
+
+def dict_recursive_peek(dictn, keys):
+	"""
+	"""
+	try:
+		if len(keys) == 1:
+			dictn[keys[0]]
+		else:
+			get(dictn[keys[0]], keys[1:])
+		return True
+	except:
+		return False
+
+def dict_recursive_get(dictn, keys):
+	"""
+	Recursively indexes a dictionary to retrieve a value.
+
+	Equivalent to:
+	dictn[keys[0]][keys[1]][keys[2]][keys[n]]
+
+	Args:
+		dictn(dict): the dictionary to index.
+		keys(list): the list of keys to index with.
+
+	Returns:
+		The value of the very last nested dict in the base dict.
+	"""
+	if len(keys) == 1:
+		return dictn[keys[0]]
+	else:
+		return get(dictn[keys[0]], keys[1:])
+
 def get_arg_value(arg):
+	"""
+	"""
 	if isinstance(arg, dict):
 		return handle_expression(arg)
 	else:
@@ -233,61 +335,15 @@ def get_args(args):
 
 
 def getkey(symbol):
+	"""
+	"""
 	return [i for i in symbol.keys()][0]
 
 
 def getvalue(symbol):
+	"""
+	"""
 	return symbol[getkey(symbol)]
-
-
-def wing_create_named_scope(name):
-	global SCOPE, SYMBOL_TABLE
-	SYMBOL_TABLE[SCOPE][name] = dict()
-
-
-def wing_push_scope():
-	global SCOPE, SYMBOL_TABLE
-	SCOPE += 1
-	SYMBOL_TABLE.append(dict())
-
-
-def wing_pop_scope():
-	global SCOPE, SYMBOL_TABLE
-	SCOPE -= 1
-	SYMBOL_TABLE.pop()
-
-
-# Represents a list of lists of key-value pairs (variables/names)
-SYMBOL_TABLE = [
-	# Program
-	# Operators
-	# Built-Ins
-	{
-		'Program' : wing_program, # Everyone has access to names in level 0
-		'+' : wing_add,
-		'-' : wing_sub,
-		'>' : wing_greater_than,
-		'<' : wing_less_than,
-		'%' : wing_mod,
-		'push-scope' : wing_push_scope,
-		'pop-scope' : wing_pop_scope,
-		'create-named-scope': wing_create_named_scope,
-		'quit' : wing_exit,
-		'globals' : wing_globals,
-		'exit' : wing_exit,
-		'def' : wing_def,
-		'fn' : wing_lambda,
-		'set' : wing_set,
-		'for' : wing_for,
-		'if' : wing_if,
-		'then' : wing_then,
-		'else' : wing_else,
-		'print' : wing_print,
-		'comment' : wing_comment,
-		'call' : wing_call,
-	}
-]
-SCOPE = 0 # For now, functions have to increment and decrement scope
 
 
 def query_symbol_table(name, scope):
@@ -338,21 +394,71 @@ def handle_value(value):
 
 
 def handle_expression(dictn):
+	"""
+	"""
 	global pp, SCOPE
 	func = query_symbol_table(getkey(dictn), SCOPE)
 	return func(*getvalue(dictn))
 
 
+# -----------------------------------------------------------------------------
+#             W I N G   I N I T I A L   S Y M B O L   T A B L E
+# -----------------------------------------------------------------------------
+
+# Represents a list of lists of key-value pairs (variables/names)
+SYMBOL_TABLE = [
+	# Scope level 0 (anyone can view and use)
+	{
+		# Operators
+		'+' : wing_add,
+		'-' : wing_sub,
+		'>' : wing_greater_than,
+		'<' : wing_less_than,
+		'%' : wing_mod,
+
+		# Built-Ins
+		'Program' : wing_program, # Everyone has access to names in level 0
+		'push-scope' : wing_push_scope,
+		'pop-scope' : wing_pop_scope,
+		'create-named-scope': wing_create_named_scope,
+		'globals' : wing_globals,
+		'quit' : wing_exit,
+		'exit' : wing_exit,
+		'def' : wing_def,
+		'fn' : wing_lambda,
+		'set' : wing_set,
+		'for' : wing_for,
+		'if' : wing_if,
+		'then' : wing_then,
+		'else' : wing_else,
+		'print' : wing_print,
+		'comment' : wing_comment,
+		'call' : wing_call,
+	}
+]
+SCOPE = 0 # For now, functions have to increment and decrement scope
+
+
+# -----------------------------------------------------------------------------
+#                       W I N G   I N T E R P R E T E R
+# -----------------------------------------------------------------------------
+
 def run_file(filename):
+	"""
+	"""
 	# Handle the top-level function named "Program" recursively
 	with open(filename) as file:
 		ast = yaml.load(file)
 		handle_expression({ 'Program' : ast['Program'] })
 
+		# Handle "if __name__ == '__main__"
+		if 'Main' in ast:
+			handle_expression({ 'Program' : ast['Main'] })
 
 
-
-def cli_sanitize_code(code):
+def __cli_sanitize_code(code):
+	"""
+	"""
 	new_code = 'Program:\n'
 
 	for the_line in code.split('\n'):
@@ -368,6 +474,8 @@ def cli_sanitize_code(code):
 
 
 def run_cli():
+	"""
+	"""
 	print('Wing Programming Language')
 	print('Version: 0.1.0\n')
 	print('Press <enter> twice for running single commands.')
@@ -384,7 +492,7 @@ def run_cli():
 			if code.strip() == '':
 				continue
 
-			code = cli_sanitize_code(code)
+			code = __cli_sanitize_code(code)
 
 			# Run the code
 			try:
@@ -405,9 +513,9 @@ def run_cli():
 			code = ''
 
 
-
-
 def main(args):
+	"""
+	"""
 
 	# Make the docstring .EXE friendly
 	usage = __doc__.format(args[0])
