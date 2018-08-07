@@ -29,8 +29,6 @@ def is_identifier(string):
 	except:
 		return False
 
-
-
 def dict_recursive_peek(dictn, keys):
 	try:
 		if len(keys) == 1:
@@ -72,8 +70,6 @@ def wing_hash():
 	"""
 	- set: [asdf, [[key, value], [key, value], [key, value]]]
 	"""
-
-
 
 
 def wing_foreach(*args):
@@ -201,6 +197,14 @@ def wing_print(*args):
 	print(*get_args(args))
 
 
+def wing_def(*args):
+	pass
+
+
+def wing_lambda(*args):
+	pass
+
+
 def wing_program(*args):
 	get_args(args)
 
@@ -268,6 +272,8 @@ SYMBOL_TABLE = [
 		'quit' : wing_exit,
 		'globals' : wing_globals,
 		'exit' : wing_exit,
+		'def' : wing_def,
+		'fn' : wing_lambda,
 		'set' : wing_set,
 		'for' : wing_for,
 		'if' : wing_if,
