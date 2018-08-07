@@ -289,31 +289,17 @@ def query_symbol_table(name, scope):
 
 	keys = name.split('.')
 	var_name = keys[-1]
-	there = None
 
-	# TODO(Pebaz): Clean this up (jump before looking)
-
-	if len(keys) > 1 and dict_recursive_peek(SYMBOL_TABLE[scope], keys[:-1]):
-		there = var_name in dict_recursive_get(SYMBOL_TABLE[scope], keys[:-1])
-	else:
-		there = var_name in SYMBOL_TABLE[scope]
-
-	if not there:
+	try:
+		if len(keys) > 1:
+			return dict_recursive_get(SYMBOL_TABLE[scope], keys[:-1])[var_name]
+		else:
+			return SYMBOL_TABLE[scope][var_name]
+	except:
 		if scope > 0:
 			return query_symbol_table(name, scope - 1)
 		else:
-			pp.pprint(SYMBOL_TABLE)
 			raise Exception(f'"{var_name}" not found.')
-
-	else:
-		try:
-			if len(keys) > 1 and dict_recursive_peek(SYMBOL_TABLE[scope], keys[:-1]):
-				return dict_recursive_get(SYMBOL_TABLE[scope], keys[:-1])[var_name]
-			else:
-				return SYMBOL_TABLE[scope][var_name]
-		except KeyError as e:
-			pp.pprint(SYMBOL_TABLE)
-			raise Exception(f'"{var_name}" not found.') from e
 
 
 def handle_value(value):
