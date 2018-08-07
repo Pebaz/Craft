@@ -1,0 +1,20 @@
+Wing Programming Language
+
+
+Description:
+
+Blah
+
+
+Functional Requirements:
+
+1. Run Software written in Wing
+	WINGF1.1 Must be able to invoke the Wing interpreter via the command line.
+
+
+
+Non-Functional Requirements:
+
+1. Security
+	WINGNF1.1 Access to the underlying interpreter infrastructure must be
+		severely limited or completely denied.
