@@ -7,3 +7,27 @@ Program:
       - print: [$i, $x]
 
   - bill: [123]
+
+  - def:
+    - [add, x, y]
+    - return: ['+' : [$x, $y]]
+
+  - print: [add: [1, 2]]
+
+  - def:
+    - [test_return, arg]
+    - if:
+      - ['=' : [$arg, 1]]
+      - then:
+        - return: ['Return one!']
+
+    - if:
+      - ['=' : [$arg, 2]]
+      - then:
+        - return: ['Return two!']
+
+    - return: ['Return default!']
+
+  - print: [test_return: [1]]
+  - print: [test_return: [2]]
+  - print: [test_return: [123]]

@@ -36,6 +36,21 @@ Identifier = pyparsing.Word(
 
 
 # -----------------------------------------------------------------------------
+#                W I N G   E X C E P T I O N   C L A S S E S
+# -----------------------------------------------------------------------------
+
+class WingFunctionReturnException(Exception):
+	"""
+	For returning values from functions. The `wing_call` function will catch
+	these exceptions and return the value contained in this class as the return
+	value.
+	"""
+	def __init__(self, value):
+		Exception.__init__(self)
+		self.return_value = value
+
+
+# -----------------------------------------------------------------------------
 #            S T A N D A R D   L I B R A R Y   F U N C T I O N S
 # -----------------------------------------------------------------------------
 
@@ -199,6 +214,19 @@ def wing_def(*args):
 	wing_set(func_name, [func_args, func_definition])
 
 
+def wing_return(*args):
+	"""
+	The `wing_call` function will catch this exception and then return the
+	value from it.
+	"""
+	if len(args) > 1:
+		ex = f'Only 1 value can be returned from function, got {len(args)}.'
+		raise Exception(ex)
+
+	value = get_arg_value(args[0])
+	raise WingFunctionReturnException(value)
+
+
 def wing_call(*args):
 	"""
 	6. Return value.
@@ -215,17 +243,35 @@ def wing_call(*args):
 		err += f'{func_name}. Expected {len(arg_names)}, got {len(func_args)}.'
 		raise Exception()
 
+	# Push a new scope to bind all local variables to
 	wing_push_scope()
 
 	# Bind each variable to the new function scope
 	for i in range(len(arg_names)):
 		wing_set(arg_names[i], func_args[i])
 
+	# Return value
+	return_value = None
+
 	# Handle each statement in the function
 	for statement in func_definition:
-		get_arg_value(statement)
 
+		# Run the statement
+		try:
+			get_arg_value(statement)
+
+		# Get return value and stop handling expressions
+		except WingFunctionReturnException as wfre:
+			return_value = wfre.return_value
+			break
+
+		# A real error has occurred :(
+		except Exception as e:
+			traceback.print_exc()
+
+	# Pop the scope and return the return value
 	wing_pop_scope()
+	return return_value
 
 
 def wing_lambda(*args):
@@ -655,6 +701,8 @@ SYMBOL_TABLE = [
 		'quit' : wing_exit,
 		'exit' : wing_exit,
 		'def' : wing_def,
+		'return' : wing_return,
+		'call' : wing_call,
 		'fn' : wing_lambda,
 		'set' : wing_set,
 		'for' : wing_for,
@@ -663,7 +711,6 @@ SYMBOL_TABLE = [
 		'else' : wing_else,
 		'print' : wing_print,
 		'comment' : wing_comment,
-		'call' : wing_call,
 		'and' : wing_and,
 		'or' : wing_or,
 		'not' : wing_not,
