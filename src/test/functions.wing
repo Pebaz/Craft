@@ -41,4 +41,3 @@ Program:
     - print: ["Hello World"]
 
   - wing.hi: []
-  - globals: []

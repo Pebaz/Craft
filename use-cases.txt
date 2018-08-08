@@ -2,6 +2,18 @@ Wing Programming Language
 
 
 
+ - Solidify data types
+ 	- list, hash, int, etc.
+ 	- Make custom types: wing_file, etc.
+ 	
+ - How to open file
+ - importing/including
+ - Sublime text syntax highlighting
+
+
+
+
+
 1.  Print
 2.  Math operators: - / * + % **
 3.  Bitwise operators: & | ^

@@ -279,7 +279,6 @@ def wing_call(*args):
 
 	# Return the scope to where it was before the call,
 	# deleting any scopes in between
-
 	return_point = pop_return_point()
 	for i in range(SCOPE - return_point):
 		wing_pop_scope()
@@ -853,3 +852,10 @@ def main(args):
 
 if __name__ == '__main__':
 	sys.exit(main(sys.argv))
+
+	'''
+	import cProfile
+	def profile():
+		main(sys.argv)
+	cProfile.run('profile()', sort='ncalls')
+	'''
