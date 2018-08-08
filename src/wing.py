@@ -289,7 +289,39 @@ def wing_call(*args):
 
 def wing_lambda(*args):
 	"""
+	TODO(Pebaz): Fix `wing_call` to be able to handle lambdas.
 	"""
+
+def wing_struct(*args):
+	"""
+	"""
+	args = get_args(args)
+	struct_name = args[0]
+	struct_members = args[1:]
+	wing_set(struct_name, struct_members)
+
+
+def wing_new(*args):
+	"""
+	Must be able to be extended to build classes/types later.
+
+	Structs: hold only vars
+	Types: hold vars and functions
+	Classes: hold vars, functions, and support oop
+	"""
+	args = get_args(args)
+	definition, member_values = args
+
+	# If the values provided do not match the definition given,
+	# initialize the blank members to zero.
+	if len(definition) > len(member_values):
+		member_values.extend([
+			None for i in range(len(definition) - len(member_values))
+		])
+
+	# Create a dictionary out of the names and values of the members
+	struct = dict(zip(definition, member_values))
+	return struct
 
 
 def wing_program(*args):
@@ -737,6 +769,8 @@ SYMBOL_TABLE = [
 		'return' : wing_return,
 		'call' : wing_call,
 		'fn' : wing_lambda,
+		'struct' : wing_struct,
+		'new' : wing_new,
 		'set' : wing_set,
 		'for' : wing_for,
 		'if' : wing_if,

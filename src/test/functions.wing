@@ -32,7 +32,7 @@ Program:
   - print: [test_return: [2]]
   - print: [test_return: [123]]
 
-  - print: ["\n\n\n"]
+  - print: []
 
   - create-named-scope: [wing]
 

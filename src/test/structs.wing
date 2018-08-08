@@ -1,0 +1,13 @@
+Program:
+  - print: ["Testing Structs"]
+
+  - struct:
+    - point
+    - x
+    - y
+
+  - set: [coor, new: [$point, 32, 64]]
+  - print: ["coor.x:", $coor.x, "coor.y:", $coor.y]
+
+  - set: [coor2, new: [$point]]
+  - print: ["coor2.x:", $coor2.x, "coor2.y:", $coor2.y]
