@@ -137,12 +137,16 @@ def wing_if(*args):
 	if len(args) > 3 or len(args) < 2:
 		raise Exception(f'Malformed if statement at:\n{args}')
 	
+	# Testing condition
 	condition = args[0]
-	if (handle_expression(condition) if isinstance(condition, dict) else handle_value(condition)):
+
+	# Run the THEN function if the condition is equal to True	
+	if get_arg_value(condition):
 		wing_push_scope()
 		handle_expression(args[1])
 		wing_pop_scope()
 
+	# Handle ELSE clause if it was added
 	elif len(args) == 3:
 		wing_push_scope()
 		handle_expression(args[2])
@@ -243,6 +247,9 @@ def wing_call(*args):
 		err += f'{func_name}. Expected {len(arg_names)}, got {len(func_args)}.'
 		raise Exception()
 
+	# Scope index to return to after call is done
+	push_return_point()
+
 	# Push a new scope to bind all local variables to
 	wing_push_scope()
 
@@ -268,9 +275,10 @@ def wing_call(*args):
 		# A real error has occurred :(
 		except Exception as e:
 			traceback.print_exc()
+			break
 
-	# Pop the scope and return the return value
-	wing_pop_scope()
+	# Pop the scope and return point and return None
+	SCOPE = pop_return_point()
 	return return_value
 
 
@@ -652,6 +660,8 @@ def handle_expression(dictn):
 	global pp, SCOPE
 	func = query_symbol_table(getkey(dictn), SCOPE)
 
+	print(f'Expression: {"    " * SCOPE + getkey(dictn)}')
+
 	# Function is Python built-in function or operator
 	# This is for argument passing
 	if callable(func):
@@ -661,6 +671,24 @@ def handle_expression(dictn):
 	# Pass it's name to the call function
 	else:
 		return wing_call(getkey(dictn), *getvalue(dictn))
+
+
+def push_return_point():
+	"""
+	Adds the scope at the current execution point in the event of a function
+	return or (in the future) an exception occurs.
+	"""
+	global RETURN_POINTS
+	RETURN_POINTS.append(SCOPE)
+
+
+def pop_return_point():
+	"""
+	Return the scope that Wing should return to after a function call or
+	an exception occurs.
+	"""
+	global RETURN_POINTS
+	return RETURN_POINTS.pop()
 
 
 # -----------------------------------------------------------------------------
@@ -717,6 +745,7 @@ SYMBOL_TABLE = [
 	}
 ]
 SCOPE = 0 # For now, functions have to increment and decrement scope
+RETURN_POINTS = []
 
 
 # -----------------------------------------------------------------------------
