@@ -4,22 +4,20 @@ Wing Programming Language
 
 1.  Print
 2.  Math operators: - / * + % **
-3.  Bitwise operators: & |
-4.  Logical keywords: and or not
-5.  Equality: = is < > <= >= (<> | !=)
-6.  def
-7.  fn
-8.  call
-9.  Program
-10. if then else
-11. switch case default
-12. comment
-13. import (imported and evaluated)
-14. include (imported but not evaluated)
-15. for (while | until)
-16. exit quit
-17. globals
-18. push-scope, pop-scope, create-named-scope
+3.  Bitwise operators: & | ^
+4.  Equality: = is < > <= >= (<> | !=)
+5.  Logical keywords: and or not
+6.  def fn call
+7.  Program comment
+8.  if then else
+9.  switch case default
+10. import (imported and evaluated) | include (imported but not evaluated)
+11. for (while | until) foreach
+12. exit quit
+13. globals
+14. push-scope, pop-scope, create-named-scope
+15. str, int, bool, float
+16. Hash (create dictionary since YAML is not friendly)
 
 
 

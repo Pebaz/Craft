@@ -59,18 +59,32 @@ def wing_and(*args):
 	"""
 	Logical AND operator.
 	"""
+	if len(args) > 2:
+		raise Exception(f'Too many operands in logical AND: {args}')
+
+	args = get_args(args)
+	return args[0] and args[1]
 
 
 def wing_or(*args):
 	"""
 	Logical OR operator.
 	"""
+	if len(args) > 2:
+		raise Exception(f'Too many operands in logical OR: {args}')
+
+	args = get_args(args)
+	return args[0] or args[1]
 
 
 def wing_not(*args):
 	"""
 	Logical NOT operator.
 	"""
+	if len(args) > 1:
+		raise Exception(f'Too many operands in logical NOT: {args}')
+
+	return not get_arg_value(args[0])
 
 
 def wing_for(*args):
@@ -611,6 +625,9 @@ SYMBOL_TABLE = [
 		'print' : wing_print,
 		'comment' : wing_comment,
 		'call' : wing_call,
+		'and' : wing_and,
+		'or' : wing_or,
+		'not' : wing_not,
 	}
 ]
 SCOPE = 0 # For now, functions have to increment and decrement scope

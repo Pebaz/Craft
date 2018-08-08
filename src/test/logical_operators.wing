@@ -1,0 +1,9 @@
+# Test retrieved from:
+# https://www.programiz.com/python-programming/operators#logical
+
+Program:
+  - set: [x, True]
+  - set: [y, False]
+  - print: ['x and y is', and: [$x, $y]]
+  - print: ['x or y is', or: [$x, $y]]
+  - print: ['not x is', not: [$x]]
