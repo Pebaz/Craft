@@ -28,6 +28,6 @@ Program:
 
     - return: ['Return default!']
 
-  - print: [test_return: [2]]
   - print: [test_return: [1]]
+  - print: [test_return: [2]]
   - print: [test_return: [123]]

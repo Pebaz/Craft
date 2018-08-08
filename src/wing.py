@@ -138,10 +138,10 @@ def wing_if(*args):
 		raise Exception(f'Malformed if statement at:\n{args}')
 	
 	# Testing condition
-	condition = args[0]
+	c = get_arg_value(args[0])[0]
 
-	# Run the THEN function if the condition is equal to True	
-	if get_arg_value(condition):
+	# Run the THEN function if the condition is equal to True
+	if handle_expression(c) if isinstance(c, dict) else handle_value(c):
 		wing_push_scope()
 		handle_expression(args[1])
 		wing_pop_scope()
@@ -660,7 +660,7 @@ def handle_expression(dictn):
 	global pp, SCOPE
 	func = query_symbol_table(getkey(dictn), SCOPE)
 
-	print(f'Expression: {"    " * SCOPE + getkey(dictn)}')
+	#print(f'Expression: {"    " * SCOPE + getkey(dictn)}')
 
 	# Function is Python built-in function or operator
 	# This is for argument passing
