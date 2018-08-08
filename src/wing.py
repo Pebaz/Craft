@@ -199,40 +199,21 @@ def wing_def(*args):
 	wing_set(func_name, [func_args, func_definition])
 
 
-
 def wing_call(*args):
 	"""
-	If func_type != python_func:
-		pass it to the CALL function.
-
-	1. Bind function name to variable in current scope. This will allow it to
-	   be called.
-
-	2. Push new scope.
-
-	3. Bind all arguments to variables in new scope.
-
-	4. Run all statements.
-
-	5. Pop scope.
-
 	6. Return value.
-
 	"""
 	global SCOPE
-
-	#print(args)
 
 	args = get_args(args)
 	func_name = args[0]
 	func_args = args[1:]
-
 	arg_names, func_definition = query_symbol_table(func_name, SCOPE)
 
-	#print(func_args, func_definition)
-
 	if len(arg_names) != len(func_args):
-		raise Exception(f'Argument count mismatch for function: {func_name}. Expected {len(arg_names)}, got {len(func_args)}.')
+		err = f'Argument count mismatch for function: '
+		err += f'{func_name}. Expected {len(arg_names)}, got {len(func_args)}.'
+		raise Exception()
 
 	wing_push_scope()
 
@@ -588,11 +569,11 @@ def query_symbol_table(name, scope):
 			return dict_recursive_get(SYMBOL_TABLE[scope], keys[:-1])[var_name]
 		else:
 			return SYMBOL_TABLE[scope][var_name]
-	except:
+	except Exception as e:
 		if scope > 0:
 			return query_symbol_table(name, scope - 1)
 		else:
-			raise Exception(f'"{var_name}" not found.')
+			raise Exception(f'"{var_name}" not found.') from e
 
 
 def handle_value(value):
@@ -615,7 +596,6 @@ def handle_value(value):
 				return value[1:]
 		else:
 			return value
-
 	else:
 		return value
 
@@ -732,7 +712,7 @@ def run_cli():
 	print('Wing Programming Language')
 	print('Version: 0.1.0\n')
 	print('Press <enter> twice for running single commands.')
-	print('Type "quit" or press CTCL > C to leave the program.\n')
+	print('Type "quit: []" or press CTCL > C to leave the program.\n')
 
 	try:
 		code = ''
