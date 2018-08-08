@@ -189,12 +189,62 @@ def wing_print(*args):
 
 def wing_def(*args):
 	"""
+	Bind function name to variable in current scope. This will allow it to be
+	called.
 	"""
+	declaration = get_arg_value(args[0])
+	func_name = declaration[0]
+	func_args = declaration[1:]
+	func_definition = args[1:]
+	wing_set(func_name, [func_args, func_definition])
+
 
 
 def wing_call(*args):
 	"""
+	If func_type != python_func:
+		pass it to the CALL function.
+
+	1. Bind function name to variable in current scope. This will allow it to
+	   be called.
+
+	2. Push new scope.
+
+	3. Bind all arguments to variables in new scope.
+
+	4. Run all statements.
+
+	5. Pop scope.
+
+	6. Return value.
+
 	"""
+	global SCOPE
+
+	#print(args)
+
+	args = get_args(args)
+	func_name = args[0]
+	func_args = args[1:]
+
+	arg_names, func_definition = query_symbol_table(func_name, SCOPE)
+
+	#print(func_args, func_definition)
+
+	if len(arg_names) != len(func_args):
+		raise Exception(f'Argument count mismatch for function: {func_name}. Expected {len(arg_names)}, got {len(func_args)}.')
+
+	wing_push_scope()
+
+	# Bind each variable to the new function scope
+	for i in range(len(arg_names)):
+		wing_set(arg_names[i], func_args[i])
+
+	# Handle each statement in the function
+	for statement in func_definition:
+		get_arg_value(statement)
+
+	wing_pop_scope()
 
 
 def wing_lambda(*args):
@@ -575,7 +625,16 @@ def handle_expression(dictn):
 	"""
 	global pp, SCOPE
 	func = query_symbol_table(getkey(dictn), SCOPE)
-	return func(*getvalue(dictn))
+
+	# Function is Python built-in function or operator
+	# This is for argument passing
+	if callable(func):
+		return func(*getvalue(dictn))
+
+	# Function is defined in Wing
+	# Pass it's name to the call function
+	else:
+		return wing_call(getkey(dictn), *getvalue(dictn))
 
 
 # -----------------------------------------------------------------------------

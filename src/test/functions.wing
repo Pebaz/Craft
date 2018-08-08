@@ -1,0 +1,9 @@
+Program:
+  - def:
+    - [bill, x]
+
+    - for:
+      - [i, 10]
+      - print: [$i, $x]
+
+  - bill: [123]
