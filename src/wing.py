@@ -277,8 +277,14 @@ def wing_call(*args):
 			traceback.print_exc()
 			break
 
-	# Pop the scope and return point and return None
-	SCOPE = pop_return_point()
+	# Return the scope to where it was before the call,
+	# deleting any scopes in between
+
+	return_point = pop_return_point()
+	for i in range(SCOPE - return_point):
+		wing_pop_scope()
+
+	# Return the value returned from the function (if any)
 	return return_value
 
 
