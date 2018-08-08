@@ -310,7 +310,7 @@ def wing_new(*args):
 	Classes: hold vars, functions, and support oop
 	"""
 	args = get_args(args)
-	definition, member_values = args
+	definition, member_values = args[0], args[1:]
 
 	# If the values provided do not match the definition given,
 	# initialize the blank members to zero.
