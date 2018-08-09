@@ -14,15 +14,16 @@ List = (
 )
 
 Function = (
-	Identifier +
+	Identifier.setParseAction(lambda x, y, z: print(z, y)) +
 	Literal(':') +
 	List
 )
 
-Function[1][0][1] << ZeroOrMore(Function | List | Value)
+List[0][1] << ZeroOrMore(Function | List | Value)
 
 Program = OneOrMore(Function)
 
 print('Starting test...')
 print(Program.parseString(open('test/syntax_test.txt').read()))
 print('Done!')
+

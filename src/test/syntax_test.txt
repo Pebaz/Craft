@@ -11,7 +11,7 @@ Program:
 
 	def:
 	[
-		[ show-point the-point ]
+		[show-point the-point]
 		print: [$the-point.x $the-point.y]
 	]
 
