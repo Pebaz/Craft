@@ -170,6 +170,12 @@ def wing_globals(*args):
 	"""
 	pp.pprint(SYMBOL_TABLE)
 
+def wing_locals(*args):
+	"""
+	"""
+	global SYMBOL_TABLE, SCOPE
+	pp.pprint(SYMBOL_TABLE[SCOPE])
+
 
 def wing_exit(*args):
 	"""
@@ -233,7 +239,6 @@ def wing_return(*args):
 
 def wing_call(*args):
 	"""
-	6. Return value.
 	"""
 	global SCOPE
 
@@ -255,6 +260,7 @@ def wing_call(*args):
 
 	# Bind each variable to the new function scope
 	for i in range(len(arg_names)):
+		print(func_args[i])
 		wing_set(arg_names[i], func_args[i])
 
 	# Return value
@@ -371,6 +377,21 @@ def wing_pop_scope():
 	SYMBOL_TABLE.pop()
 
 
+def wing_byval(*args):
+	"""
+	Since functions only try one round of evaluation for arguments, arguments
+	can be passed "by value" instead of "by reference/name".
+	"""
+	return args[0]
+
+
+def wing_byref(*args):
+	"""
+	Wrap the dictionary in a protective layer.
+	"""
+
+
+
 # -----------------------------------------------------------------------------
 #           S T A N D A R D   L I B R A R Y   O P E R A T O R S
 # -----------------------------------------------------------------------------
@@ -384,6 +405,15 @@ def wing_add(*args):
 	for i in args[1:]:
 		v += i
 	return v
+
+
+def wing_add_equal(*args):
+	args = get_args(args)
+	v = args[0]
+	for i in args[1:]:
+		v += i
+	
+	wing_set()
 
 
 def wing_sub(*args):
@@ -613,6 +643,7 @@ def dict_recursive_get(dictn, keys):
 
 def get_arg_value(arg):
 	"""
+	Should this recursively eval expressions? What will that do to dictionaries?
 	"""
 	if isinstance(arg, dict):
 		return handle_expression(arg)
@@ -738,6 +769,7 @@ SYMBOL_TABLE = [
 	{
 		# Operators
 		'+' : wing_add,
+		'+=' : wing_add_equal,
 		'-' : wing_sub,
 		'*' : wing_mul,
 		'/' : wing_div,
@@ -763,6 +795,7 @@ SYMBOL_TABLE = [
 		'pop-scope' : wing_pop_scope,
 		'create-named-scope': wing_create_named_scope,
 		'globals' : wing_globals,
+		'locals' : wing_locals,
 		'quit' : wing_exit,
 		'exit' : wing_exit,
 		'def' : wing_def,
@@ -781,6 +814,7 @@ SYMBOL_TABLE = [
 		'and' : wing_and,
 		'or' : wing_or,
 		'not' : wing_not,
+		'byval' : wing_byval,
 	}
 ]
 SCOPE = 0 # For now, functions have to increment and decrement scope
