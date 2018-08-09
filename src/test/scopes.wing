@@ -14,4 +14,5 @@ Program:
 
   - set: [a, new: [$point, 0, 0]]
   - move-point: [byval: [$a]]
+  - move-point: [byval: [$a]]
   - show-point: [byval: [$a]]
