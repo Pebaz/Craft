@@ -142,7 +142,7 @@ def wing_if(*args):
 		raise Exception(f'Malformed if statement at:\n{args}')
 	
 	# Testing condition
-	c = get_arg_value(args[0])[0]
+	c = args[0]
 
 	# Run the THEN function if the condition is equal to True
 	if handle_expression(c) if isinstance(c, dict) else handle_value(c):
@@ -728,10 +728,11 @@ def handle_value(value):
 def handle_expression(dictn):
 	"""
 	"""
-	global pp, SCOPE
+	global pp, SCOPE, DEBUG
 	func = query_symbol_table(getkey(dictn), SCOPE)
 
-	#print(f'Expression: {"    " * SCOPE + getkey(dictn)}')
+	if DEBUG:
+		print(f'Expression: {"    " * SCOPE + getkey(dictn)}')
 
 	# Function is Python built-in function or operator
 	# This is for argument passing
@@ -827,6 +828,10 @@ RETURN_POINTS = []
 # -----------------------------------------------------------------------------
 #                       W I N G   I N T E R P R E T E R
 # -----------------------------------------------------------------------------
+
+# Print debugging for now
+DEBUG = False
+
 
 def __walk(obj):
 	"""
@@ -997,18 +1002,15 @@ def run_cli(yaml_lang):
 def main(args):
 	"""
 	"""
+	global DEBUG
 
 	# Make the docstring .EXE friendly
 	usage = __doc__.format(args[0])
 	arguments = docopt(usage, argv=args[1:], version='Wing 0.1.0')
 
-	#print(arguments)
-
 	if arguments['FILENAME'] != None:
-		if not arguments['--debug']:
-			run_file(arguments['FILENAME'])	
-		else:
-			print('Wing debugger not yet implemented.')
+		DEBUG = arguments['--debug']
+		run_file(arguments['FILENAME'])	
 	else:
 		run_cli(arguments['--yaml'])
 

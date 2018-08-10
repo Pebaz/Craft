@@ -17,12 +17,12 @@ Program:
   - def:
     - [test_return, arg]
     - if:
-      - ['=' : [$arg, 1]]
+      - '=' : [$arg, 1]
       - then:
         - return: ['Return one!']
 
     - if:
-      - ['=' : [$arg, 2]]
+      - '=' : [$arg, 2]
       - then:
         - return: ['Return two!']
 
