@@ -328,3 +328,32 @@ def wing_byval(*args):
 	can be passed "by value" instead of "by reference/name".
 	"""
 	return args[0]
+
+
+__wing__ = {
+	'Program' 			: wing_program,
+	'push-scope' 		: wing_push_scope,
+	'pop-scope' 		: wing_pop_scope,
+	'create-named-scope': wing_create_named_scope,
+	'globals' 			: wing_globals,
+	'locals' 			: wing_locals,
+	'quit' 				: wing_exit,
+	'exit' 				: wing_exit,
+	'def' 				: wing_def,
+	'return' 			: wing_return,
+	'call' 				: wing_call,
+	'fn' 				: wing_lambda,
+	'struct' 			: wing_struct,
+	'new' 				: wing_new,
+	'set' 				: wing_set,
+	'for' 				: wing_for,
+	'if' 				: wing_if,
+	'then' 				: wing_then,
+	'else' 				: wing_else,
+	'print' 			: wing_print,
+	'comment' 			: wing_comment,
+	'and' 				: wing_and,
+	'or' 				: wing_or,
+	'not' 				: wing_not,
+	'byval' 			: wing_byval,
+}

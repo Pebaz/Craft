@@ -1,9 +1,11 @@
+import traceback
 import yaml
-from parser import WingParser
+from wing_parser import WingParser
 
 class WingREPL:
 
 	def __init__(self, wing):
+		self.wing = wing
 		self.wing_parser = WingParser()
 
 	def __cli_sanitize_code(self, code):
@@ -52,7 +54,7 @@ class WingREPL:
 					# Run the code
 					try:
 						ast = yaml.load(code) if self.wing.is_yaml else self.wing_parser.parse(code)
-						output = handle_expression(ast)
+						output = self.wing.handle_expression(ast)
 						
 						if output != None:
 							print(f' -> {output}')

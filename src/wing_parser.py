@@ -1,13 +1,14 @@
 import pyparsing as pyp
 
 class WingParser:
-	def __walk(obj):
+	def __walk(self, obj):
 		"""
 		"""
 		# If it's iterable, and is a "dictionary"
 		if hasattr(obj, '__len__') and len(obj) > 1 and obj[1] == ':':
 			# Return a mapping of it and process it's arguments also
-			return { obj[0] : [__walk(i) for i in obj[2]] }
+			return { obj[0] : [self.__walk(i) for i in obj[2]] }
+
 		# It's a normal value
 		else:
 			# Make it be a Python object, not ParseResults
@@ -16,7 +17,7 @@ class WingParser:
 			return obj
 
 
-	def __type_cast_value(x, y, value):
+	def __type_cast_value(self, x, y, value):
 		"""
 		Convert the following strings to Python objects:
 
@@ -46,14 +47,14 @@ class WingParser:
 			return value
 
 
-	def parse(text):
+	def parse(self, text):
 		"""
 		"""
 		Identifier = pyp.Word(pyp.alphanums + '!#$%&()*+,./;<=>?@\\^-_`{|}~')
 		Value = (
 			pyp.QuotedString('"')
 			| pyp.QuotedString("'")
-			| Identifier.setParseAction(__type_cast_value)
+			| Identifier.setParseAction(self.__type_cast_value)
 		)
 		LBRACKET, RBRACKET, COLON = map(pyp.Suppress, '[]:')
 
@@ -76,4 +77,4 @@ class WingParser:
 			RBRACKET
 		)
 
-		return __walk(Function.parseString(text)[0])
+		return self.__walk(Function.parseString(text)[0])

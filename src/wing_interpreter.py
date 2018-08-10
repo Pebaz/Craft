@@ -1,6 +1,6 @@
 import os.path
 import yaml
-from parser import WingParser
+from wing_parser import WingParser
 
 
 class WingInterpreter:

@@ -197,3 +197,38 @@ def wing_bitwise_right_shift(*args):
 	for i in args[1:]:
 		v >>= i
 	return v
+
+
+def wing_bitwise_right_shift(*args):
+	"""
+	Bitwise right shift operator.
+	"""
+	args = get_args(args)
+	v = args[0]
+	for i in args[1:]:
+		v >>= i
+	return v
+
+
+__wing__ = {
+	'+' 	: wing_add,
+	'+=' 	: wing_add_equal,
+	'-' 	: wing_sub,
+	'*' 	: wing_mul,
+	'/' 	: wing_div,
+	'%' 	: wing_mod,
+	'**' 	: wing_exp,
+	'=' 	: wing_equals,
+	'<>' 	: wing_not_equals,
+	'!=' 	: wing_not_equals,
+	'>' 	: wing_greater_than,
+	'<' 	: wing_less_than,
+	'>=' 	: wing_greater_than_or_equal_to,
+	'<=' 	: wing_less_than_or_equal_to,
+	'&' 	: wing_bitwise_and,
+	'|' 	: wing_bitwise_or,
+	'^' 	: wing_bitwise_xor,
+	'~' 	: wing_bitwise_complement,
+	'<<' 	: wing_bitwise_left_shift,
+	'>>' 	: wing_bitwise_right_shift,
+}
