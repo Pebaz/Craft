@@ -15,8 +15,9 @@ To run the Wing REPL, supply no arguments:
 """
 
 
-import sys, pprint, yaml, pyparsing
-import traceback
+import sys, os.path, pprint, traceback
+import yaml
+import pyparsing as pyp
 from docopt import docopt
 
 # When importing, only load ast['Program']
@@ -30,8 +31,8 @@ from docopt import docopt
 
 pp = pprint.PrettyPrinter(width=1)
 
-Identifier = pyparsing.Word(
-	pyparsing.alphas + '_', bodyChars=pyparsing.alphanums + '_-.'
+Identifier = pyp.Word(
+	pyp.alphas + '_', bodyChars=pyp.alphanums + '_-.'
 )
 
 
@@ -260,7 +261,6 @@ def wing_call(*args):
 
 	# Bind each variable to the new function scope
 	for i in range(len(arg_names)):
-		print(func_args[i])
 		wing_set(arg_names[i], func_args[i])
 
 	# Return value
@@ -728,7 +728,7 @@ def handle_expression(dictn):
 	global pp, SCOPE
 	func = query_symbol_table(getkey(dictn), SCOPE)
 
-	#print(f'Expression: {"    " * SCOPE + getkey(dictn)}')
+	print(f'Expression: {"    " * SCOPE + getkey(dictn)}')
 
 	# Function is Python built-in function or operator
 	# This is for argument passing
@@ -825,17 +825,102 @@ RETURN_POINTS = []
 #                       W I N G   I N T E R P R E T E R
 # -----------------------------------------------------------------------------
 
+def __walk(obj):
+	"""
+	"""
+	# If it's iterable, and is a "dictionary"
+	if hasattr(obj, '__len__') and len(obj) > 1 and obj[1] == ':':
+		# Return a mapping of it and process it's arguments also
+		return { obj[0] : [__walk(i) for i in obj[2]] }
+	# It's a normal value
+	else:
+		# Make it be a Python object, not ParseResults
+		if isinstance(obj, pyp.ParseResults):
+			return obj.asList()
+		return obj
+
+
+def __type_cast_value(x, y, value):
+	"""
+	Convert the following strings to Python objects:
+
+	 * Boolean
+	 * Integer (hex, bin, oct, int)
+	 * None
+	"""
+	value = value[0]
+
+	if value == 'True':
+		return True
+
+	elif value == 'False':
+		return False
+
+	elif value == 'null' or value == 'None':
+		return None
+
+	elif value[0].isnumeric():
+		for base in [2, 8, 10, 16]:
+			try:
+				return int(value, base=base)
+			except:
+				pass
+		return value
+	else:
+		return value
+
+
+def wing_parse(text):
+	"""
+	"""
+	Identifier = pyp.Word(pyp.alphanums + '!#$%&()*+,./;<=>?@\\^-_`{|}~')
+	Value = (pyp.QuotedString('"') | Identifier.setParseAction(__type_cast_value))
+	LBRACKET, RBRACKET, COLON = map(pyp.Suppress, '[]:')
+
+	Function = pyp.Forward()
+	List = pyp.Forward()
+
+	Function << pyp.Dict(pyp.Group(
+		Identifier +
+		pyp.Literal(':') +
+		pyp.Group(
+			LBRACKET +
+			pyp.ZeroOrMore(Function | List | Value) +
+			RBRACKET
+		)
+	))
+
+	List << pyp.Group(
+		LBRACKET +
+		pyp.ZeroOrMore(Value | List) +
+		RBRACKET
+	)
+
+	return __walk(Function.parseString(text)[0])
+
+
 def run_file(filename):
 	"""
 	"""
 	# Handle the top-level function named "Program" recursively
 	with open(filename) as file:
-		ast = yaml.load(file)
+		extension = os.path.splitext(filename)[1]
+
+		ast = None
+
+		if extension.lower() == '.yaml':
+			ast = yaml.load(file)
+
+		elif extension.lower() == '.wing':
+			ast = wing_parse(file.read())
+
 		handle_expression({ 'Program' : ast['Program'] })
 
 		# Handle "if __name__ == '__main__"
 		if 'Main' in ast:
 			handle_expression({ 'Program' : ast['Main'] })
+
+
 
 
 def __cli_sanitize_code(code):
