@@ -1,29 +1,26 @@
 from pyparsing import *
 
-Identifier = Word(alphanums + '!#$%&()*+,./;<=>?@\\^_`{|}~')
+Identifier = Word(alphanums + '!#$%&()*+,./;<=>?@\\^-_`{|}~')
+Value = (QuotedString('"') | Identifier)
+LBRACKET, RBRACKET, COLON = map(Suppress, '[]:')
 
-Value = (
-	QuotedString('"')
-	| Identifier
+Function = Forward()
+List = Forward()
+
+Function << Dict(Group(
+	(Identifier + Literal(':')) +
+	LBRACKET +
+	ZeroOrMore(Function | List | Value) +
+	RBRACKET
+))
+
+List << Group(
+	LBRACKET +
+	ZeroOrMore(Value) +
+	RBRACKET
 )
 
-List = (
-	Literal('[') +
-	Forward() +
-	Literal(']')
-)
+print(Function.parseString(open('test/syntax_test.txt').read()))
 
-Function = (
-	Identifier.setParseAction(lambda x, y, z: print(z, y)) +
-	Literal(':') +
-	List
-)
 
-List[0][1] << ZeroOrMore(Function | List | Value)
-
-Program = OneOrMore(Function)
-
-print('Starting test...')
-print(Program.parseString(open('test/syntax_test.txt').read()))
-print('Done!')
 
