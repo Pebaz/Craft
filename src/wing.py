@@ -339,11 +339,12 @@ def wing_program(*args):
 	get_args(args)
 
 
-def wing_create_named_scope(name):
+def wing_create_named_scope(*args):
 	"""
 	"""
+	args = get_args(args)
 	global SCOPE, SYMBOL_TABLE
-	SYMBOL_TABLE[SCOPE][name] = dict()
+	SYMBOL_TABLE[SCOPE][args[0]] = dict()
 
 
 def wing_push_named_scope(name):
