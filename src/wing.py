@@ -2,13 +2,16 @@
 
 Usage:
   {0}
-  {0} [-d | --debug] FILENAME
   {0} (-v | --version)
+  {0} [-y | --yaml]
+  {0} [-y | --yaml] FILENAME
+  {0} [-d | --debug] FILENAME
 
 Options:
   FILE            Run a Wing Program From Source
   -v --version    Display Wing Version and Exit
   -d --debug      Debug a Wing Program
+  -y --yaml       Interpret YAML as a Wing program
 
 To run the Wing REPL, supply no arguments:
   {0}
@@ -728,7 +731,7 @@ def handle_expression(dictn):
 	global pp, SCOPE
 	func = query_symbol_table(getkey(dictn), SCOPE)
 
-	print(f'Expression: {"    " * SCOPE + getkey(dictn)}')
+	#print(f'Expression: {"    " * SCOPE + getkey(dictn)}')
 
 	# Function is Python built-in function or operator
 	# This is for argument passing
@@ -874,7 +877,11 @@ def wing_parse(text):
 	"""
 	"""
 	Identifier = pyp.Word(pyp.alphanums + '!#$%&()*+,./;<=>?@\\^-_`{|}~')
-	Value = (pyp.QuotedString('"') | Identifier.setParseAction(__type_cast_value))
+	Value = (
+		pyp.QuotedString('"')
+		| pyp.QuotedString("'")
+		| Identifier.setParseAction(__type_cast_value)
+	)
 	LBRACKET, RBRACKET, COLON = map(pyp.Suppress, '[]:')
 
 	Function = pyp.Forward()
@@ -921,8 +928,6 @@ def run_file(filename):
 			handle_expression({ 'Program' : ast['Main'] })
 
 
-
-
 def __cli_sanitize_code(code):
 	"""
 	"""
@@ -940,13 +945,16 @@ def __cli_sanitize_code(code):
 	return new_code
 
 
-def run_cli():
+def run_cli(yaml_lang):
 	"""
 	"""
 	print('Wing Programming Language')
 	print('Version: 0.1.0\n')
 	print('Press <enter> twice for running single commands.')
 	print('Type "quit: []" or press CTCL > C to leave the program.\n')
+
+	if yaml_lang:
+		print('NOTE: Interpreting YAML code as Wing syntax.')
 
 	try:
 		code = ''
@@ -960,11 +968,13 @@ def run_cli():
 				if code.strip() == '':
 					continue
 
-				code = __cli_sanitize_code(code)
+				if yaml_lang:
+					code = __cli_sanitize_code(code)
 
 				# Run the code
 				try:
-					output = handle_expression(yaml.load(code))
+					ast = yaml.load(code) if yaml_lang else wing_parse(code)
+					output = handle_expression(ast)
 					
 					if output != None:
 						print(f' -> {output}')
@@ -1000,7 +1010,7 @@ def main(args):
 		else:
 			print('Wing debugger not yet implemented.')
 	else:
-		run_cli()
+		run_cli(arguments['--yaml'])
 
 
 if __name__ == '__main__':
