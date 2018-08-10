@@ -863,7 +863,7 @@ def __type_cast_value(x, y, value):
 		return None
 
 	elif value[0].isnumeric():
-		for base in [2, 8, 10, 16]:
+		for base in [10, 2, 8, 16]:
 			try:
 				return int(value, base=base)
 			except:
