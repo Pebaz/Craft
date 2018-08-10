@@ -24,7 +24,7 @@ List << Group(
 	RBRACKET
 )
 
-results = Function.parseString(open('test/syntax_test.txt').read())
+results = Function.parseString(open('test/syntax_test.wing').read())
 
 pp = PrettyPrinter(width=1)
 
@@ -39,39 +39,3 @@ def walk(obj):
 		return obj
 
 pp.pprint(walk(results[0]))
-
-
-{
-	'Program':
-	{
-		'print': [],
-		'struct': ['point', 'x', 'y'],
-		'def': {'set': {'+': ['$the-point.x', '4']}},
-		'set': {'new': ['$point', '0', '0']},
-		'move-point': {'byval': ['$a']},
-		'show-point': {'byval': ['$a']}
-	}
-}
-
-['Program', ':',
-	[
-		['print', ':', []],
-		['struct', ':', ['point', 'x', 'y']],
-		['def', ':',
-			[
-				['show-point', 'the-point'],
-				['print', ':', ['$the-point.x', '$the-point.y']]
-			]
-		],
-		['def', ':',
-			[
-				['move-point', 'the-point'],
-				['set', ':', ['$the-point.x', ['+', ':', ['$the-point.x', '4']]]]
-			]
-		],
-		['set', ':', ['a', ['new', ':', ['$point', '0', '0']]]],
-		['move-point', ':', [['byval', ':', ['$a']]]],
-		['move-point', ':', [['byval', ':', ['$a']]]],
-		['show-point', ':', [['byval', ':', ['$a']]]]
-	]
-]
