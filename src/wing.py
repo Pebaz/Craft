@@ -529,13 +529,13 @@ def wing_add_equal(*args):
 	'+=' : [15, 2]
 	# Error name 15 not found
 	"""
+	var_name = args[0].replace('$', '')
 	args = get_args(args)
-	var_name = args[0]
 	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v += i
 	
-	wing_set()
+	wing_set(var_name, v)
 
 
 def wing_sub(*args):
