@@ -220,9 +220,10 @@ def wing_comment(*args):
 	"""
 
 
-def wing_set(name, value):
+def wing_set(*args):
 	"""
 	"""
+	name, value = get_args(args)
 	global SYMBOL_TABLE, SCOPE
 
 	if not is_identifier(name):
