@@ -89,8 +89,6 @@ def __wing_import__query_dir(filename):
 		mod_yaml = p / f'{filename}.yaml'
 		mod_wing = p / f'{filename}.wing'
 		mod_py = p / f'{filename}.py'
-
-		print(mod_yaml)
 		
 		if mod_yaml.exists():
 			return mod_yaml
@@ -132,16 +130,14 @@ def wing_import(*args):
 		to_import = impp if isinstance(impp, str) else impp[0]
 		module = __wing_import__query_dir(to_import.replace('.', '/'))
 
-		print('------------->', module)
-
 		with open(str(module)) as file:
 			if module.suffix == '.yaml':
 				ast = yaml.load(file.read())
-
-				#handle_expression({ 'Program' : ast['Program'] })
+				handle_expression({ 'Program' : ast['Program'] })
 
 			elif module.suffix == '.wing':
 				ast = wing_parse(file.read())
+				handle_expression({ 'Program' : ast['Program'] })
 
 			else:
 				pymod = module.name.replace(module.suffix, '')

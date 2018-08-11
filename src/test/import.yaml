@@ -6,6 +6,10 @@ Program:
     - wing_import_test2
     - wing_import_test3
     - wing.lang.builtins
-    - [wing.lang.builtins, name1] # From import
+    #- [wing.lang.builtins, name1] # From import
 
+  - print: ["Calling wing_import_test3.func1 ->"]
   - func1: []
+
+  - print: ["Printing a name obtained from wing.lang.builtins ->"]
+  - print: [$name1]
