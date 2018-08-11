@@ -1,0 +1,7 @@
+Program:
+  - print: ["Testing Imports"]
+
+  - import:
+    - wing_import_test
+    - wing_import_test2
+    - wing_import_test3

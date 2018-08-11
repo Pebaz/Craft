@@ -74,6 +74,22 @@ def wing_while(condition, statements):
 	"""
 
 
+def wing_import(*args):
+	"""
+	1. YAML import
+	2. Wing import
+	3. Py import
+	"""
+	args = get_args(args)
+
+	for imp in args:
+		print('import:', imp)
+
+		with open(imp + '.yaml') as file:
+			ast = yaml.load(file.read())
+			handle_expression({ 'Program' : ast['Program'] })
+
+
 def wing_hash():
 	"""
 	- set: [asdf, [[key, value], [key, value], [key, value]]]
@@ -832,6 +848,7 @@ SYMBOL_TABLE = [
 		'or' : wing_or,
 		'not' : wing_not,
 		'byval' : wing_byval,
+		'import' : wing_import,
 	}
 ]
 SCOPE = 0 # For now, functions have to increment and decrement scope

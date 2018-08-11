@@ -1,0 +1,15 @@
+Program:
+  - struct:
+    - point
+    - x
+    - y
+
+  - def:
+    - [show-point, the-point]
+    - print: [$the-point.x, $the-point.y]
+
+  - def:
+    - [move-point, the-point, inc-x, inc-y]
+    - set: [the-point.x +: [$the-point.x, inc-x]]
+    - set: [the-point.x +: [$the-point.y, inc-y]]
+
