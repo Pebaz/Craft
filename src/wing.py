@@ -18,7 +18,7 @@ To run the Wing REPL, supply no arguments:
 """
 
 
-import sys, os, os.path, pprint, traceback
+import sys, os, os.path, pprint, traceback, imp
 from pathlib import Path
 import yaml
 import pyparsing as pyp
@@ -75,50 +75,34 @@ def wing_while(condition, statements):
 	"""
 
 
-def __wing_import__is_package(folder_name):
-	"""
-	Checks to see if a folder contains a '__wing__.yaml' or '__wing__.wing'.
-	"""
-
-
-def __wing_import__get_subdirs(path):
-	for the_dir, subdirs, files in os.walk(path):
-		return [the_dir + '/' + i for i in subdirs]
-
-
 def __wing_import__query_dir(filename):
 	"""
 	Returns the YAML/WING/PY file after searching the path.
 	"""
 	global WING_PATH
 
-
 	for path in WING_PATH:
 		p = Path(path)
 
-		if '/' not in filename:
-			mod_yaml = p / f'{filename}.yaml'
-			mod_wing = p / f'{filename}.wing'
-			mod_py = p / f'{filename}.py'
-			
-			if mod_yaml.exists():
-				return str(mod_yaml)
+		# Importing a module not in a package
 
-			elif mod_wing.exists():
-				return str(mod_wing)
+		mod_yaml = p / f'{filename}.yaml'
+		mod_wing = p / f'{filename}.wing'
+		mod_py = p / f'{filename}.py'
 
-			elif mod_py.exists():
-				return str(mod_py)
+		print(mod_yaml)
+		
+		if mod_yaml.exists():
+			return mod_yaml
+
+		elif mod_wing.exists():
+			return mod_wing
+
+		elif mod_py.exists():
+			return mod_py
 
 	# If none has been returned, it doesn't exist in WING_PATH
 	raise Exception(f'Cannot import name: {filename}. No matching .WING, .YAML or .PY was found in WING_PATH.')
-
-
-	# Only search it if it's a Wing package
-	if '__wing__.yaml' not in files or '__wing__.wing' not in files:
-		pass
-
-			
 		
 
 def wing_import(*args):
@@ -144,33 +128,32 @@ def wing_import(*args):
 	"""
 	args = get_args(args)
 
-	for imp in args:
+	for impp in args:
+		to_import = impp if isinstance(impp, str) else impp[0]
+		module = __wing_import__query_dir(to_import.replace('.', '/'))
 
-		file_stub = imp
+		print('------------->', module)
 
-		# Standard import
-		if isinstance(imp, str):
-			# Module import
-			if '.' not in imp:
-				file_stub = imp.replace('.', '/')
+		with open(str(module)) as file:
+			if module.suffix == '.yaml':
+				ast = yaml.load(file.read())
 
-			# Package import
+				#handle_expression({ 'Program' : ast['Program'] })
+
+			elif module.suffix == '.wing':
+				ast = wing_parse(file.read())
+
 			else:
-				file_stub = imp
+				pymod = module.name.replace(module.suffix, '')
+				pymod = imp.load_source(pymod, str(module))
 
-		# From import
-		elif isinstance(imp, list):
-			raise Exception('From imports are not supported at this time.')
+				if '__wing__' not in dir(pymod):
+					raise Exception('Unable to import Python module: no __wing__ variable.')
 
-
-		print('------------->', __wing_import__query_dir(file_stub))
-
-		continue
-
-		# Import contents
-		with open(file_stub + '.yaml') as file:
-			ast = yaml.load(file.read())
-			handle_expression({ 'Program' : ast['Program'] })
+				for name in pymod.__wing__:
+					wing_set(name, pymod.__wing__[name])
+					
+		
 
 
 	# If python import, simply set(key, value) for key in __wing__
