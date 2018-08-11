@@ -19,6 +19,7 @@ To run the Wing REPL, supply no arguments:
 
 
 import sys, os, os.path, pprint, traceback
+from pathlib import Path
 import yaml
 import pyparsing as pyp
 from docopt import docopt
@@ -74,13 +75,51 @@ def wing_while(condition, statements):
 	"""
 
 
+def __wing_import__is_package(folder_name):
+	"""
+	Checks to see if a folder contains a '__wing__.yaml' or '__wing__.wing'.
+	"""
+
+
+def __wing_import__get_subdirs(path):
+	for the_dir, subdirs, files in os.walk(path):
+		return [the_dir + '/' + i for i in subdirs]
+
+
 def __wing_import__query_dir(filename):
 	"""
 	Returns the YAML/WING/PY file after searching the path.
 	"""
 	global WING_PATH
+
+
 	for path in WING_PATH:
+		p = Path(path)
+
+		if '/' not in filename:
+			mod_yaml = p / f'{filename}.yaml'
+			mod_wing = p / f'{filename}.wing'
+			mod_py = p / f'{filename}.py'
+			
+			if mod_yaml.exists():
+				return str(mod_yaml)
+
+			elif mod_wing.exists():
+				return str(mod_wing)
+
+			elif mod_py.exists():
+				return str(mod_py)
+
+	# If none has been returned, it doesn't exist in WING_PATH
+	raise Exception(f'Cannot import name: {filename}. No matching .WING, .YAML or .PY was found in WING_PATH.')
+
+
+	# Only search it if it's a Wing package
+	if '__wing__.yaml' not in files or '__wing__.wing' not in files:
 		pass
+
+			
+		
 
 def wing_import(*args):
 	"""
@@ -113,17 +152,29 @@ def wing_import(*args):
 		if isinstance(imp, str):
 			# Module import
 			if '.' not in imp:
-				pass
+				file_stub = imp.replace('.', '/')
 
 			# Package import
-
+			else:
+				file_stub = imp
 
 		# From import
+		elif isinstance(imp, list):
+			raise Exception('From imports are not supported at this time.')
+
+
+		print('------------->', __wing_import__query_dir(file_stub))
+
+		continue
 
 		# Import contents
 		with open(file_stub + '.yaml') as file:
 			ast = yaml.load(file.read())
 			handle_expression({ 'Program' : ast['Program'] })
+
+
+	# If python import, simply set(key, value) for key in __wing__
+	# from pymod import __wing__ <- doesn't run code?
 
 
 def wing_hash():

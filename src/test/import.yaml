@@ -5,4 +5,5 @@ Program:
     - wing_import_test
     - wing_import_test2
     - wing_import_test3
-    - [wing.lang.builtins, name1] # From import
+    #- wing.lang.builtins
+    #- [wing.lang.builtins, name1] # From import

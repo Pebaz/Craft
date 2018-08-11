@@ -1,3 +1,8 @@
+"""
+The wing_core.py must be able to be imported by everyone so that extensions can
+be made.
+"""
+
 def wing_func1(*args):
 	print("wing_func1!!!")
 
