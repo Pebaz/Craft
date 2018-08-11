@@ -18,7 +18,7 @@ To run the Wing REPL, supply no arguments:
 """
 
 
-import sys, os.path, pprint, traceback
+import sys, os, os.path, pprint, traceback
 import yaml
 import pyparsing as pyp
 from docopt import docopt
@@ -74,18 +74,54 @@ def wing_while(condition, statements):
 	"""
 
 
+def __wing_import__query_dir(filename):
+	"""
+	Returns the YAML/WING/PY file after searching the path.
+	"""
+	global WING_PATH
+	for path in WING_PATH:
+		pass
+
 def wing_import(*args):
 	"""
 	1. YAML import
 	2. Wing import
 	3. Py import
+
+	```YAML
+	# Import searches start from CWD and go inward:
+	import: [wing.lang.builtins]
+	# It would look in <CWD>/wing/lang/builtins
+
+	# From imports:
+	import: [[wing.lang.builtins, name1]]
+	# from wing.lang.builtins import name1
+	```
+
+	1. Get import name.
+	2. If no dots, search CWD
+	3. If not found, search WingPath (in future)
+	4. If dots, search all WingPath dirs for it
 	"""
 	args = get_args(args)
 
 	for imp in args:
-		print('import:', imp)
 
-		with open(imp + '.yaml') as file:
+		file_stub = imp
+
+		# Standard import
+		if isinstance(imp, str):
+			# Module import
+			if '.' not in imp:
+				pass
+
+			# Package import
+
+
+		# From import
+
+		# Import contents
+		with open(file_stub + '.yaml') as file:
 			ast = yaml.load(file.read())
 			handle_expression({ 'Program' : ast['Program'] })
 
@@ -220,10 +256,13 @@ def wing_comment(*args):
 	"""
 
 
-def wing_set(*args):
+def wing_set(name, value):
 	"""
+	This function does not evaluate arguments because it needs the raw variable
+	value untouched. For instance, if a map (dict) is passed, it will get run
+	as a function rather than a value. This enforces that the value passed is
+	exactly the value that is set.
 	"""
-	name, value = get_args(args)
 	global SYMBOL_TABLE, SCOPE
 
 	if not is_identifier(name):
@@ -424,6 +463,14 @@ def wing_byref(*args):
 	"""
 
 
+def wing_dir(value):
+	global pp
+	if isinstance(value, str):
+		pp.pprint(get_arg_value(value))
+	elif isinstance(value, dict):
+		pp.pprint(dict)
+
+
 
 # -----------------------------------------------------------------------------
 #           S T A N D A R D   L I B R A R Y   O P E R A T O R S
@@ -441,8 +488,20 @@ def wing_add(*args):
 
 
 def wing_add_equal(*args):
+	"""
+	Usage:
+
+	set: [a, 5]
+	'+=' : [$$a, 2]
+	print: [$a] # prints 7
+
+	Error condtion:
+	'+=' : [15, 2]
+	# Error name 15 not found
+	"""
 	args = get_args(args)
-	v = args[0]
+	var_name = args[0]
+	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v += i
 	
@@ -743,16 +802,18 @@ def handle_value(value):
 	# Is it a variable:
 	if isinstance(value, str):
 
-		# Force string value
+		# Treat as variable if not second $
 		if value.startswith('$'):
 			if value[1] != '$':
 				return query_symbol_table(value[1:], SCOPE)
+
+			# Shorthand syntax for passing by value: $$var_name
 			else:
 				return value[1:]
-		else:
-			return value
-	else:
-		return value
+
+	# Just return the value if there is nothing special about it
+	return value
+
 
 
 def handle_expression(dictn):
@@ -850,10 +911,12 @@ SYMBOL_TABLE = [
 		'not' : wing_not,
 		'byval' : wing_byval,
 		'import' : wing_import,
+		'dir' : wing_dir,
 	}
 ]
 SCOPE = 0 # For now, functions have to increment and decrement scope
 RETURN_POINTS = []
+WING_PATH = [os.getcwd()]
 
 
 # -----------------------------------------------------------------------------

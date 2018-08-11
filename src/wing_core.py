@@ -1,0 +1,1 @@
+SCOPE = 0 # For now, functions have to increment and decrement scope
