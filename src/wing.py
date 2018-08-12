@@ -24,6 +24,10 @@ import yaml
 import pyparsing as pyp
 from docopt import docopt
 
+from wing_core import *
+from wing_parser import *
+from wing_exceptions import *
+
 # When importing, only load ast['Program']
 # When running, first run ast['Program'], then run ast['Main']
 
@@ -46,24 +50,7 @@ Part out the different sections:
 
 pp = pprint.PrettyPrinter(width=1)
 
-Identifier = pyp.Word(
-	pyp.alphas + '_', bodyChars=pyp.alphanums + '_-.'
-)
 
-
-# -----------------------------------------------------------------------------
-#                W I N G   E X C E P T I O N   C L A S S E S
-# -----------------------------------------------------------------------------
-
-class WingFunctionReturnException(Exception):
-	"""
-	For returning values from functions. The `wing_call` function will catch
-	these exceptions and return the value contained in this class as the return
-	value.
-	"""
-	def __init__(self, value):
-		Exception.__init__(self)
-		self.return_value = value
 
 
 # -----------------------------------------------------------------------------
@@ -133,7 +120,8 @@ def wing_import(*args):
 		with open(str(module)) as file:
 			if module.suffix == '.yaml':
 				ast = yaml.load(file.read())
-				handle_expression({ 'Program' : ast['Program'] })
+				if ast != None:
+					handle_expression({ 'Program' : ast['Program'] })
 
 			elif module.suffix == '.wing':
 				ast = wing_parse(file.read())
@@ -286,28 +274,6 @@ def wing_comment(*args):
 	"""
 
 
-def wing_set(name, value):
-	"""
-	This function does not evaluate arguments because it needs the raw variable
-	value untouched. For instance, if a map (dict) is passed, it will get run
-	as a function rather than a value. This enforces that the value passed is
-	exactly the value that is set.
-	"""
-	global SYMBOL_TABLE, SCOPE
-
-	if not is_identifier(name):
-		raise Exception(f'"{name}" not a valid identifier.')
-
-	value = get_arg_value(value)
-	keys = name.split('.')
-	var_name = keys[-1]
-
-	if len(keys) > 1:
-		dict_recursive_get(SYMBOL_TABLE[SCOPE], keys[:-1])[var_name] = value
-	else:
-		SYMBOL_TABLE[SCOPE][var_name] = value
-
-
 def wing_print(*args):
 	"""
 	"""
@@ -337,61 +303,6 @@ def wing_return(*args):
 
 	value = get_arg_value(args[0])
 	raise WingFunctionReturnException(value)
-
-
-def wing_call(*args):
-	"""
-	"""
-	global SCOPE
-
-	args = get_args(args)
-	func_name = args[0]
-	func_args = args[1:]
-	arg_names, func_definition = query_symbol_table(func_name, SCOPE)
-
-	if len(arg_names) != len(func_args):
-		err = f'Argument count mismatch for function: '
-		err += f'{func_name}. Expected {len(arg_names)}, got {len(func_args)}.'
-		raise Exception()
-
-	# Scope index to return to after call is done
-	push_return_point()
-
-	# Push a new scope to bind all local variables to
-	wing_push_scope()
-
-	# Bind each variable to the new function scope
-	for i in range(len(arg_names)):
-		wing_set(arg_names[i], func_args[i])
-
-	# Return value
-	return_value = None
-
-	# Handle each statement in the function
-	for statement in func_definition:
-
-		# Run the statement
-		try:
-			get_arg_value(statement)
-
-		# Get return value and stop handling expressions
-		except WingFunctionReturnException as wfre:
-			return_value = wfre.return_value
-			break
-
-		# A real error has occurred :(
-		except Exception as e:
-			traceback.print_exc()
-			break
-
-	# Return the scope to where it was before the call,
-	# deleting any scopes in between
-	return_point = pop_return_point()
-	for i in range(SCOPE - return_point):
-		wing_pop_scope()
-
-	# Return the value returned from the function (if any)
-	return return_value
 
 
 def wing_lambda(*args):
@@ -437,46 +348,7 @@ def wing_program(*args):
 	get_args(args)
 
 
-def wing_create_named_scope(*args):
-	"""
-	"""
-	args = get_args(args)
-	global SCOPE, SYMBOL_TABLE
-	SYMBOL_TABLE[SCOPE][args[0]] = dict()
 
-
-def wing_push_named_scope(name):
-	"""
-	Used in classes:
-	push "this"
-
-	this.name
-	this.age
-
-	Note that this is pushed DURING execution of a class constructor or method.
-	"""
-
-
-def wing_pop_named_scope(name):
-	"""
-	Used to remove a named scope temporarily?
-	"""
-
-
-def wing_push_scope():
-	"""
-	"""
-	global SCOPE, SYMBOL_TABLE
-	SCOPE += 1
-	SYMBOL_TABLE.append(dict())
-
-
-def wing_pop_scope():
-	"""
-	"""
-	global SCOPE, SYMBOL_TABLE
-	SCOPE -= 1
-	SYMBOL_TABLE.pop()
 
 
 def wing_byval(*args):
@@ -491,6 +363,7 @@ def wing_byref(*args):
 	"""
 	Wrap the dictionary in a protective layer.
 	"""
+	return get_args(args)
 
 
 def wing_dir(value):
@@ -719,234 +592,7 @@ def wing_bitwise_right_shift(*args):
 	return v
 
 
-# -----------------------------------------------------------------------------
-#                          W I N G   I N T E R N A L S
-# -----------------------------------------------------------------------------
 
-def is_identifier(string):
-	"""
-	"""
-	try:
-		Identifier.parseString(string)
-		return True
-	except:
-		return False
-
-def dict_recursive_peek(dictn, keys):
-	"""
-	"""
-	try:
-		if len(keys) == 1:
-			dictn[keys[0]]
-		else:
-			get(dictn[keys[0]], keys[1:])
-		return True
-	except:
-		return False
-
-def dict_recursive_get(dictn, keys):
-	"""
-	Recursively indexes a dictionary to retrieve a value.
-
-	Equivalent to:
-	dictn[keys[0]][keys[1]][keys[2]][keys[n]]
-
-	Args:
-		dictn(dict): the dictionary to index.
-		keys(list): the list of keys to index with.
-
-	Returns:
-		The value of the very last nested dict in the base dict.
-	"""
-	if len(keys) == 1:
-		return dictn[keys[0]]
-	else:
-		return get(dictn[keys[0]], keys[1:])
-
-def get_arg_value(arg):
-	"""
-	Should this recursively eval expressions? What will that do to dictionaries?
-	"""
-	if isinstance(arg, dict):
-		return handle_expression(arg)
-	else:
-		return handle_value(arg)
-
-
-def get_args(args):
-	"""
-	Args:
-		args: a list of expressions or values.
-	"""
-	return [
-		handle_expression(i)
-		if isinstance(i, dict)
-		else handle_value(i)
-		for i in args
-	]
-
-
-def getkey(symbol):
-	"""
-	"""
-	return [i for i in symbol.keys()][0]
-
-
-def getvalue(symbol):
-	"""
-	"""
-	return symbol[getkey(symbol)]
-
-
-def query_symbol_table(name, scope):
-	"""
-	Looks at each scope starting at the scope index given and works its way up
-	to zero.
-	"""
-	global SYMBOL_TABLE
-
-	keys = name.split('.')
-	var_name = keys[-1]
-
-	try:
-		if len(keys) > 1:
-			return dict_recursive_get(SYMBOL_TABLE[scope], keys[:-1])[var_name]
-		else:
-			return SYMBOL_TABLE[scope][var_name]
-	except Exception as e:
-		if scope > 0:
-			return query_symbol_table(name, scope - 1)
-		else:
-			raise Exception(f'"{var_name}" not found.') from e
-
-
-def handle_value(value):
-	"""
-	Can be a raw value or a name.
-
-	Checks to see if the value is a straight value or a name. If a name is
-	suspected, check to see if a leading tick: '$' is used, denoting that a
-	string value is being passed, not a variable.
-	"""
-
-	# Is it a variable:
-	if isinstance(value, str):
-
-		# Treat as variable if not second $
-		if value.startswith('$'):
-			if value[1] != '$':
-				return query_symbol_table(value[1:], SCOPE)
-
-			# Shorthand syntax for passing by value: $$var_name
-			else:
-				return value[1:]
-
-	# Just return the value if there is nothing special about it
-	return value
-
-
-
-def handle_expression(dictn):
-	"""
-	"""
-	global pp, SCOPE, DEBUG
-	func = query_symbol_table(getkey(dictn), SCOPE)
-
-	if DEBUG:
-		print(f'Expression: {"    " * SCOPE + getkey(dictn)}')
-
-	# Function is Python built-in function or operator
-	# This is for argument passing
-	if callable(func):
-		return func(*getvalue(dictn))
-
-	# Function is defined in Wing
-	# Pass it's name to the call function
-	else:
-		return wing_call(getkey(dictn), *getvalue(dictn))
-
-
-def push_return_point():
-	"""
-	Adds the scope at the current execution point in the event of a function
-	return or (in the future) an exception occurs.
-	"""
-	global RETURN_POINTS
-	RETURN_POINTS.append(SCOPE)
-
-
-def pop_return_point():
-	"""
-	Return the scope that Wing should return to after a function call or
-	an exception occurs.
-	"""
-	global RETURN_POINTS
-	return RETURN_POINTS.pop()
-
-
-# -----------------------------------------------------------------------------
-#             W I N G   I N I T I A L   S Y M B O L   T A B L E
-# -----------------------------------------------------------------------------
-
-# Represents a list of lists of key-value pairs (variables/names)
-SYMBOL_TABLE = [
-	# Scope level 0 (anyone can view and use)
-	{
-		# Operators
-		'+' : wing_add,
-		'+=' : wing_add_equal,
-		'-' : wing_sub,
-		'*' : wing_mul,
-		'/' : wing_div,
-		'%' : wing_mod,
-		'**' : wing_exp,
-		'=' : wing_equals,
-		'<>' : wing_not_equals,
-		'!=' : wing_not_equals,
-		'>' : wing_greater_than,
-		'<' : wing_less_than,
-		'>=' : wing_greater_than_or_equal_to,
-		'<=' : wing_less_than_or_equal_to,
-		'&' : wing_bitwise_and,
-		'|' : wing_bitwise_or,
-		'^' : wing_bitwise_xor,
-		'~' : wing_bitwise_complement,
-		'<<' : wing_bitwise_left_shift,
-		'>>' : wing_bitwise_right_shift,
-
-		# Built-Ins
-		'Program' : wing_program, # Everyone has access to names in level 0
-		'push-scope' : wing_push_scope,
-		'pop-scope' : wing_pop_scope,
-		'create-named-scope': wing_create_named_scope,
-		'globals' : wing_globals,
-		'locals' : wing_locals,
-		'quit' : wing_exit,
-		'exit' : wing_exit,
-		'def' : wing_def,
-		'return' : wing_return,
-		'call' : wing_call,
-		'fn' : wing_lambda,
-		'struct' : wing_struct,
-		'new' : wing_new,
-		'set' : wing_set,
-		'for' : wing_for,
-		'if' : wing_if,
-		'then' : wing_then,
-		'else' : wing_else,
-		'print' : wing_print,
-		'comment' : wing_comment,
-		'and' : wing_and,
-		'or' : wing_or,
-		'not' : wing_not,
-		'byval' : wing_byval,
-		'import' : wing_import,
-		'dir' : wing_dir,
-	}
-]
-SCOPE = 0 # For now, functions have to increment and decrement scope
-RETURN_POINTS = []
-WING_PATH = [os.getcwd()]
 
 
 # -----------------------------------------------------------------------------
@@ -954,85 +600,7 @@ WING_PATH = [os.getcwd()]
 # -----------------------------------------------------------------------------
 
 # Print debugging for now
-DEBUG = False
 
-
-def __walk(obj):
-	"""
-	"""
-	# If it's iterable, and is a "dictionary"
-	if hasattr(obj, '__len__') and len(obj) > 1 and obj[1] == ':':
-		# Return a mapping of it and process it's arguments also
-		return { obj[0] : [__walk(i) for i in obj[2]] }
-	# It's a normal value
-	else:
-		# Make it be a Python object, not ParseResults
-		if isinstance(obj, pyp.ParseResults):
-			return obj.asList()
-		return obj
-
-
-def __type_cast_value(x, y, value):
-	"""
-	Convert the following strings to Python objects:
-
-	 * Boolean
-	 * Integer (hex, bin, oct, int)
-	 * None
-	"""
-	value = value[0]
-
-	if value == 'True':
-		return True
-
-	elif value == 'False':
-		return False
-
-	elif value == 'null' or value == 'None':
-		return None
-
-	elif value[0].isnumeric():
-		for base in [10, 2, 8, 16]:
-			try:
-				return int(value, base=base)
-			except:
-				pass
-		return value
-	else:
-		return value
-
-
-def wing_parse(text):
-	"""
-	"""
-	Identifier = pyp.Word(pyp.alphanums + '!#$%&()*+,./;<=>?@\\^-_`{|}~')
-	Value = (
-		pyp.QuotedString('"')
-		| pyp.QuotedString("'")
-		| Identifier.setParseAction(__type_cast_value)
-	)
-	LBRACKET, RBRACKET, COLON = map(pyp.Suppress, '[]:')
-
-	Function = pyp.Forward()
-	List = pyp.Forward()
-
-	Function << pyp.Dict(pyp.Group(
-		Identifier +
-		pyp.Literal(':') +
-		pyp.Group(
-			LBRACKET +
-			pyp.ZeroOrMore(Function | List | Value) +
-			RBRACKET
-		)
-	))
-
-	List << pyp.Group(
-		LBRACKET +
-		pyp.ZeroOrMore(Value | List) +
-		RBRACKET
-	)
-
-	return __walk(Function.parseString(text)[0])
 
 
 def run_file(filename):
@@ -1050,11 +618,13 @@ def run_file(filename):
 		elif extension.lower() == '.wing':
 			ast = wing_parse(file.read())
 
-		handle_expression({ 'Program' : ast['Program'] })
+		if ast != None:
 
-		# Handle "if __name__ == '__main__"
-		if 'Main' in ast:
-			handle_expression({ 'Program' : ast['Main'] })
+			handle_expression({ 'Program' : ast['Program'] })
+
+			# Handle "if __name__ == '__main__"
+			if 'Main' in ast:
+				handle_expression({ 'Program' : ast['Main'] })
 
 
 def __cli_sanitize_code(code):
@@ -1121,6 +691,60 @@ def run_cli(yaml_lang):
 
 	except KeyboardInterrupt:
 		pass
+
+
+SYMBOL_TABLE.append({
+	# Operators
+	'+' : wing_add,
+	'+=' : wing_add_equal,
+	'-' : wing_sub,
+	'*' : wing_mul,
+	'/' : wing_div,
+	'%' : wing_mod,
+	'**' : wing_exp,
+	'=' : wing_equals,
+	'<>' : wing_not_equals,
+	'!=' : wing_not_equals,
+	'>' : wing_greater_than,
+	'<' : wing_less_than,
+	'>=' : wing_greater_than_or_equal_to,
+	'<=' : wing_less_than_or_equal_to,
+	'&' : wing_bitwise_and,
+	'|' : wing_bitwise_or,
+	'^' : wing_bitwise_xor,
+	'~' : wing_bitwise_complement,
+	'<<' : wing_bitwise_left_shift,
+	'>>' : wing_bitwise_right_shift,
+
+	# Built-Ins
+	'Program' : wing_program,
+	'push-scope' : wing_push_scope,
+	'pop-scope' : wing_pop_scope,
+	'create-named-scope': wing_create_named_scope,
+	'globals' : wing_globals,
+	'locals' : wing_locals,
+	'quit' : wing_exit,
+	'exit' : wing_exit,
+	'def' : wing_def,
+	'return' : wing_return,
+	'call' : wing_call,
+	'fn' : wing_lambda,
+	'struct' : wing_struct,
+	'new' : wing_new,
+	'set' : wing_set,
+	'for' : wing_for,
+	'if' : wing_if,
+	'then' : wing_then,
+	'else' : wing_else,
+	'print' : wing_print,
+	'comment' : wing_comment,
+	'and' : wing_and,
+	'or' : wing_or,
+	'not' : wing_not,
+	'byval' : wing_byval,
+	'import' : wing_import,
+	'dir' : wing_dir,
+})
 
 
 def main(args):
