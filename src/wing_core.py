@@ -1,5 +1,5 @@
 
-import sys, os, os.path, pprint, traceback, imp
+import sys, os, os.path, traceback, imp
 from pathlib import Path
 import yaml
 import pyparsing as pyp
@@ -141,7 +141,7 @@ def handle_value(value):
 def handle_expression(dictn):
 	"""
 	"""
-	global pp, SCOPE, DEBUG
+	global SCOPE, DEBUG
 	func = query_symbol_table(getkey(dictn), SCOPE)
 
 	if DEBUG:
