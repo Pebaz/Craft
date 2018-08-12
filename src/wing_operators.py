@@ -47,6 +47,18 @@ def wing_sub(*args):
 	return v
 
 
+def wing_sub_equal(*args):
+	"""
+	"""
+	var_name = args[0].replace('$', '')
+	args = get_args(args)
+	v = get_arg_value(args[0])
+	for i in args[1:]:
+		v -= i
+	
+	wing_set(var_name, v)
+
+
 def wing_mul(*args):
 	"""
 	Multiplication operator.
@@ -56,6 +68,18 @@ def wing_mul(*args):
 	for i in args[1:]:
 		v *= i
 	return v
+
+
+def wing_mul_equal(*args):
+	"""
+	"""
+	var_name = args[0].replace('$', '')
+	args = get_args(args)
+	v = get_arg_value(args[0])
+	for i in args[1:]:
+		v *= i
+	
+	wing_set(var_name, v)
 
 
 def wing_div(*args):
@@ -68,6 +92,19 @@ def wing_div(*args):
 		v /= i
 	return v
 
+
+def wing_div_equal(*args):
+	"""
+	"""
+	var_name = args[0].replace('$', '')
+	args = get_args(args)
+	v = get_arg_value(args[0])
+	for i in args[1:]:
+		v /= i
+	
+	wing_set(var_name, v)
+
+
 def wing_mod(*args):
 	"""
 	Modulus operator.
@@ -79,6 +116,18 @@ def wing_mod(*args):
 	return v
 
 
+def wing_mod_equal(*args):
+	"""
+	"""
+	var_name = args[0].replace('$', '')
+	args = get_args(args)
+	v = get_arg_value(args[0])
+	for i in args[1:]:
+		v %= i
+	
+	wing_set(var_name, v)
+
+
 def wing_exp(*args):
 	"""
 	Exponent operator.
@@ -88,6 +137,18 @@ def wing_exp(*args):
 	for i in args[1:]:
 		v **= i
 	return v
+
+
+def wing_exp_equal(*args):
+	"""
+	"""
+	var_name = args[0].replace('$', '')
+	args = get_args(args)
+	v = get_arg_value(args[0])
+	for i in args[1:]:
+		v **= i
+	
+	wing_set(var_name, v)
 
 
 def wing_equals(*args):
@@ -161,6 +222,18 @@ def wing_bitwise_and(*args):
 	return v
 
 
+def wing_bitwise_and_equal(*args):
+	"""
+	"""
+	var_name = args[0].replace('$', '')
+	args = get_args(args)
+	v = get_arg_value(args[0])
+	for i in args[1:]:
+		v &= i
+	
+	wing_set(var_name, v)
+
+
 def wing_bitwise_or(*args):
 	"""
 	Bitwise OR operator.
@@ -170,6 +243,17 @@ def wing_bitwise_or(*args):
 	for i in args[1:]:
 		v |= i
 	return v
+
+def wing_bitwise_or_equal(*args):
+	"""
+	"""
+	var_name = args[0].replace('$', '')
+	args = get_args(args)
+	v = get_arg_value(args[0])
+	for i in args[1:]:
+		v |= i
+	
+	wing_set(var_name, v)
 
 
 def wing_bitwise_xor(*args):
@@ -181,6 +265,18 @@ def wing_bitwise_xor(*args):
 	for i in args[1:]:
 		v ^= i
 	return v
+
+
+def wing_bitwise_xor_equal(*args):
+	"""
+	"""
+	var_name = args[0].replace('$', '')
+	args = get_args(args)
+	v = get_arg_value(args[0])
+	for i in args[1:]:
+		v ^= i
+	
+	wing_set(var_name, v)
 
 
 def wing_bitwise_complement(*args):
@@ -206,6 +302,18 @@ def wing_bitwise_left_shift(*args):
 	return v
 
 
+def wing_bitwise_left_shift_equal(*args):
+	"""
+	"""
+	var_name = args[0].replace('$', '')
+	args = get_args(args)
+	v = get_arg_value(args[0])
+	for i in args[1:]:
+		v <<= i
+	
+	wing_set(var_name, v)
+
+
 def wing_bitwise_right_shift(*args):
 	"""
 	Bitwise right shift operator.
@@ -215,3 +323,48 @@ def wing_bitwise_right_shift(*args):
 	for i in args[1:]:
 		v >>= i
 	return v
+
+
+def wing_bitwise_right_shift_equal(*args):
+	"""
+	"""
+	var_name = args[0].replace('$', '')
+	args = get_args(args)
+	v = get_arg_value(args[0])
+	for i in args[1:]:
+		v -= i
+	
+	wing_set(var_name, v)
+
+__wing__ = {
+	'+' : wing_add,
+	'+=' : wing_add_equal,
+	'-' : wing_sub,
+	'-=' : wing_sub_equal,
+	'*' : wing_mul,
+	'*=' : wing_mul_equal,
+	'/' : wing_div,
+	'/=' : wing_div_equal,
+	'%' : wing_mod,
+	'%=' : wing_mod_equal,
+	'**' : wing_exp,
+	'**=' : wing_exp_equal,
+	'&' : wing_bitwise_and,
+	'&=' : wing_bitwise_and_equal,
+	'|' : wing_bitwise_or,
+	'|=' : wing_bitwise_or_equal,
+	'^' : wing_bitwise_xor,
+	'^=' : wing_bitwise_xor_equal,
+	'<<' : wing_bitwise_left_shift,
+	'<<=' : wing_bitwise_left_shift_equal,
+	'>>' : wing_bitwise_right_shift,
+	'>>=' : wing_bitwise_right_shift_equal,
+	'~' : wing_bitwise_complement,
+	'=' : wing_equals,
+	'<>' : wing_not_equals,
+	'!=' : wing_not_equals,
+	'>' : wing_greater_than,
+	'<' : wing_less_than,
+	'>=' : wing_greater_than_or_equal_to,
+	'<=' : wing_less_than_or_equal_to,
+}

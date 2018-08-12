@@ -1,4 +1,5 @@
 from wing_core import *
+from wing_parser import *
 
 
 def __cli_sanitize_code(code):

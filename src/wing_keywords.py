@@ -3,6 +3,7 @@ from wing_parser import *
 import yaml
 import pprint
 import pyparsing as pyp
+from pathlib import Path
 
 pp = pprint.PrettyPrinter(width=1)
 
@@ -25,9 +26,6 @@ def __wing_import__query_dir(filename):
 
 	for path in WING_PATH:
 		p = Path(path)
-
-		# Importing a module not in a package
-
 		mod_yaml = p / f'{filename}.yaml'
 		mod_wing = p / f'{filename}.wing'
 		mod_py = p / f'{filename}.py'
@@ -328,3 +326,34 @@ def wing_dir(value):
 	elif isinstance(value, dict):
 		pp.pprint(dict)
 
+
+__wing__ = {
+	# Built-Ins
+	'Program' : wing_program,
+	'push-scope' : wing_push_scope,
+	'pop-scope' : wing_pop_scope,
+	'create-named-scope': wing_create_named_scope,
+	'globals' : wing_globals,
+	'locals' : wing_locals,
+	'quit' : wing_exit,
+	'exit' : wing_exit,
+	'def' : wing_def,
+	'return' : wing_return,
+	'call' : wing_call,
+	'fn' : wing_lambda,
+	'struct' : wing_struct,
+	'new' : wing_new,
+	'set' : wing_set,
+	'for' : wing_for,
+	'if' : wing_if,
+	'then' : wing_then,
+	'else' : wing_else,
+	'print' : wing_print,
+	'comment' : wing_comment,
+	'and' : wing_and,
+	'or' : wing_or,
+	'not' : wing_not,
+	'byval' : wing_byval,
+	'import' : wing_import,
+	'dir' : wing_dir,
+}
