@@ -13,7 +13,10 @@ pp = pprint.PrettyPrinter(width=1)
 
 
 def wing_break(*args):
+	"""
+	"""
 	raise WingLoopBreakException()
+
 
 def wing_while(*args):
 	"""
@@ -138,11 +141,6 @@ def wing_hash():
 	"""
 
 
-def wing_foreach(*args):
-	"""
-	"""
-
-
 def wing_and(*args):
 	"""
 	Logical AND operator.
@@ -173,6 +171,27 @@ def wing_not(*args):
 		raise Exception(f'Too many operands in logical NOT: {args}')
 
 	return not get_arg_value(args[0])
+
+
+def wing_foreach(*args):
+	"""
+	"""
+	var, iterable = get_args(args[0])
+
+	push_return_point()
+	wing_push_scope()
+
+	try:
+		for i in iterable:
+			wing_set(var, i)
+			get_args(args[1:])
+	except WingLoopBreakException:
+		pass
+
+	except Exception:
+		traceback.print_exc()
+
+	cull_scopes(pop_return_point())
 
 
 def wing_for(*args):
@@ -408,6 +427,7 @@ __wing__ = {
 	'new' : wing_new,
 	'set' : wing_set,
 	'for' : wing_for,
+	'foreach' : wing_foreach,
 	'if' : wing_if,
 	'unless' : wing_unless,
 	'then' : wing_then,

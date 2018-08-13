@@ -1,0 +1,10 @@
+Program:
+  - set: [names, ["Pebaz", "Protodip", "Yelbu"]]
+
+  - foreach:
+    - [name, $names]
+    - if:
+      - '=' : [$name, "Protodip"]
+      - then:
+        - break: []
+    - print: [$name]
