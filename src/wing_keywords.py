@@ -1,9 +1,9 @@
+import pprint, traceback
+from pathlib import Path
+import yaml
+import pyparsing as pyp
 from wing_core import *
 from wing_parser import *
-import yaml
-import pprint
-import pyparsing as pyp
-from pathlib import Path
 
 pp = pprint.PrettyPrinter(width=1)
 
@@ -31,7 +31,7 @@ def wing_while(*args):
 	except WingLoopBreakException:
 		pass
 
-	pop_return_point()
+	cull_scopes(pop_return_point())
 
 
 def __wing_import__query_dir(filename):
@@ -175,14 +175,20 @@ def wing_for(*args):
 	else:
 		raise Exception(f'Malformed control value: (var, start, stop, step)')
 
+	push_return_point()
 	wing_push_scope()
 
-	for i in range(start, stop, step):
-		wing_set(var, i)
+	try:
+		for i in range(start, stop, step):
+			wing_set(var, i)
+			get_args(args[1:])
+	except WingLoopBreakException:
+		pass
 
-		get_args(args[1:])
+	except Exception as e:
+		traceback.print_exc()
 
-	wing_pop_scope()
+	cull_scopes(pop_return_point())
 
 
 def wing_if(*args):

@@ -175,6 +175,16 @@ def pop_return_point():
 	global RETURN_POINTS
 	return RETURN_POINTS.pop()
 
+
+def cull_scopes(return_point):
+	"""
+	Removes scopes that were pushed but destroyed after a call to:
+	`pop_return_point()`.
+	"""
+	for i in range(SCOPE - return_point):
+		wing_pop_scope()
+
+
 def wing_call(*args):
 	"""
 	"""
@@ -223,8 +233,9 @@ def wing_call(*args):
 	# Return the scope to where it was before the call,
 	# deleting any scopes in between
 	return_point = pop_return_point()
-	for i in range(SCOPE - return_point):
-		wing_pop_scope()
+
+	# Delete dangling scopes
+	cull_scopes(return_point)
 
 	# Return the value returned from the function (if any)
 	return return_value
