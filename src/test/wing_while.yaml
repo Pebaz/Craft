@@ -1,0 +1,21 @@
+Program:
+  - set: [var, 0]
+
+  - while:
+    - '<' : [$var, 20]
+    - print: [$var]
+    - '+=' : [$var, 1]
+
+  - print: ["Restarting.."]
+
+  - set: [var, 0]
+
+  - while:
+    - '<' : [$var, 20]
+    - print: [$var]
+    - '+=' : [$var, 1]
+
+    - if:
+      - '>' : [$var, 10]
+      - then:
+        - break : []

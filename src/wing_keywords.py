@@ -12,10 +12,26 @@ pp = pprint.PrettyPrinter(width=1)
 # -----------------------------------------------------------------------------
 
 
+def wing_break(*args):
+	raise WingLoopBreakException()
 
-def wing_while(condition, statements):
+def wing_while(*args):
 	"""
 	"""
+	condition = args[0]
+
+	push_return_point()
+
+	wing_push_scope()
+
+	try:
+		while get_arg_value(condition):
+			get_args(args[1:])
+
+	except WingLoopBreakException:
+		pass
+
+	pop_return_point()
 
 
 def __wing_import__query_dir(filename):
@@ -356,4 +372,6 @@ __wing__ = {
 	'byval' : wing_byval,
 	'import' : wing_import,
 	'dir' : wing_dir,
+	'break' : wing_break,
+	'while' : wing_while,
 }

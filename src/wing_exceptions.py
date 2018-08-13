@@ -7,3 +7,6 @@ class WingFunctionReturnException(Exception):
 	def __init__(self, value):
 		Exception.__init__(self)
 		self.return_value = value
+
+class WingLoopBreakException(Exception):
+	pass
