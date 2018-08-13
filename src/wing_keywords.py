@@ -34,6 +34,25 @@ def wing_while(*args):
 	cull_scopes(pop_return_point())
 
 
+def wing_until(*args):
+	"""
+	"""
+	condition = args[0]
+
+	push_return_point()
+
+	wing_push_scope()
+
+	try:
+		while not get_arg_value(condition):
+			get_args(args[1:])
+
+	except WingLoopBreakException:
+		pass
+
+	cull_scopes(pop_return_point())
+
+
 def __wing_import__query_dir(filename):
 	"""
 	Returns the YAML/WING/PY file after searching the path.
@@ -213,6 +232,28 @@ def wing_if(*args):
 		wing_pop_scope()
 
 
+def wing_unless(*args):
+	"""
+	"""
+	if len(args) > 3 or len(args) < 2:
+		raise Exception(f'Malformed if statement at:\n{args}')
+	
+	# Testing condition
+	c = args[0]
+
+	# Run the THEN function if the condition is equal to True
+	if not handle_expression(c) if isinstance(c, dict) else not handle_value(c):
+		wing_push_scope()
+		handle_expression(args[1])
+		wing_pop_scope()
+
+	# Handle ELSE clause if it was added
+	elif len(args) == 3:
+		wing_push_scope()
+		handle_expression(args[2])
+		wing_pop_scope()
+
+
 def wing_then(*args):
 	"""
 	"""
@@ -368,6 +409,7 @@ __wing__ = {
 	'set' : wing_set,
 	'for' : wing_for,
 	'if' : wing_if,
+	'unless' : wing_unless,
 	'then' : wing_then,
 	'else' : wing_else,
 	'print' : wing_print,
@@ -380,4 +422,5 @@ __wing__ = {
 	'dir' : wing_dir,
 	'break' : wing_break,
 	'while' : wing_while,
+	'until' : wing_until,
 }
