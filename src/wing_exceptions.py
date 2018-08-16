@@ -1,3 +1,8 @@
+class WingException(Exception):
+	"""
+	super() super()
+	"""
+
 class WingFunctionReturnException(Exception):
 	"""
 	For returning values from functions. The `wing_call` function will catch
@@ -8,5 +13,12 @@ class WingFunctionReturnException(Exception):
 		Exception.__init__(self)
 		self.return_value = value
 
+
 class WingLoopBreakException(Exception):
-	pass
+	"""
+	"""
+
+
+class WingLoopContinueException(Exception):
+	"""
+	"""

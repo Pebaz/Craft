@@ -1,6 +1,7 @@
 Program:
   - set: [names, ["Pebaz", "Protodip", "Yelbu"]]
 
+  # Should print Pebaz
   - foreach:
     - [name, $names]
     - if:
@@ -8,3 +9,42 @@ Program:
       - then:
         - break: []
     - print: [$name]
+
+  - print: []
+
+  # Should print Pebaz\nYelbu
+  - foreach:
+    - [name, $names]
+    - if:
+      - '=' : [$name, "Protodip"]
+      - then:
+        - continue: []
+    - print: [$name]
+
+  - print: []
+
+  # Should print 0\n1\n2\n3
+  - for:
+    - [i, 10]
+    - if:
+      - '=' : [$i, 4]
+      - then:
+        - break: []
+    - print: [$i]
+
+  - print: []
+
+  # Should print 0\n2\n4\n6
+  - for:
+    - [i, 10]
+    
+    - if:
+      - not: ['=' : ['%' : [$i, 2], 0]]
+      - then:
+        - continue: []
+
+    - if:
+      - '=' : [$i, 8]
+      - then:
+        - break: []
+    - print: [$i]

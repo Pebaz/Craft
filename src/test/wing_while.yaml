@@ -12,10 +12,16 @@ Program:
 
   - while:
     - '<' : [$var, 20]
-    - print: [$var]
     - '+=' : [$var, 1]
+
+    - if: 
+      - '=' : [$var, 3]
+      - then:
+        - continue: []
 
     - if:
       - '>' : [$var, 10]
       - then:
         - break : []
+
+    - print: [$var]

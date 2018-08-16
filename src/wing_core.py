@@ -220,6 +220,10 @@ def wing_call(*args):
 		try:
 			get_arg_value(statement)
 
+		# Improper usage of keywords
+		except (WingLoopBreakException, WingLoopContinueException):
+			raise Exception(f'BREAK or CONTINUE used outside of loop: {statement}')
+
 		# Get return value and stop handling expressions
 		except WingFunctionReturnException as wfre:
 			return_value = wfre.return_value
@@ -310,5 +314,5 @@ def wing_pop_scope():
 SYMBOL_TABLE = []
 SCOPE = 0 # For now, functions have to increment and decrement scope
 RETURN_POINTS = []
-WING_PATH = [os.getcwd()]
+WING_PATH = [os.getcwd(), 'X:/Wing/stdlib']
 DEBUG = False

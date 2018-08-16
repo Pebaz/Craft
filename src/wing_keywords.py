@@ -18,6 +18,12 @@ def wing_break(*args):
 	raise WingLoopBreakException()
 
 
+def wing_continue(*args):
+	"""
+	"""
+	raise WingLoopContinueException()
+
+
 def wing_while(*args):
 	"""
 	"""
@@ -27,12 +33,13 @@ def wing_while(*args):
 
 	wing_push_scope()
 
-	try:
-		while get_arg_value(condition):
+	while get_arg_value(condition):
+		try:
 			get_args(args[1:])
-
-	except WingLoopBreakException:
-		pass
+		except WingLoopContinueException:
+			pass
+		except WingLoopBreakException:
+			break
 
 	cull_scopes(pop_return_point())
 
@@ -46,12 +53,13 @@ def wing_until(*args):
 
 	wing_push_scope()
 
-	try:
-		while not get_arg_value(condition):
+	while not get_arg_value(condition):
+		try:
 			get_args(args[1:])
-
-	except WingLoopBreakException:
-		pass
+		except WingLoopContinueException:
+			pass
+		except WingLoopBreakException:
+			break
 
 	cull_scopes(pop_return_point())
 
@@ -105,6 +113,7 @@ def wing_import(*args):
 	args = get_args(args)
 
 	for impp in args:
+		print('hi')
 		to_import = impp if isinstance(impp, str) else impp[0]
 		module = __wing_import__query_dir(to_import.replace('.', '/'))
 
@@ -181,15 +190,16 @@ def wing_foreach(*args):
 	push_return_point()
 	wing_push_scope()
 
-	try:
-		for i in iterable:
+	for i in iterable:
+		try:
 			wing_set(var, i)
 			get_args(args[1:])
-	except WingLoopBreakException:
-		pass
-
-	except Exception:
-		traceback.print_exc()
+		except WingLoopContinueException:
+			continue
+		except WingLoopBreakException:
+			break
+		except Exception:
+			traceback.print_exc()
 
 	cull_scopes(pop_return_point())
 
@@ -216,15 +226,16 @@ def wing_for(*args):
 	push_return_point()
 	wing_push_scope()
 
-	try:
-		for i in range(start, stop, step):
+	for i in range(start, stop, step):
+		try:
 			wing_set(var, i)
 			get_args(args[1:])
-	except WingLoopBreakException:
-		pass
-
-	except Exception as e:
-		traceback.print_exc()
+		except WingLoopContinueException:
+			continue
+		except WingLoopBreakException:
+			break
+		except Exception as e:
+			traceback.print_exc()
 
 	cull_scopes(pop_return_point())
 
@@ -441,6 +452,7 @@ __wing__ = {
 	'import' : wing_import,
 	'dir' : wing_dir,
 	'break' : wing_break,
+	'continue' : wing_continue,
 	'while' : wing_while,
 	'until' : wing_until,
 }
