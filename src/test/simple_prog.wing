@@ -1,0 +1,19 @@
+Program:
+[
+	print: ['Hello World']
+	set: [name 'Pebaz']
+	print: [+ : ['Hello ' $name '!']]
+
+	if:
+	[
+		True
+		then:
+		[
+			print: [123]
+		]
+		else:
+		[
+			print: ['True is somehow false']
+		]
+	]
+]

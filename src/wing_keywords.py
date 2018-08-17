@@ -425,7 +425,7 @@ __wing__ = {
 	'Program' : wing_program,
 	'push-scope' : wing_push_scope,
 	'pop-scope' : wing_pop_scope,
-	'create-named-scope': wing_create_named_scope,
+	'create-named-scope' : wing_create_named_scope,
 	'globals' : wing_globals,
 	'locals' : wing_locals,
 	'quit' : wing_exit,

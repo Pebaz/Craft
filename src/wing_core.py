@@ -316,3 +316,4 @@ SCOPE = 0 # For now, functions have to increment and decrement scope
 RETURN_POINTS = []
 WING_PATH = [os.getcwd(), 'X:/Wing/stdlib']
 DEBUG = False
+ 

@@ -1,0 +1,30 @@
+%YAML 1.2
+---
+name: Wing
+file_extensions: [wing]
+scope: source.c
+
+contexts:
+  main:
+    - match: \b(Program|push-scope|pop-scope|create-named-scope|globals|locals|quit|exit|def|return|call|fn|struct|new|set|for|foreach|if|unless|then|else|print|comment|and|or|not|byval|import|dir|break|continue|while|until|True|False|None|Null)\b
+      scope: keyword.control.c
+    - match: '"'
+      push: string
+
+    - match: "'"
+      push: string
+
+    - match: \b[0-9]+\b
+      scope: constant.numeric.c
+
+  string:
+    - meta_scope: string.quoted.double.c
+    - match: \\.
+      scope: constant.character.escape.c
+    - match: '"'
+      pop: true
+
+    - match: "'"
+      pop: true
+
+
