@@ -420,6 +420,70 @@ def wing_dir(value):
 		pp.pprint(dict)
 
 
+# -----------------------------------------------------------------------------
+# Data Types
+# -----------------------------------------------------------------------------
+
+def wing_hash(*args):
+	"""
+	"""
+	if len(args) % 2 != 0:
+		raise Exception(f'Malformed hash creation, expected even number of arguments, got {len(args)}.')
+
+	args = get_args(args)
+	ret = dict()
+	count = 0
+
+	for i in range(len(args) - 2):
+		ret.update({ args[i + count] : args[i + count + 1] })
+		count += 1
+
+	return ret
+
+
+def wing_str(*args):
+	"""
+	"""
+	return str(get_arg_value(args[0]))
+
+
+def wing_int(*args):
+	"""
+	"""
+	return int(get_arg_value(args[0]))
+
+def wing_bool(*args):
+	"""
+	"""
+	return bool(get_arg_value(args[0]))
+
+
+def wing_float(*args):
+	"""
+	"""
+	return float(get_arg_value(args[0]))
+
+
+def wing_tuple(*args):
+	"""
+	"""
+	return tuple(get_arg_value(args[0]))
+
+
+def wing_list(*args):
+	"""
+	"""
+	return list(get_arg_value(args[0]))	
+
+
+def wing_collected_set(*args):
+	"""
+	"""
+	return set(get_arg_value(args[0]))
+
+
+
+
 __wing__ = {
 	# Built-Ins
 	'Program' : wing_program,
@@ -455,4 +519,12 @@ __wing__ = {
 	'continue' : wing_continue,
 	'while' : wing_while,
 	'until' : wing_until,
+	'hash' : wing_hash,
+	'str' : wing_str,
+	'int' : wing_int,
+	'bool' : wing_bool,
+	'float' : wing_float,
+	'tuple' : wing_tuple,
+	'list' : wing_list,
+	'collected_set' : wing_collected_set,
 }
