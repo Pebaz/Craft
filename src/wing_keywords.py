@@ -1,6 +1,6 @@
 import pprint, traceback
 from pathlib import Path
-import yaml
+import yaml, os
 import pyparsing as pyp
 from wing_core import *
 from wing_parser import *
@@ -113,7 +113,7 @@ def wing_import(*args):
 	args = get_args(args)
 
 	for impp in args:
-		print('hi')
+		print(os.getcwd())
 		to_import = impp if isinstance(impp, str) else impp[0]
 		module = __wing_import__query_dir(to_import.replace('.', '/'))
 
@@ -128,6 +128,10 @@ def wing_import(*args):
 				handle_expression({ 'Program' : ast['Program'] })
 
 			else:
+				# NOTE(Pebaz): This needs to allow Python extensions to import
+				# their own modules.
+				sys.path.append(module.parent)
+
 				pymod = module.name.replace(module.suffix, '')
 				pymod = imp.load_source(pymod, str(module))
 
