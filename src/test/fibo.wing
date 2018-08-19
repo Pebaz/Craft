@@ -1,0 +1,26 @@
+Program:
+[
+	comment: ["This is a function that calls itself!"]
+
+	def:
+	[
+		[fibo x]
+
+		if:
+		[
+			<= : [$x 1]
+			return: [$x]
+		]
+
+		return:
+		[
+			+ : [fibo: [- : [$x 1]] fibo: [- : [$x 2]]]
+		]
+	]
+
+	for:
+	[
+		[i 15]
+		print: [fibo: [$i]]
+	]
+]
