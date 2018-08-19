@@ -12,6 +12,50 @@ pp = pprint.PrettyPrinter(width=1)
 # -----------------------------------------------------------------------------
 
 
+
+def wing_switch(*args):
+	"""
+	"""
+	match = get_arg_value(args[0])
+	cases = [i for i in args[1:] if getkey(i) == 'case']
+	default = [i for i in args[1:] if getkey(i) == 'default'][0]
+	
+	# Handle malformed switch statement
+	if len(default) > 1:
+		ldefs = len(default)
+		raise Exception(f'Only 1 default clause excepted, found: {ldefs}')
+
+	# Create a blank program function call if there is no default
+	if len(default) == 0:
+		default = { 'Program' : [] }
+
+	# Run the case block if the value matches
+	for case in cases:
+		# Obtain the first value in the case block and potentially match it
+		statements = getvalue(case)
+		if get_arg_value(statements[0]) == match:
+			get_args(statements[1:])
+			break
+
+	# Matching case was not found, handle default clause
+	else:
+		get_arg_value(default)
+
+
+def wing_case(*args):
+	"""
+	Ignores the first argument since it is a value to use with `switch`.
+	"""
+	get_args(args[1:])
+
+
+def wing_default(*args):
+	"""
+	Run the code therein since there is no match condition
+	"""
+	get_args(args)
+
+
 def wing_break(*args):
 	"""
 	"""
@@ -531,4 +575,7 @@ __wing__ = {
 	'tuple' : wing_tuple,
 	'list' : wing_list,
 	'collected_set' : wing_collected_set,
+	'switch' : wing_switch,
+	'case' : wing_case,
+	'default' : wing_default,
 }

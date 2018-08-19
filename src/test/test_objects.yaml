@@ -1,2 +1,10 @@
 Program:
   - set: [honda, new: [$Car]]
+
+  - print: [$honda.name]
+
+
+  - set: [file, new: [$File, "C:/Users/Pebaz/Desktop/wing.conf", "r"]]
+
+  # Does it really matter that it returns a Python `file` object?
+  - set: [file, wing-load-file: ["C:/Users/Pebaz/Desktop/wing.conf", "r"]]
