@@ -403,6 +403,10 @@ def wing_lambda(*args):
 	"""
 	TODO(Pebaz): Fix `wing_call` to be able to handle lambdas.
 	"""
+	arguments = get_arg_value(args[0])
+	definition = args[1:]
+	return [arguments, definition]
+
 
 def wing_struct(*args):
 	"""

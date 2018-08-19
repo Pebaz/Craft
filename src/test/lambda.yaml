@@ -1,4 +1,17 @@
 Program:
   - print: ["Lambda syntax test."]
 
-  - 
+  - set:
+    - func
+    - fn:
+      - []
+      - print: ["Hi!"]
+
+  - set:
+    - func2
+    - fn:
+      - [x]
+      - return: ['+' : ["Hello ", $x]]
+
+  - func: []
+  - print: [func2: ["Pebaz"]]
