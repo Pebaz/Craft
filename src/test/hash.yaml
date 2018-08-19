@@ -1,0 +1,4 @@
+Program:
+  - set: [person, hash: [name, "Pebaz", age, 23]]
+  - print: [get: [$person, name]]
+  - print: [get: [$person, age]]

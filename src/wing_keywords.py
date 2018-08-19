@@ -192,12 +192,6 @@ def wing_import(*args):
 	# from pymod import __wing__ <- doesn't run code?
 
 
-def wing_hash():
-	"""
-	- set: [asdf, [[key, value], [key, value], [key, value]]]
-	"""
-
-
 def wing_and(*args):
 	"""
 	Logical AND operator.
@@ -480,7 +474,7 @@ def wing_hash(*args):
 	"""
 	"""
 	if len(args) % 2 != 0:
-		raise Exception(f'Malformed hash creation, expected even number of arguments, got {len(args)}.')
+		raise Exception(f'Expected even number of arguments, got {len(args)}.')
 
 	args = get_args(args)
 	ret = dict()
@@ -491,6 +485,15 @@ def wing_hash(*args):
 		count += 1
 
 	return ret
+
+def wing_get(*args):
+	"""
+	"""
+	if len(args) > 2:
+		raise Exception(f'Too many arguments supplied, got: {len(args)}')
+
+	args = get_args(args)
+	return args[0][args[1]]
 
 
 def wing_str(*args):
@@ -553,6 +556,7 @@ __wing__ = {
 	'struct' : wing_struct,
 	'new' : wing_new,
 	'set' : wing_set,
+	'get' : wing_get,
 	'for' : wing_for,
 	'foreach' : wing_foreach,
 	'if' : wing_if,
