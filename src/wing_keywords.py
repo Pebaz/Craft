@@ -496,6 +496,13 @@ def wing_get(*args):
 	return args[0][args[1]]
 
 
+def wing_cut(*args):
+	"""
+	"""
+	args = get_args(args)
+	raise Exception('Not implemented yet: cut')
+
+
 def wing_str(*args):
 	"""
 	"""
@@ -557,6 +564,7 @@ __wing__ = {
 	'new' : wing_new,
 	'set' : wing_set,
 	'get' : wing_get,
+	'cut' : wing_cut,
 	'for' : wing_for,
 	'foreach' : wing_foreach,
 	'if' : wing_if,

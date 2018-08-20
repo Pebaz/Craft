@@ -4,10 +4,6 @@
 Program:
 [
 	:: This is a function that calls itself!
-	
-	:>
-	print: ["This is a test!"]
-	<:
 
 	def:
 	[
@@ -24,6 +20,10 @@ Program:
 			+ : [fibo: [- : [$x 1]] fibo: [- : [$x 2]]]
 		]
 	]
+
+	:>
+	print: ["This is a test!"]
+	<:
 
 	for:
 	[
