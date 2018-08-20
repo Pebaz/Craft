@@ -1,0 +1,24 @@
+Program:
+[
+	import: [rng]
+	print: [rng.random: []]
+
+	set: [number 0]
+
+	:: Loop
+	while:
+	[
+		True
+		
+		:: Add a random float less than 1 to the number each iteration
+		+= : [$number rng.random: []]
+		print: [$number]
+
+		:: Break if the number is greater than 100
+		if:
+		[
+			>: [$number 100]
+			break: []
+		]
+	]
+]

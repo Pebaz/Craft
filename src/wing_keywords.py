@@ -157,7 +157,6 @@ def wing_import(*args):
 	args = get_args(args)
 
 	for impp in args:
-		print(os.getcwd())
 		to_import = impp if isinstance(impp, str) else impp[0]
 		module = __wing_import__query_dir(to_import.replace('.', '/'))
 
@@ -174,7 +173,10 @@ def wing_import(*args):
 			else:
 				# NOTE(Pebaz): This needs to allow Python extensions to import
 				# their own modules.
-				sys.path.append(module.parent)
+				#sys.path.append(module.parent)
+				if 'PYTHONPATH' not in os.environ:
+					os.environ['PYTHONPATH'] = ''
+				os.environ['PYTHONPATH'] += ';' + str(module.parent)
 
 				pymod = module.name.replace(module.suffix, '')
 				pymod = imp.load_source(pymod, str(module))
