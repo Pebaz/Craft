@@ -173,10 +173,7 @@ def wing_import(*args):
 			else:
 				# NOTE(Pebaz): This needs to allow Python extensions to import
 				# their own modules.
-				#sys.path.append(module.parent)
-				if 'PYTHONPATH' not in os.environ:
-					os.environ['PYTHONPATH'] = ''
-				os.environ['PYTHONPATH'] += ';' + str(module.parent)
+				sys.path.append(str(module.parent))
 
 				pymod = module.name.replace(module.suffix, '')
 				pymod = imp.load_source(pymod, str(module))
