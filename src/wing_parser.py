@@ -48,9 +48,11 @@ def __type_cast_value(x, y, value):
 def wing_parse(text):
 	"""
 	"""
+	Comment = pyp.Combine(pyp.Literal('::') + pyp.restOfLine)
 	Identifier = pyp.Word(pyp.alphanums + '!#$%&()*+,./;<=>?@\\^-_`{|}~')
 	Value = (
-		pyp.QuotedString('"')
+		Comment.suppress()
+		| pyp.QuotedString('"')
 		| pyp.QuotedString("'")
 		| Identifier.setParseAction(__type_cast_value)
 	)
@@ -64,15 +66,17 @@ def wing_parse(text):
 		pyp.Literal(':') +
 		pyp.Group(
 			LBRACKET +
-			pyp.ZeroOrMore(Function | List | Value) +
+			pyp.ZeroOrMore(Comment.suppress() | Function | List | Value) +
 			RBRACKET
 		)
 	))
 
 	List << pyp.Group(
 		LBRACKET +
-		pyp.ZeroOrMore(Value | List) +
+		pyp.ZeroOrMore(Comment.suppress() | Value | List) +
 		RBRACKET
 	)
 
-	return __walk(Function.parseString(text)[0])
+	Program = pyp.OneOrMore(Comment.suppress() | Function)
+
+	return __walk(Program.parseString(text)[0])

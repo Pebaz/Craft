@@ -1,6 +1,9 @@
+:: This is a comment!
+:: this is a continuation of the comment!
+
 Program:
 [
-	comment: ["This is a function that calls itself!"]
+	:: This is a function that calls itself!
 
 	def:
 	[
@@ -8,7 +11,7 @@ Program:
 
 		if:
 		[
-			<= : [$x 1]
+			<= : [$x 1] :: Testing comment syntax!
 			return: [$x]
 		]
 
