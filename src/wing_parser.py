@@ -48,10 +48,23 @@ def __type_cast_value(x, y, value):
 def wing_parse(text):
 	"""
 	"""
-	Comment = pyp.Combine(pyp.Literal('::') + pyp.restOfLine)
+	LineComment = pyp.Combine(pyp.Literal('::') + pyp.restOfLine).suppress()
+	BlockComment = pyp.Combine(
+		pyp.Literal(':>') +
+		pyp.SkipTo(pyp.Literal('<:')) +
+		pyp.Literal('<:')
+	).suppress()
+	Comment = BlockComment | LineComment
+
+	BlockComment = pyp.Combine(
+		pyp.Literal(':<') +
+		pyp.Combine(pyp.NotAny(pyp.Literal(':>')) + pyp.Word(pyp.printables + ' ')) +
+		pyp.Literal('>:')
+	)
+
 	Identifier = pyp.Word(pyp.alphanums + '!#$%&()*+,./;<=>?@\\^-_`{|}~')
 	Value = (
-		Comment.suppress()
+		Comment
 		| pyp.QuotedString('"')
 		| pyp.QuotedString("'")
 		| Identifier.setParseAction(__type_cast_value)
@@ -66,17 +79,17 @@ def wing_parse(text):
 		pyp.Literal(':') +
 		pyp.Group(
 			LBRACKET +
-			pyp.ZeroOrMore(Comment.suppress() | Function | List | Value) +
+			pyp.ZeroOrMore(Comment | Function | List | Value) +
 			RBRACKET
 		)
 	))
 
 	List << pyp.Group(
 		LBRACKET +
-		pyp.ZeroOrMore(Comment.suppress() | Value | List) +
+		pyp.ZeroOrMore(Comment | Value | List) +
 		RBRACKET
 	)
 
-	Program = pyp.OneOrMore(Comment.suppress() | Function)
+	Program = pyp.OneOrMore(Comment | Function)
 
 	return __walk(Program.parseString(text)[0])

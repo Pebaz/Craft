@@ -6,8 +6,12 @@ scope: source.c
 
 contexts:
   main:
+    - match: ':>'
+      push: blockcomment
+
     - match: '::'
       push: comment
+
 
     - match: \b(Program|push-scope|pop-scope|create-named-scope|globals|locals|quit|exit|def|return|call|fn|struct|new|set|for|foreach|if|unless|then|else|print|comment|and|or|not|byval|import|dir|break|continue|while|until|True|False|None|Null)\b
       scope: keyword.control.c
@@ -39,6 +43,11 @@ contexts:
   comment:
     - meta_scope: comment.line.c
     - match: $ # End of line
+      pop: true
+
+  blockcomment:
+    - meta_scope: comment.block.c
+    - match: '<:'
       pop: true
 
 
