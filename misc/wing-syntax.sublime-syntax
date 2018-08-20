@@ -6,8 +6,15 @@ scope: source.c
 
 contexts:
   main:
+    - match: '::'
+      push: comment
+
     - match: \b(Program|push-scope|pop-scope|create-named-scope|globals|locals|quit|exit|def|return|call|fn|struct|new|set|for|foreach|if|unless|then|else|print|comment|and|or|not|byval|import|dir|break|continue|while|until|True|False|None|Null)\b
       scope: keyword.control.c
+
+    - match: \b[a-zA-Z\-\_\$]+\b
+      scope: entity.name.class
+
     - match: '"'
       push: string
 
@@ -19,12 +26,19 @@ contexts:
 
   string:
     - meta_scope: string.quoted.double.c
+
     - match: \\.
       scope: constant.character.escape.c
+
     - match: '"'
       pop: true
 
     - match: "'"
+      pop: true
+
+  comment:
+    - meta_scope: comment.line.c
+    - match: $ # End of line
       pop: true
 
 

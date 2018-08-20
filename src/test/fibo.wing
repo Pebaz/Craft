@@ -5,6 +5,8 @@ Program:
 [
 	:: This is a function that calls itself!
 
+	print: ["This is a test!"]
+
 	def:
 	[
 		[fibo x]
