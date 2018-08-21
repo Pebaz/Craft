@@ -1,0 +1,22 @@
+Program:
+[
+	def:
+	[
+		[hi]
+		print: ["Hello world"]
+	]
+
+	hi: []
+	
+	def:
+	[
+		[say-hi person]
+		print: [
+			+ : ["Hi " $person]
+		]
+	]
+
+	say-hi: ["Pebaz"]
+
+	print: [+ : [1 2 3 4 5]]
+]
