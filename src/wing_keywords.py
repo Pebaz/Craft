@@ -171,8 +171,7 @@ def wing_import(*args):
 				handle_expression({ 'Program' : ast['Program'] })
 
 			else:
-				# NOTE(Pebaz): This needs to allow Python extensions to import
-				# their own modules.
+				# TODO(Pebaz): Update to allow for imporing PYDs
 				sys.path.append(str(module.parent))
 
 				pymod = module.name.replace(module.suffix, '')
@@ -181,14 +180,12 @@ def wing_import(*args):
 				if '__wing__' not in dir(pymod):
 					raise Exception('Unable to import Python module: no __wing__ variable.')
 
-				for name in pymod.__wing__:
-					wing_set(name, pymod.__wing__[name])
-					
-		
-
-
-	# If python import, simply set(key, value) for key in __wing__
-	# from pymod import __wing__ <- doesn't run code?
+				if isinstance(impp, str):
+					for name in pymod.__wing__:
+						wing_set(name, pymod.__wing__[name])
+				else:
+					for name in impp[1:]:
+						wing_set(name, pymod.__wing__[name])
 
 
 def wing_and(*args):
