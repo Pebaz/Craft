@@ -1,0 +1,25 @@
+;Auto-generated Diamond Directive File. Can be deleted without harm.
+.Set CabinetNameTemplate=X:\Wing\dist\win32\~wing.CAB
+.Set CompressionType=LZX
+.Set CompressionLevel=7
+.Set InfFileName=X:\Wing\dist\win32\~wing_LAYOUT.INF
+.Set RptFileName=X:\Wing\dist\win32\~wing.RPT
+.Set MaxDiskSize=CDROM
+.Set ReservePerCabinetSize=0
+.Set InfCabinetLineFormat=*cab#*=Application Source Media,*cabfile*,0
+.Set Compress=on
+.Set CompressionMemory=21
+.Set DiskDirectoryTemplate=
+.Set Cabinet=ON
+.Set MaxCabinetSize=999999999
+.Set InfDiskHeader=
+.Set InfDiskLineFormat=
+.Set InfCabinetHeader=[SourceDisksNames]
+.Set InfFileHeader=
+.Set InfFileHeader1=[SourceDisksFiles]
+.Set InfFileLineFormat=*file*=*cab#*,,*size*,*csum*
+"X:\Wing\dist\win32\wing.exe"
+"X:\Wing\dist\win32\stdlib\rng.py"
+"X:\Wing\dist\win32\stdlib\wing\lang\file.py"
+"X:\Wing\dist\win32\stdlib\rust\boo.py"
+"X:\Wing\dist\win32\stdlib\rust\rust_py.pyd"

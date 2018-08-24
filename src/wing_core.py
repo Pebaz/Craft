@@ -314,6 +314,6 @@ def wing_pop_scope():
 SYMBOL_TABLE = []
 SCOPE = 0 # For now, functions have to increment and decrement scope
 RETURN_POINTS = []
-WING_PATH = [os.getcwd(), 'X:/Wing/stdlib']
+WING_PATH = [os.getcwd(), str(Path(sys.executable).parent / 'stdlib')]
 DEBUG = False
  

@@ -9,5 +9,5 @@ if (Test-Path -Path dist/win32)
 mkdir dist/win32
 
 Copy-Item bin/win32/wing.exe dist/win32
-Copy-Item stdlib/ dist/win32
+Copy-Item stdlib/ dist/win32/
 popd
