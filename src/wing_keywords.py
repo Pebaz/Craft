@@ -1,4 +1,4 @@
-import pprint, traceback
+import sys, pprint, traceback
 from pathlib import Path
 import yaml, os
 import pyparsing as pyp
@@ -350,7 +350,7 @@ def wing_locals(*args):
 def wing_exit(*args):
 	"""
 	"""
-	exit()
+	sys.exit()
 
 
 def wing_comment(*args):
