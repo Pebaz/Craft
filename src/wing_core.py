@@ -150,11 +150,17 @@ def handle_expression(dictn):
 	# Function is Python built-in function or operator
 	# This is for argument passing
 	if callable(func):
+
+		# TODO(Pebaz): Handle Python exceptions here and translate to Wing ones
+
 		return func(*getvalue(dictn))
 
 	# Function is defined in Wing
 	# Pass it's name to the call function
 	else:
+
+		# TODO(Pebaz): Handle Wing exceptions here
+
 		return wing_call(getkey(dictn), *getvalue(dictn))
 
 
@@ -231,6 +237,10 @@ def wing_call(*args):
 
 		# A real error has occurred :(
 		except Exception as e:
+
+			# TODO(Pebaz): Remove this and raise new exception for
+			# handle_expression() to handle.
+			# raise WingException("SOMETHING TERRIBLE HAS HAPPENED", e)
 			traceback.print_exc()
 			break
 
@@ -314,6 +324,6 @@ def wing_pop_scope():
 SYMBOL_TABLE = []
 SCOPE = 0 # For now, functions have to increment and decrement scope
 RETURN_POINTS = []
-WING_PATH = [os.getcwd(), str(Path(sys.executable).parent / 'stdlib')]
+WING_PATH = [os.getcwd(), 'X:/Wing/stdlib']
 DEBUG = False
  

@@ -3,6 +3,12 @@ class WingException(Exception):
 	super() super()
 	"""
 
+class WingInternalException(Exception):
+	"""
+	Raise this to communicate Python/Wing errors without exposing
+	interpreter internals.
+	"""
+
 class WingFunctionReturnException(Exception):
 	"""
 	For returning values from functions. The `wing_call` function will catch
