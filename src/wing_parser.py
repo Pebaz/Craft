@@ -49,6 +49,7 @@ def _type_cast_value(x, y, value):
 class SourceValidator:
 	def __init__(self):
 		self.line = 1
+		self.successfully_parsed = list()
 
 	def validate(self, _ignore, value):
 		"""
@@ -57,16 +58,14 @@ class SourceValidator:
 		<parser>.setParseAction(<validator>.validate)
 		"""
 
-		print('----->', value.count('\n') if '\n' in value else '')
 		self.line += 1
+		self.successfully_parsed.append(str(value))
 
 		return value
 
-	def validate_with_type_cast(self, _ignore, value):
-		return _type_cast_value(None, None, value)
-
 	def panic(self):
-		print(f"Panic at line: {self.line}")
+		print(f'Panic at line: {self.line}')
+		print(f'Error near: {"/".join(self.successfully_parsed)}')
 
 
 
@@ -92,7 +91,7 @@ def wing_parse(text):
 		Comment
 		| pyp.QuotedString('"')
 		| pyp.QuotedString("'")
-		| Identifier.setParseAction(_type_cast_value)
+		| Identifier.addParseAction(_type_cast_value)
 	)
 	LBRACKET, RBRACKET, COLON = map(pyp.Suppress, '[]:')
 
@@ -121,7 +120,7 @@ def wing_parse(text):
 	validator = SourceValidator()
 	Value.setParseAction(validator.validate)
 	List.setParseAction(validator.validate)
-	Identifier.setParseAction(validator.validate_with_type_cast)
+	Identifier.addParseAction(validator.validate)
 	Comment.setParseAction(validator.validate)
 	Function.setParseAction(validator.validate)
 	Program.setParseAction(validator.validate)
