@@ -63,7 +63,26 @@ class SourceValidator:
 		return value
 
 	def validate_with_type_cast(self, _ignore, value):
-		return __type_cast_value(None, None, value)
+		value = value[0]
+
+		if value == 'True':
+			return True
+
+		elif value == 'False':
+			return False
+
+		elif value == 'null' or value == 'None':
+			return None
+
+		elif value[0].isnumeric():
+			for base in [10, 2, 8, 16]:
+				try:
+					return int(value, base=base)
+				except:
+					pass
+			return value
+		else:
+			return value
 
 	def panic(self):
 		print(f"Panic at line: {self.line}")
