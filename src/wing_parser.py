@@ -16,7 +16,7 @@ def __walk(obj):
 		return obj
 
 
-def __type_cast_value(x, y, value):
+def _type_cast_value(x, y, value):
 	"""
 	Convert the following strings to Python objects:
 
@@ -63,26 +63,7 @@ class SourceValidator:
 		return value
 
 	def validate_with_type_cast(self, _ignore, value):
-		value = value[0]
-
-		if value == 'True':
-			return True
-
-		elif value == 'False':
-			return False
-
-		elif value == 'null' or value == 'None':
-			return None
-
-		elif value[0].isnumeric():
-			for base in [10, 2, 8, 16]:
-				try:
-					return int(value, base=base)
-				except:
-					pass
-			return value
-		else:
-			return value
+		return _type_cast_value(None, None, value)
 
 	def panic(self):
 		print(f"Panic at line: {self.line}")
@@ -111,7 +92,7 @@ def wing_parse(text):
 		Comment
 		| pyp.QuotedString('"')
 		| pyp.QuotedString("'")
-		| Identifier.setParseAction(__type_cast_value)
+		| Identifier.setParseAction(_type_cast_value)
 	)
 	LBRACKET, RBRACKET, COLON = map(pyp.Suppress, '[]:')
 
