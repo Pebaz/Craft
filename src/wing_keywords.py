@@ -246,6 +246,8 @@ def wing_for(*args):
 	"""
 	"""
 	control = args[0]
+	
+	print(control)
 
 	var, start, stop, step = [None] * 4
 

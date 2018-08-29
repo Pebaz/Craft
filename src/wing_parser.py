@@ -1,3 +1,4 @@
+import sys
 import pyparsing as pyp
 
 def __walk(obj):
@@ -43,6 +44,30 @@ def __type_cast_value(x, y, value):
 		return value
 	else:
 		return value
+
+
+class SourceValidator:
+	def __init__(self):
+		self.line = 1
+
+	def validate(self, _ignore, value):
+		"""
+		This method is designed to be used from Pyparsing:
+
+		<parser>.setParseAction(<validator>.validate)
+		"""
+
+		print('----->', value.count('\n') if '\n' in value else '')
+		self.line += 1
+
+		return value
+
+	def validate_with_type_cast(self, _ignore, value):
+		return __type_cast_value(None, None, value)
+
+	def panic(self):
+		print(f"Panic at line: {self.line}")
+
 
 
 def wing_parse(text):
@@ -92,4 +117,18 @@ def wing_parse(text):
 
 	Program = pyp.OneOrMore(Comment | Function)
 
-	return __walk(Program.parseString(text)[0])
+	# Validate for syntax error messages:
+	validator = SourceValidator()
+	Value.setParseAction(validator.validate)
+	List.setParseAction(validator.validate)
+	Identifier.setParseAction(validator.validate_with_type_cast)
+	Comment.setParseAction(validator.validate)
+	Function.setParseAction(validator.validate)
+	Program.setParseAction(validator.validate)
+
+	try:
+		return __walk(Program.parseString(text)[0])
+	except Exception as e:
+		print(e)
+		validator.panic()
+		sys.exit()
