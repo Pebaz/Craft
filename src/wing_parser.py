@@ -48,25 +48,19 @@ def _type_cast_value(x, y, value):
 
 class SourceValidator:
 	def __init__(self):
-		self.line = 1
-		self.successfully_parsed = list()
+		self.pairs = list()
 
-	def validate(self, _ignore, value):
+	def validate(self, line_number, value):
 		"""
 		This method is designed to be used from Pyparsing:
 
 		<parser>.setParseAction(<validator>.validate)
 		"""
-
-		self.line += 1
-		self.successfully_parsed.append(str(value))
-
+		self.pairs.append([line_number, value])
 		return value
 
 	def panic(self):
-		print(f'Panic at line: {self.line}')
-		print(f'Error near: {"/".join(self.successfully_parsed)}')
-
+		print("ERROR!")
 
 
 def wing_parse(text):
@@ -117,13 +111,13 @@ def wing_parse(text):
 	Program = pyp.OneOrMore(Comment | Function)
 
 	# Validate for syntax error messages:
-	validator = SourceValidator()
-	Value.setParseAction(validator.validate)
-	List.setParseAction(validator.validate)
-	Identifier.addParseAction(validator.validate)
-	Comment.setParseAction(validator.validate)
-	Function.setParseAction(validator.validate)
-	Program.setParseAction(validator.validate)
+	#validator = SourceValidator()
+	#Value.setParseAction(validator.validate)
+	#List.setParseAction(validator.validate)
+	#Identifier.addParseAction(validator.validate)
+	#Comment.setParseAction(validator.validate)
+	#Function.setParseAction(validator.validate)
+	#Program.setParseAction(validator.validate)
 
 	try:
 		return __walk(Program.parseString(text)[0])
