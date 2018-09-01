@@ -316,6 +316,56 @@ def wing_pop_scope():
 	SCOPE -= 1
 	SYMBOL_TABLE.pop()
 
+
+def register_exception(name, desc):
+	"""
+	Registers a new Exception with a new name and description of itself.
+	An error code is added by default.
+
+	 1. Register the exception as a variable with the exact name in scope level
+	    zero.
+	 2. The exception can be raised using the name:
+	 		raise: [WingException]
+
+		Using the error code:
+			raise: [1]
+
+		Using the lookup for the error code:
+			raise: [$WingException]
+	"""
+	global EXCEPTIONS
+
+
+def register_pyexception(name, desc):
+	"""
+	Registers a new PyException.
+	"""
+
+
+def _scrape_pyexception_info(pyexception):
+	"""
+	Use this in wing_pyraise and also in wing_call to register new exceptions.
+	"""
+	return pyexception.__class__, pyexception.args
+
+
+def wing_raise(error_code):
+	"""
+	Raises the given exception if it exists in the EXCEPTION list.
+	"""
+	global EXCEPTIONS
+	args = get_arg_value(error_code)
+
+	# It's an error code (index to EXCEPTION list)
+	if isinstance(error_code, int):
+		pass
+
+	# It's a name, so add a $ symbol and look it up.
+	elif isinstance(error_code, str):
+		pass
+
+
+
 # -----------------------------------------------------------------------------
 #             W I N G   I N I T I A L   S Y M B O L   T A B L E
 # -----------------------------------------------------------------------------
@@ -324,6 +374,6 @@ def wing_pop_scope():
 SYMBOL_TABLE = []
 SCOPE = 0 # For now, functions have to increment and decrement scope
 RETURN_POINTS = []
+EXCEPTIONS = []
 WING_PATH = [os.getcwd(), 'X:/Wing/stdlib']
 DEBUG = False
- 
