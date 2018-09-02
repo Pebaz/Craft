@@ -19,7 +19,7 @@ def wing_switch(*args):
 	match = get_arg_value(args[0])
 	cases = [i for i in args[1:] if getkey(i) == 'case']
 	default = [i for i in args[1:] if getkey(i) == 'default'][0]
-	
+
 	# Handle malformed switch statement
 	if len(default) > 1:
 		ldefs = len(default)
@@ -119,7 +119,7 @@ def __wing_import__query_dir(filename):
 		mod_yaml = p / f'{filename}.yaml'
 		mod_wing = p / f'{filename}.wing'
 		mod_py = p / f'{filename}.py'
-		
+
 		if mod_yaml.exists():
 			return mod_yaml
 
@@ -131,7 +131,7 @@ def __wing_import__query_dir(filename):
 
 	# If none has been returned, it doesn't exist in WING_PATH
 	raise Exception(f'Cannot import name: {filename}. No matching .WING, .YAML or .PY was found in WING_PATH.')
-		
+
 
 def wing_import(*args):
 	"""
@@ -283,7 +283,7 @@ def wing_if(*args):
 	"""
 	if len(args) > 3 or len(args) < 2:
 		raise Exception(f'Malformed if statement at:\n{args}')
-	
+
 	# Testing condition
 	c = args[0]
 
@@ -305,7 +305,7 @@ def wing_unless(*args):
 	"""
 	if len(args) > 3 or len(args) < 2:
 		raise Exception(f'Malformed if statement at:\n{args}')
-	
+
 	# Testing condition
 	c = args[0]
 
@@ -338,6 +338,7 @@ def wing_globals(*args):
 	"""
 	"""
 	pp.pprint(SYMBOL_TABLE)
+	pp.pprint(EXCEPTIONS)
 
 
 def wing_locals(*args):
@@ -531,7 +532,7 @@ def wing_tuple(*args):
 def wing_list(*args):
 	"""
 	"""
-	return list(get_arg_value(args[0]))	
+	return list(get_arg_value(args[0]))
 
 
 def wing_collected_set(*args):
@@ -540,6 +541,9 @@ def wing_collected_set(*args):
 	return set(get_arg_value(args[0]))
 
 
+
+def crash():
+	raise Exception('Something went wrong!')
 
 
 __wing__ = {
@@ -590,4 +594,5 @@ __wing__ = {
 	'switch' : wing_switch,
 	'case' : wing_case,
 	'default' : wing_default,
+	'crash' : crash
 }

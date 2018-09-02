@@ -152,15 +152,21 @@ def handle_expression(dictn):
 	if callable(func):
 
 		# TODO(Pebaz): Handle Python exceptions here and translate to Wing ones
+		try:
+			return func(*getvalue(dictn))
+		except Exception as e:
+			register_pyexception(e)
 
-		return func(*getvalue(dictn))
+			wing_raise(type(e).__name__)
 
 	# Function is defined in Wing
 	# Pass it's name to the call function
 	else:
 
 		# TODO(Pebaz): Handle Wing exceptions here
-
+		# TODO(Pebaz): If WingException is returned, how to fix all the other
+		# functions from catching it before here? Will this `try` be able to
+		# capture it?
 		return wing_call(getkey(dictn), *getvalue(dictn))
 
 
@@ -243,6 +249,11 @@ def wing_call(*args):
 			# raise WingException("SOMETHING TERRIBLE HAS HAPPENED", e)
 			traceback.print_exc()
 			break
+
+			# TODO(Pebaz): Exit early and raise a new WingException now.
+			# It will be caught by handle_expression.
+******************************************************************************************
+
 
 	# Return the scope to where it was before the call,
 	# deleting any scopes in between
@@ -334,12 +345,29 @@ def register_exception(name, desc):
 			raise: [$WingException]
 	"""
 	global EXCEPTIONS
+	error_code = len(EXCEPTIONS) + 1
+	EXCEPTIONS.append({'name' : name, 'desc' : desc, 'meta' : None})
+	wing_set(name, error_code)
 
 
-def register_pyexception(name, desc):
+def register_pyexception(exception):
 	"""
 	Registers a new PyException.
+
+	Args:
+		exception(Exception): the exception object to register.
 	"""
+
+	global EXCEPTIONS
+
+	name = type(exception).__name__
+	desc = exception.args[0] if len(exception.args) > 0 else None
+	meta = exception.args[1:] if len(exception.args) > 1 else None
+
+	error_code = len(EXCEPTIONS) + 1
+
+	EXCEPTIONS.append({'name' : name, 'desc' : desc, 'meta' : meta})
+	wing_set(name, error_code)
 
 
 def _scrape_pyexception_info(pyexception):
@@ -374,6 +402,6 @@ def wing_raise(error_code):
 SYMBOL_TABLE = []
 SCOPE = 0 # For now, functions have to increment and decrement scope
 RETURN_POINTS = []
-EXCEPTIONS = []
+EXCEPTIONS = [None]
 WING_PATH = [os.getcwd(), 'X:/Wing/stdlib']
 DEBUG = False
