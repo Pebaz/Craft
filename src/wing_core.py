@@ -156,7 +156,6 @@ def handle_expression(dictn):
 			return func(*getvalue(dictn))
 		except Exception as e:
 			register_pyexception(e)
-
 			wing_raise(type(e).__name__)
 
 	# Function is defined in Wing
@@ -167,7 +166,12 @@ def handle_expression(dictn):
 		# TODO(Pebaz): If WingException is returned, how to fix all the other
 		# functions from catching it before here? Will this `try` be able to
 		# capture it?
-		return wing_call(getkey(dictn), *getvalue(dictn))
+
+		try:
+			return wing_call(getkey(dictn), *getvalue(dictn))
+		except Exception as e:
+			register_pyexception(e)
+			wing_raise(type(e).__name__)
 
 
 def push_return_point():
@@ -247,12 +251,12 @@ def wing_call(*args):
 			# TODO(Pebaz): Remove this and raise new exception for
 			# handle_expression() to handle.
 			# raise WingException("SOMETHING TERRIBLE HAS HAPPENED", e)
-			traceback.print_exc()
-			break
+			# -----> traceback.print_exc()
+			# -----> break
 
 			# TODO(Pebaz): Exit early and raise a new WingException now.
 			# It will be caught by handle_expression.
-******************************************************************************************
+			raise e from e
 
 
 	# Return the scope to where it was before the call,
@@ -345,8 +349,15 @@ def register_exception(name, desc):
 			raise: [$WingException]
 	"""
 	global EXCEPTIONS
-	error_code = len(EXCEPTIONS) + 1
-	EXCEPTIONS.append({'name' : name, 'desc' : desc, 'meta' : None})
+
+	if name in EXCEPTIONS:
+		return
+
+	error_code = (len(EXCEPTIONS) / 2) + 1
+
+	EXCEPTIONS[name] = {'name' : name, 'desc' : desc, 'meta' : None}
+	EXCEPTIONS[error_code] = {'name' : name, 'desc' : desc, 'meta' : None}
+
 	wing_set(name, error_code)
 
 
@@ -357,16 +368,20 @@ def register_pyexception(exception):
 	Args:
 		exception(Exception): the exception object to register.
 	"""
-
 	global EXCEPTIONS
 
 	name = type(exception).__name__
+
+	if name in EXCEPTIONS:
+		return
+
 	desc = exception.args[0] if len(exception.args) > 0 else None
 	meta = exception.args[1:] if len(exception.args) > 1 else None
 
-	error_code = len(EXCEPTIONS) + 1
+	error_code = (len(EXCEPTIONS) / 2) + 1
+	EXCEPTIONS[name] = {'name' : name, 'desc' : desc, 'meta' : None}
+	EXCEPTIONS[error_code] = {'name' : name, 'desc' : desc, 'meta' : None}
 
-	EXCEPTIONS.append({'name' : name, 'desc' : desc, 'meta' : meta})
 	wing_set(name, error_code)
 
 
@@ -381,16 +396,28 @@ def wing_raise(error_code):
 	"""
 	Raises the given exception if it exists in the EXCEPTION list.
 	"""
-	global EXCEPTIONS
+	global EXCEPTIONS, SCOPE
 	args = get_arg_value(error_code)
 
-	# It's an error code (index to EXCEPTION list)
-	if isinstance(error_code, int):
-		pass
+	if isinstance(error_code, str):
+		error_code = query_symbol_table(error_code, SCOPE)
 
-	# It's a name, so add a $ symbol and look it up.
-	elif isinstance(error_code, str):
-		pass
+	name = EXCEPTIONS[error_code]['name']
+	desc = EXCEPTIONS[error_code]['desc']
+	meta = EXCEPTIONS[error_code]['meta']
+
+	# Dynamically create a new Exception subclass and raise it
+	wing_exception = type(
+		name,
+		(Exception,),
+		{
+			'__init__' : lambda self: Exception.__init__(self, self.desc),
+			'name' : name,
+			'desc' : desc,
+			'meta' : meta
+		}
+	)
+	raise wing_exception
 
 
 
@@ -402,6 +429,6 @@ def wing_raise(error_code):
 SYMBOL_TABLE = []
 SCOPE = 0 # For now, functions have to increment and decrement scope
 RETURN_POINTS = []
-EXCEPTIONS = [None]
+EXCEPTIONS = dict()
 WING_PATH = [os.getcwd(), 'X:/Wing/stdlib']
 DEBUG = False

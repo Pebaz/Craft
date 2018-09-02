@@ -2,6 +2,8 @@ class WingException(Exception):
 	"""
 	super() super()
 	"""
+	def __init__(self, name, desc, meta):
+		Exception.__init__(self)
 
 class WingInternalException(Exception):
 	"""
