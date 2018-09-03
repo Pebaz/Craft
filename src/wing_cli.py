@@ -29,6 +29,7 @@ def __cli_sanitize_wing_code(code):
 def run_cli(yaml_lang):
 	"""
 	"""
+	global TRACEBACK
 	print('Wing Programming Language')
 	print('Version: 0.1.0\n')
 	print('Press <enter> twice for running single commands.')
@@ -38,6 +39,8 @@ def run_cli(yaml_lang):
 		print('NOTE: Interpreting YAML code as Wing syntax.')
 
 	try:
+		***************************
+		TRACEBACK.reset()
 		code = ''
 		while True:
 			line = input('>>> ') if code == '' else input('... ')

@@ -464,6 +464,9 @@ class Trace:
 		self.traceback = list()
 		self.history = history
 
+	def reset(self):
+		self.traceback = list()
+
 	def banner(self, text):
 		print('-' * (len(text) + 2))
 		print('', text)
