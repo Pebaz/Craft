@@ -430,5 +430,6 @@ SYMBOL_TABLE = []
 SCOPE = 0 # For now, functions have to increment and decrement scope
 RETURN_POINTS = []
 EXCEPTIONS = dict()
+TRACEBACK = []
 WING_PATH = [os.getcwd(), 'X:/Wing/stdlib']
 DEBUG = False

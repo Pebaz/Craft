@@ -434,7 +434,12 @@ def wing_new(*args):
 def wing_program(*args):
 	"""
 	"""
-	get_args(args)
+	try:
+		get_args(args)
+	except Exception as e:
+		print(' - FATAL ERROR -\nException that caused the crash:\n')
+		print(f'{e.name}: {e.desc}')
+		print(e.meta) if e.meta != None else print('')
 
 
 
