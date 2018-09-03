@@ -394,7 +394,9 @@ def register_exception(name, desc):
 	EXCEPTIONS[name] = {'name' : name, 'desc' : desc, 'meta' : None}
 	EXCEPTIONS[error_code] = {'name' : name, 'desc' : desc, 'meta' : None}
 
-	wing_set(name, error_code)
+	#wing_set(name, error_code)
+	# Manually place exception var in global namespace
+	SYMBOL_TABLE[0][name] = error_code
 
 
 def register_pyexception(exception):
@@ -414,11 +416,13 @@ def register_pyexception(exception):
 	desc = exception.args[0] if len(exception.args) > 0 else None
 	meta = exception.args[1:] if len(exception.args) > 1 else None
 
-	error_code = (len(EXCEPTIONS) / 2) + 1
+	error_code = int((len(EXCEPTIONS) / 2) + 1)
 	EXCEPTIONS[name] = {'name' : name, 'desc' : desc, 'meta' : None}
 	EXCEPTIONS[error_code] = {'name' : name, 'desc' : desc, 'meta' : None}
 
-	wing_set(name, error_code)
+	#wing_set(name, error_code)
+	# Manually place exception var in global namespace
+	SYMBOL_TABLE[0][name] = error_code
 
 
 def wing_raise(error_code):

@@ -1,0 +1,33 @@
+Program:
+[
+	print: ["Testing `try`, `catch`, and `finally` keywords, as well as registering a new Wing exception"]
+
+	try:
+	[
+		/ : [0 0]
+
+		catch:
+		[
+			[SomeOtherError] :: Errors that have not been registered won't break the program.
+			print: ['hi']
+		]
+
+		catch:
+		[
+			[ZeroDivisionError] :: This list can be left empty to catch all errors
+			print: ["Division by zero error. Oops :P"]
+		]
+
+		catch:
+		[
+			[] :: Error has already been caught, this will be ignored
+			print: ['HORRIBLE ERROR!']
+		]
+
+		finally:
+		[
+			set: [i "Lets get back to work."]
+			print: [$i]
+		]
+	]
+]

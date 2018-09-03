@@ -12,6 +12,63 @@ pp = pprint.PrettyPrinter(width=1)
 # -----------------------------------------------------------------------------
 
 
+def wing_try(*args):
+	"""
+	"""
+	global SCOPE
+	catches = [i for i in args if getkey(i) == 'catch']
+	finale = [i for i in args if getkey(i) == 'finally']
+	exceptors = catches + finale
+
+	wing_push_scope()
+	pushed = True
+	try:
+		for i in args:
+			if i not in exceptors:
+				get_arg_value(i)
+	# If an exception occurs, Wing will have already registered it!
+	except Exception as e:
+		# Make sure to keep track of enclosing scope
+		wing_pop_scope()
+		pushed = False
+
+		error_code = query_symbol_table(e.name, SCOPE)
+
+		for catch in catches:
+			if len(getvalue(catch)) == 0:
+				continue
+			exceptions = get_args(getvalue(catch)[0])
+			except_matches = any(i in [error_code, e.name] for i in exceptions)
+
+			if len(exceptions) == 0 or except_matches:
+				get_arg_value(catch)
+
+				# Stop since the error has already been caught
+				break
+	finally:
+		if pushed:
+			wing_pop_scope()
+
+		if len(finale) > 0:
+			get_args(finale)
+
+
+def wing_catch(*args):
+	"""
+	"""
+	# Must ignore first argument since `wing_try` reads it.
+	wing_push_scope()
+	get_args(args[1:])
+	wing_pop_scope()
+
+
+def wing_finally(*args):
+	"""
+	"""
+	wing_push_scope()
+	get_args(args)
+	wing_pop_scope()
+
 
 def wing_switch(*args):
 	"""
@@ -545,11 +602,6 @@ def wing_collected_set(*args):
 	return set(get_arg_value(args[0]))
 
 
-
-def crash():
-	raise Exception('Something went wrong!')
-
-
 __wing__ = {
 	# Built-Ins
 	'Program' : wing_program,
@@ -598,5 +650,7 @@ __wing__ = {
 	'switch' : wing_switch,
 	'case' : wing_case,
 	'default' : wing_default,
-	'crash' : crash
+	'try' : wing_try,
+	'catch' : wing_catch,
+	'finally' : wing_finally,
 }
