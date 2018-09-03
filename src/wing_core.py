@@ -1,5 +1,6 @@
 
 import sys, os, os.path, traceback, imp
+from collections import deque
 from pathlib import Path
 import yaml
 import pyparsing as pyp
@@ -143,6 +144,16 @@ def handle_expression(dictn):
 	"""
 	global SCOPE, DEBUG
 	func = query_symbol_table(getkey(dictn), SCOPE)
+
+	# Add the function name to the traceback
+	# UNDO(Pebaz):
+	the_args = [
+		getkey(i) if isinstance(i, dict)
+		else get_arg_value(i)
+		for i in getvalue(dictn)
+	]
+
+	TRACEBACK.add_trace(getkey(dictn), the_args)
 
 	if DEBUG:
 		print(f'Expression: {"    " * SCOPE + getkey(dictn)}')
@@ -323,6 +334,9 @@ def wing_push_scope():
 	SCOPE += 1
 	SYMBOL_TABLE.append(dict())
 
+	# UNDO(Pebaz):
+	TRACEBACK.set_scope(SCOPE)
+
 
 def wing_pop_scope():
 	"""
@@ -330,6 +344,9 @@ def wing_pop_scope():
 	global SCOPE, SYMBOL_TABLE
 	SCOPE -= 1
 	SYMBOL_TABLE.pop()
+
+	# UNDO(Pebaz):
+	TRACEBACK.set_scope(SCOPE)
 
 
 def register_exception(name, desc):
@@ -385,13 +402,6 @@ def register_pyexception(exception):
 	wing_set(name, error_code)
 
 
-def _scrape_pyexception_info(pyexception):
-	"""
-	Use this in wing_pyraise and also in wing_call to register new exceptions.
-	"""
-	return pyexception.__class__, pyexception.args
-
-
 def wing_raise(error_code):
 	"""
 	Raises the given exception if it exists in the EXCEPTION list.
@@ -425,11 +435,47 @@ def wing_raise(error_code):
 #             W I N G   I N I T I A L   S Y M B O L   T A B L E
 # -----------------------------------------------------------------------------
 
+
+class Trace:
+	def __init__(self, history=10):
+		self.traceback = list()
+		self.history = history
+
+	def banner(self, text):
+		print('-' * (len(text) + 2))
+		print('', text)
+		print('-' * (len(text) + 2))
+
+	def add_trace(self, func_name, args):
+		self.traceback.append((func_name, args))
+		if len(self.traceback) > self.history:
+			self.traceback = self.traceback[1:]
+
+	def set_scope(self, scope):
+		self.traceback.append(scope)
+
+	def show_trace(self, error):
+		print()
+		self.banner(f'{error.name}: {error.desc}')
+		print(error.meta) if error.meta != None else print('')
+
+		tab = 0
+		for i in self.traceback[1:-1]:
+			if isinstance(i, int):
+				tab = i
+				continue
+			print(('    ' * tab)[:-1], i[0], *i[1:])
+
+		print('\nFunction call that caused the error:')
+		fcall = self.traceback[-1]
+		print(('    ' * tab)[:-1], fcall[0], *fcall[1:])
+
+
 # Represents a list of lists of key-value pairs (variables/names)
 SYMBOL_TABLE = []
 SCOPE = 0 # For now, functions have to increment and decrement scope
 RETURN_POINTS = []
 EXCEPTIONS = dict()
-TRACEBACK = []
+TRACEBACK = Trace()
 WING_PATH = [os.getcwd(), 'X:/Wing/stdlib']
 DEBUG = False

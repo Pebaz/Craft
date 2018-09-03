@@ -1,4 +1,10 @@
 Program:
 [
+	print: ['Hello World!']
+	for:
+	[
+		[i 10]
+		print: [$i]
+	]
 	/ : [0 0]
 ]
