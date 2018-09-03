@@ -6,5 +6,13 @@ Program:
 		[i 10]
 		print: [$i]
 	]
-	/ : [0 0]
+
+	def:
+	[
+		[bill x]
+		print: [$x]
+		:: set: [i / : [$x 0]]
+		return: [$x]
+	]
+	bill: [123]
 ]

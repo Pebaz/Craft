@@ -59,7 +59,6 @@ def dict_recursive_get(dictn, keys):
 
 def get_arg_value(arg):
 	"""
-	Should this recursively eval expressions? What will that do to dictionaries?
 	"""
 	if isinstance(arg, dict):
 		return handle_expression(arg)
@@ -160,11 +159,14 @@ def handle_expression(dictn):
 
 	# Function is Python built-in function or operator
 	# This is for argument passing
+	'''
 	if callable(func):
 
 		# TODO(Pebaz): Handle Python exceptions here and translate to Wing ones
 		try:
 			return func(*getvalue(dictn))
+		except (WingFunctionReturnException, WingLoopBreakException, WingLoopContinueException) as e:
+			raise e
 		except Exception as e:
 			register_pyexception(e)
 			wing_raise(type(e).__name__)
@@ -180,9 +182,26 @@ def handle_expression(dictn):
 
 		try:
 			return wing_call(getkey(dictn), *getvalue(dictn))
+		except (WingFunctionReturnException, WingLoopBreakException, WingLoopContinueException) as e:
+			raise e
 		except Exception as e:
 			register_pyexception(e)
 			wing_raise(type(e).__name__)
+
+	# TODO(Pebaz): Fix the code to say this instead:
+	'''
+	try:
+		return func(*getvalue(dictn)) if callable(func) \
+			else wing_call(getkey(dictn), *getvalue(dictn))
+
+	# These Exceptions are not errors so pass them on to be caught by wing_call
+	except (WingFunctionReturnException, WingLoopBreakException, WingLoopContinueException) as e:
+		raise e
+
+	except Exception as e:
+		register_pyexception(e)
+		wing_raise(type(e).__name__)
+
 
 
 def push_return_point():
@@ -225,7 +244,7 @@ def wing_call(*args):
 	if len(arg_names) != len(func_args):
 		err = f'Argument count mismatch for function: '
 		err += f'{func_name}. Expected {len(arg_names)}, got {len(func_args)}.'
-		raise Exception()
+		raise Exception(err)
 
 	# Scope index to return to after call is done
 	push_return_point()
@@ -437,7 +456,7 @@ def wing_raise(error_code):
 
 
 class Trace:
-	def __init__(self, history=10):
+	def __init__(self, history=100):
 		self.traceback = list()
 		self.history = history
 
@@ -464,11 +483,17 @@ class Trace:
 			if isinstance(i, int):
 				tab = i
 				continue
-			print(('    ' * tab)[:-1], i[0], *i[1:])
+			print(('    ' * tab), i[0], *i[1:])
 
-		print('\nFunction call that caused the error:')
+		#print('\nFunction call that caused the error:')
 		fcall = self.traceback[-1]
-		print(('    ' * tab)[:-1], fcall[0], *fcall[1:])
+		print(('    ' * tab), fcall[0], *fcall[1:])
+		print()
+		print(('    ' * tab), '^')
+		for i in range(4):
+			print(('    ' * tab), '|')
+		print()
+		print(('    ' * tab), 'Responsible Function Call')
 
 
 # Represents a list of lists of key-value pairs (variables/names)
