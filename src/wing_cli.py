@@ -39,10 +39,9 @@ def run_cli(yaml_lang):
 		print('NOTE: Interpreting YAML code as Wing syntax.')
 
 	try:
-		***************************
-		TRACEBACK.reset()
 		code = ''
 		while True:
+			TRACEBACK.reset()
 			line = input('>>> ') if code == '' else input('... ')
 
 			if line.strip() != '':
