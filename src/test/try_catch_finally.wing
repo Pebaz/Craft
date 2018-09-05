@@ -2,9 +2,29 @@ Program:
 [
 	print: ["Testing `try`, `catch`, and `finally` keywords, as well as registering a new Wing exception"]
 
+	exception:
+	[
+		SomeOtherException
+		"Something went wrong that was other."
+	]
+
+
+	:: TODO(Pebaz): Make them a struct?
+
+	:: Raise a struct?
+
+	:: That way you can have arguments that you care about?
+
+	raise: [DerpyException 23 "Some Value"]
+
+	:: WAIT, when registering, you must supply a description
+	:: When throwing, all supplied arguments are put into meta!
+
+
 	try:
 	[
-		/ : [0 0]
+		raise: [SomeOtherException]
+		::/ : [0 0]
 
 		catch:
 		[
