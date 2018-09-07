@@ -897,6 +897,22 @@ def wing_collected_set(*args):
 	return set(get_arg_value(args[0]))
 
 
+def wing_format(*args):
+	"""
+	Formats a given string with the given arguments.
+
+	<Long Description>
+
+	Args:
+	  <Argument List>
+
+	Returns:
+	  <Description of Return Value>
+	"""
+	args = get_args(args)
+	return args[0].format(*args[1:])
+
+
 __wing__ = {
 	# Built-Ins
 	'Program' 				: wing_program,
@@ -950,4 +966,5 @@ __wing__ = {
 	'finally' 				: wing_finally,
 	'exception' 			: wing_exception,
 	'raise' 				: wing_raise,
+	'format'				: wing_format,
 }
