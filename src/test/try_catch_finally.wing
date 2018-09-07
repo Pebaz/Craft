@@ -15,7 +15,7 @@ Program:
 
 	:: That way you can have arguments that you care about?
 
-	raise: [DerpyException 23 "Some Value"]
+	raise: [SomeOtherException 23 "Some Value"]
 
 	:: WAIT, when registering, you must supply a description
 	:: When throwing, all supplied arguments are put into meta!

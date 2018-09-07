@@ -368,7 +368,7 @@ def wing_pop_scope():
 	TRACEBACK.set_scope(SCOPE)
 
 
-def register_exception(name, desc):
+def register_exception(name, desc, *args):
 	"""
 	Registers a new Exception with a new name and description of itself.
 	An error code is added by default.
@@ -391,8 +391,8 @@ def register_exception(name, desc):
 
 	error_code = (len(EXCEPTIONS) / 2) + 1
 
-	EXCEPTIONS[name] = {'name' : name, 'desc' : desc, 'meta' : None}
-	EXCEPTIONS[error_code] = {'name' : name, 'desc' : desc, 'meta' : None}
+	EXCEPTIONS[name] = {'name' : name, 'desc' : desc, 'meta' : args}
+	EXCEPTIONS[error_code] = {'name' : name, 'desc' : desc, 'meta' : args}
 
 	#wing_set(name, error_code)
 	# Manually place exception var in global namespace
@@ -425,9 +425,17 @@ def register_pyexception(exception):
 	SYMBOL_TABLE[0][name] = error_code
 
 
-def wing_raise(error_code):
+def wing_raise(error_code, *args):
 	"""
 	Raises the given exception if it exists in the EXCEPTION list.
+
+	<Long Description>
+
+	Args:
+		<Argument List>
+
+	Returns:
+		<Description of Return Value>
 	"""
 	global EXCEPTIONS, SCOPE
 	args = get_arg_value(error_code)
