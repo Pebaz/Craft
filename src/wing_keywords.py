@@ -49,6 +49,11 @@ def wing_try(*args):
 			exceptions = get_args(getvalue(catch)[0])
 			except_matches = any(i in [error_code, e.name] for i in exceptions)
 
+			# This is the `as` functionality
+			#the_as = getvalue(catch)[1]
+			#if isinstance(the_as, list):
+			#	wing_set(the_as[0], ) <----------- NEED TO GET THE EXCEPTION FROM GLOBAL SCOPE AND PUT IT HERE!
+
 			if len(exceptions) == 0 or except_matches:
 				get_arg_value(catch)
 

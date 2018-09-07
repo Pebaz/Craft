@@ -28,6 +28,14 @@ Program:
 
 		catch:
 		[
+			:: TODO(Pebaz): Implement 'as' functionality
+			:: except SomeOtherException as ex: <-------------------------------
+			[SomeOtherException][ex]
+			print: [$ex]
+		]
+
+		catch:
+		[
 			[SomeOtherError] :: Errors that have not been registered won't break the program.
 			print: ['hi']
 		]

@@ -8,6 +8,7 @@ from docopt import docopt
 
 
 from wing_exceptions import *
+from wing_colors import *
 
 
 # -----------------------------------------------------------------------------
@@ -436,7 +437,6 @@ def wing_raise(error_code, *args):
 
 	Returns:
 		<Description of Return Value>
-	"""
 	global EXCEPTIONS, SCOPE
 	args = get_arg_value(error_code)
 
@@ -458,6 +458,27 @@ def wing_raise(error_code, *args):
 			'meta' : meta
 		}
 	)
+	"""
+	global EXCEPTIONS, SCOPE
+
+	if isinstance(error_code, str):
+		error_code = query_symbol_table(error_code, SCOPE)
+
+	name = EXCEPTIONS[error_code]['name']
+	desc = EXCEPTIONS[error_code]['desc']
+	meta = EXCEPTIONS[error_code]['meta'] if len(args) == 0 else args
+
+	wing_exception = type(
+		name,
+		(Exception,),
+		{
+			'__init__' : lambda self: Exception.__init__(self, self.desc),
+			'name' : name,
+			'desc' : desc,
+			'meta' : meta
+		}
+	)
+
 	raise wing_exception
 
 
@@ -476,9 +497,11 @@ class Trace:
 		self.traceback = list()
 
 	def banner(self, text):
-		print('-' * (len(text) + 2))
-		print('', text)
-		print('-' * (len(text) + 2))
+		print(_CLRfr, end='')
+		print('-' * (len(text) + 2), file=sys.stderr)
+		print('', text, file=sys.stderr)
+		print('-' * (len(text) + 2), file=sys.stderr, end='')
+		print(_CLRreset)
 
 	def add_trace(self, func_name, args):
 		self.traceback.append((func_name, args))
@@ -491,18 +514,21 @@ class Trace:
 	def show_trace(self, error):
 		print()
 		self.banner(f'{error.name}: {error.desc}')
-		print(error.meta) if error.meta != None else print('')
+		print('\nCall stack trace:\n')
+
+		# TODO(Pebaz): Do we need to show the meta information?
+		#print(error.meta) if len(error.meta) > 0 else print('')
 
 		tab = 0
 		for i in self.traceback[1:-1]:
 			if isinstance(i, int):
 				tab = i
 				continue
-			print(('    ' * tab), i[0], *i[1:])
+			print(('    ' * tab), f'{_CLRfg}{i[0]}{_CLRreset}\t', *i[1:])
 
 		#print('\nFunction call that caused the error:')
 		fcall = self.traceback[-1]
-		print(('    ' * tab), fcall[0], *fcall[1:])
+		print(('    ' * tab), f'{_CLRfg}{fcall[0]}{_CLRreset}\t', *fcall[1:])
 		print()
 		print(('    ' * tab), '^')
 		for i in range(4):
