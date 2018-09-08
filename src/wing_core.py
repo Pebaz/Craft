@@ -534,7 +534,7 @@ class Trace:
 		for i in range(4):
 			print(('    ' * tab), '|')
 		print()
-		print(('    ' * tab), 'Responsible Function Call')
+		print(('    ' * tab), f'{_CLRfg}Responsible Function Call{_CLRreset}')
 
 
 # Represents a list of lists of key-value pairs (variables/names)
