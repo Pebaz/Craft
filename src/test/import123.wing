@@ -9,7 +9,7 @@ Program:
 	while:
 	[
 		True
-		
+
 		:: Add a random float less than 1 to the number each iteration
 		+= : [$number rng.random: []]
 		print: [$number]

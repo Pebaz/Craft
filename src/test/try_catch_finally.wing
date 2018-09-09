@@ -2,12 +2,13 @@ Program:
 [
 	print: ["Testing `try`, `catch`, and `finally` keywords, as well as registering a new Wing exception"]
 
+	import: [wing.util.term_colors]
+
 	exception:
 	[
 		SomeOtherException
 		"Something went wrong that was other."
 	]
-
 
 	:: TODO(Pebaz): Make them a struct?
 
@@ -15,11 +16,10 @@ Program:
 
 	:: That way you can have arguments that you care about?
 
-	raise: [SomeOtherException 23 "Some Value"]
+	:: raise: [SomeOtherException 23 "Some Value"]
 
 	:: WAIT, when registering, you must supply a description
 	:: When throwing, all supplied arguments are put into meta!
-
 
 	try:
 	[
@@ -32,18 +32,17 @@ Program:
 			:: except SomeOtherException as ex: <-------------------------------
 			[SomeOtherException][ex]
 			print: [$ex]
+			print: [$_CLRfr]
+			print: [$ex.name]
+			print: [$ex.desc]
+			print: [$ex.meta]
+			print: [$_CLRreset]
 		]
 
 		catch:
 		[
 			[SomeOtherError] :: Errors that have not been registered won't break the program.
 			print: ['hi']
-		]
-
-		catch:
-		[
-			[ZeroDivisionError] :: This list can be left empty to catch all errors
-			print: ["Division by zero error. Oops :P"]
 		]
 
 		catch:

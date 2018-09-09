@@ -49,12 +49,23 @@ def wing_try(*args):
 			exceptions = get_args(getvalue(catch)[0])
 			except_matches = any(i in [error_code, e.name] for i in exceptions)
 
+			#import ipdb; ipdb.set_trace()
+
 			# This is the `as` functionality
-			#the_as = getvalue(catch)[1]
-			#if isinstance(the_as, list):
-			#	wing_set(the_as[0], ) <----------- NEED TO GET THE EXCEPTION FROM GLOBAL SCOPE AND PUT IT HERE!
+			the_as = getvalue(catch)[1]
+			the_exception = {
+				'name' : e.name, 'desc' : e.desc, 'meta' : e.meta
+			}
 
 			if len(exceptions) == 0 or except_matches:
+				# Make the second statement that the catch function interprets
+				# to be binding the exception to local scope since it ignores
+				# the first one in the list.
+				if isinstance(the_as, list):
+					catch[getkey(catch)][1] = {
+						'set' : [the_as[0], { 'byval' : [the_exception] }]
+					}
+
 				get_arg_value(catch)
 
 				# Stop since the error has already been caught

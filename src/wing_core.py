@@ -437,27 +437,6 @@ def wing_raise(error_code, *args):
 
 	Returns:
 		<Description of Return Value>
-	global EXCEPTIONS, SCOPE
-	args = get_arg_value(error_code)
-
-	if isinstance(error_code, str):
-		error_code = query_symbol_table(error_code, SCOPE)
-
-	name = EXCEPTIONS[error_code]['name']
-	desc = EXCEPTIONS[error_code]['desc']
-	meta = EXCEPTIONS[error_code]['meta']
-
-	# Dynamically create a new Exception subclass and raise it
-	wing_exception = type(
-		name,
-		(Exception,),
-		{
-			'__init__' : lambda self: Exception.__init__(self, self.desc),
-			'name' : name,
-			'desc' : desc,
-			'meta' : meta
-		}
-	)
 	"""
 	global EXCEPTIONS, SCOPE
 
@@ -501,7 +480,7 @@ class Trace:
 		print('-' * (len(text) + 2), file=sys.stderr)
 		print('', text, file=sys.stderr)
 		print('-' * (len(text) + 2), file=sys.stderr, end='')
-		print(_CLRreset)
+		print(_CLRreset, file=sys.stderr)
 
 	def add_trace(self, func_name, args):
 		self.traceback.append((func_name, args))
@@ -516,18 +495,24 @@ class Trace:
 		self.banner(f'{error.name}: {error.desc}')
 		print('\nCall stack trace:\n')
 
-		# TODO(Pebaz): Do we need to show the meta information?
-		#print(error.meta) if len(error.meta) > 0 else print('')
+		# The index of the last function call (not scope popping)
+		last_func_call_index = -1
+
+		# Since both func calls and scope indexes are present, find a func call
+		while isinstance(self.traceback[last_func_call_index], int):
+			last_func_call_index -= 1
 
 		tab = 0
-		for i in self.traceback[1:-1]:
+		for i in self.traceback[1:last_func_call_index]:
 			if isinstance(i, int):
 				tab = i
 				continue
 			print(('    ' * tab), f'{_CLRfg}{i[0]}{_CLRreset}\t', *i[1:])
 
-		#print('\nFunction call that caused the error:')
-		fcall = self.traceback[-1]
+		# Get the function call that caused the error:
+		fcall = self.traceback[last_func_call_index]
+
+		# Print a customized stacktrace that shows the function call that failed
 		print(('    ' * tab), f'{_CLRfg}{fcall[0]}{_CLRreset}\t', *fcall[1:])
 		print()
 		print(('    ' * tab), '^')
