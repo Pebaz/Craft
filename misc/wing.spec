@@ -26,4 +26,5 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=True )
+          console=True,
+          icon='..\misc\Wing-Logo.ico')
