@@ -530,3 +530,10 @@ EXCEPTIONS = dict()
 TRACEBACK = Trace()
 WING_PATH = [os.getcwd(), 'X:/Wing/stdlib']
 DEBUG = False
+
+def setup_sym_tab():
+	import wing_operators
+	import wing_keywords
+	SYMBOL_TABLE.append(dict())
+	SYMBOL_TABLE[0].update(wing_operators.__wing__)
+	SYMBOL_TABLE[0].update(wing_keywords.__wing__)
