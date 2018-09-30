@@ -1,0 +1,44 @@
+Program:
+[
+	print: ["Hello World!"]
+
+	set: [<u32 age> 24]
+	set: [<str name> "Pebaz"]
+	set: [name "asdf"] :: Type Inference
+
+	def:
+	[
+		[<i32 add> <i32 x> <i32 y>]
+		return: [+: [x y]]
+	]
+
+	::>
+	Type makers are not needed when looking up variables since their type will
+	be known at compile time.
+	<::
+	print: [$age]
+
+
+	::>
+	Says hello to the given `person`.
+
+	The argument must be passed as a string.
+
+	Args:
+		person(str): the person to greet.
+
+	Returns:
+		"Hello <`person`>!"
+	<::
+	def:
+	[
+		[say-hello person]
+		return: [+: ["Hello " $person "!"]]
+	]
+
+	for:
+	[
+		[i 0 10 2]
+		print: [say-hello: ["Pebaz"]]
+	]
+]
