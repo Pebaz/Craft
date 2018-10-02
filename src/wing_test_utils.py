@@ -11,7 +11,7 @@ def parse_source(source):
 	"""
 	Converts the given string into AST.
 	"""
-	wing_parse(source)
+	return wing_parse(source)
 
 
 def load_source(filename):

@@ -1,5 +1,3 @@
-import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-import wing_test_utils
+from os.path import abspath, join, dirname
+sys.path.insert(0, abspath(join(dirname(__file__), '..')))

@@ -1,5 +1,5 @@
 pushd .
-cd ../src
-py.test test/test_print.py
+cd ../src/test
+py.test
 popd
 pause

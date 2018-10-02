@@ -1,4 +1,10 @@
-from . context import wing_test_utils
+try:
+	import context
+except ImportError:
+	from . context import *
+finally:
+	from wing_test_utils import *
+
 
 def test_print_str():
 	"""
@@ -11,5 +17,8 @@ def test_print_str():
 		print: ["Hello World!"]
 	]
 	"""
-	ast = wing_test_utils.parse_source(source)
-	assert(wing_test_utils.capture_stdout(ast) == 'Hello World!\n')
+	assert(capture_stdout(parse_source(source)) == 'Hello World!\n')
+
+
+if __name__ == '__main__':
+	test_print_str()
