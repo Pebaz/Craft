@@ -6,19 +6,24 @@ Usage:
   {0} [-y | --yaml]
   {0} [-y | --yaml] FILENAME
   {0} [-d | --debug] FILENAME
+  {0} [-t | --time] FILENAME
+  {0} [[-d | --debug] [-t | --time]] FILENAME
+  {0} [[-y | --yaml] [-t | --time]] FILENAME
+  {0} [[-y | --yaml] [-d | --debug] [-t | --time]] FILENAME
 
 Options:
   FILE            Run a Wing Program From Source
   -v --version    Display Wing Version and Exit
   -d --debug      Debug a Wing Program
   -y --yaml       Interpret YAML as a Wing program
+  -t --time       Time and Display How Long the Script Took to Run
 
 To run the Wing REPL, supply no arguments:
   {0}
 """
 
 
-import sys, os, os.path, pprint, traceback, imp
+import sys, os, os.path, pprint, traceback, imp, time
 
 from docopt import docopt
 
@@ -36,6 +41,9 @@ SYMBOL_TABLE.append(dict())
 SYMBOL_TABLE[0].update(wing_operators.__wing__)
 SYMBOL_TABLE[0].update(wing_keywords.__wing__)
 
+# Lambda to get the system current time millis
+millis = lambda: int(round(time.time() * 1000))
+
 def main(args):
 	"""
 	"""
@@ -47,7 +55,16 @@ def main(args):
 
 	if arguments['FILENAME'] != None:
 		DEBUG = arguments['--debug']
-		run_file(arguments['FILENAME'])	
+
+		# Start the timer to profile how long the script took to run
+		if arguments['--time']:
+			start = millis()
+
+		run_file(arguments['FILENAME'])
+
+		# Display how long the script took to run
+		if arguments['--time']:
+			print(f'[Finished in {(millis() - start) / 1000.0} seconds]')
 	else:
 		run_cli(arguments['--yaml'])
 

@@ -15,4 +15,10 @@ Program:
 
 ast = wing_parse(source)
 
-print(handle_expression(ast))
+class STDOutWrapper:
+	def __init__(self):
+		pass
+
+sys.stdout = STDOutWrapper()
+
+handle_expression(ast)

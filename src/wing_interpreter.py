@@ -4,6 +4,9 @@ from wing_parser import *
 def run_file(filename):
 	"""
 	"""
+
+	# Time the execution of the script
+
 	# Handle the top-level function named "Program" recursively
 	with open(filename) as file:
 		extension = os.path.splitext(filename)[1]
