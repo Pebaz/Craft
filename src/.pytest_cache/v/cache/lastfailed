@@ -1,0 +1,4 @@
+{
+  "test/test_print.py": true,
+  "test/test_print.py::test_print_str": true
+}

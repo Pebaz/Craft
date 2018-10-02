@@ -32,7 +32,7 @@ def wing_add_equal(*args):
 	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v += i
-	
+
 	wing_set(var_name, v)
 
 
@@ -55,7 +55,7 @@ def wing_sub_equal(*args):
 	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v -= i
-	
+
 	wing_set(var_name, v)
 
 
@@ -78,7 +78,7 @@ def wing_mul_equal(*args):
 	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v *= i
-	
+
 	wing_set(var_name, v)
 
 
@@ -101,7 +101,7 @@ def wing_div_equal(*args):
 	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v /= i
-	
+
 	wing_set(var_name, v)
 
 
@@ -124,7 +124,7 @@ def wing_mod_equal(*args):
 	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v %= i
-	
+
 	wing_set(var_name, v)
 
 
@@ -147,7 +147,7 @@ def wing_exp_equal(*args):
 	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v **= i
-	
+
 	wing_set(var_name, v)
 
 
@@ -213,7 +213,7 @@ def wing_less_than_or_equal_to(*args):
 
 def wing_bitwise_and(*args):
 	"""
-	Bitwise AND operator.	
+	Bitwise AND operator.
 	"""
 	args = get_args(args)
 	v = args[0]
@@ -230,7 +230,7 @@ def wing_bitwise_and_equal(*args):
 	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v &= i
-	
+
 	wing_set(var_name, v)
 
 
@@ -252,7 +252,7 @@ def wing_bitwise_or_equal(*args):
 	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v |= i
-	
+
 	wing_set(var_name, v)
 
 
@@ -275,7 +275,7 @@ def wing_bitwise_xor_equal(*args):
 	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v ^= i
-	
+
 	wing_set(var_name, v)
 
 
@@ -310,7 +310,7 @@ def wing_bitwise_left_shift_equal(*args):
 	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v <<= i
-	
+
 	wing_set(var_name, v)
 
 
@@ -333,7 +333,7 @@ def wing_bitwise_right_shift_equal(*args):
 	v = get_arg_value(args[0])
 	for i in args[1:]:
 		v -= i
-	
+
 	wing_set(var_name, v)
 
 __wing__ = {
