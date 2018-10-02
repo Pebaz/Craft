@@ -4,8 +4,8 @@
 
 import io
 from contextlib import redirect_stdout
-from . wing_core import *
-from . wing_parser import *
+from wing_core import *
+from wing_parser import *
 
 def parse_source(source):
 	"""

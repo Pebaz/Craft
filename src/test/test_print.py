@@ -1,10 +1,9 @@
-from wing_test_utils import *
+from . context import wing_test_utils
 
 def test_print_str():
 	"""
 	Test to see if the print function will print a string value.
 	"""
-
 	source = \
 	"""
 	Program:
@@ -12,4 +11,5 @@ def test_print_str():
 		print: ["Hello World!"]
 	]
 	"""
-	assert(capture_stdout(parse_source(source)) == 'Hello World!\n')
+	ast = wing_test_utils.parse_source(source)
+	assert(wing_test_utils.capture_stdout(ast) == 'Hello World!\n')
