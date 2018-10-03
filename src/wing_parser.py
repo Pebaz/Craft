@@ -41,7 +41,10 @@ def _type_cast_value(x, y, value):
 				return int(value, base=base)
 			except:
 				pass
-		return value
+		try:
+			return float(value)
+		except:
+			return value
 	else:
 		return value
 
