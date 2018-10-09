@@ -2,6 +2,14 @@
 
 
 
+Wing is an interpreted, high-level scripting language.
+
+
+
+
+
+
+
 ## Performance
 
 
