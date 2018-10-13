@@ -1,5 +1,6 @@
 [
   "test_print.py::test_print_str",
   "test_print.py::test_print_int",
+  "test_print.py::test_print_bool",
   "test_print.py::test_print_float"
 ]
