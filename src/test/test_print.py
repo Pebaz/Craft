@@ -17,7 +17,8 @@ def test_print_str():
 		print: ["Hello World!"]
 	]
 	"""
-	assert(capture_stdout(parse_source(source)) == 'Hello World!\n')
+	result = 'Hello World!\n'
+	assert(capture_stdout(parse_source(source)) == result)
 
 
 def test_print_int():
@@ -31,7 +32,8 @@ def test_print_int():
 		print: [123]
 	]
 	"""
-	assert(capture_stdout(parse_source(source)) == '123\n')
+	result = '123\n'
+	assert(capture_stdout(parse_source(source)) == result)
 
 
 def test_print_float():
@@ -45,7 +47,8 @@ def test_print_float():
 		print: [3.14]
 	]
 	"""
-	assert(capture_stdout(parse_source(source)) == '3.14\n')
+	result = '3.14\n'
+	assert(capture_stdout(parse_source(source)) == result)
 
 
 def test_print_bool():
@@ -59,10 +62,11 @@ def test_print_bool():
 		print: [True]
 	]
 	"""
-	assert(capture_stdout(parse_source(source)) == 'True\n')
+	result = 'True\n'
+	assert(capture_stdout(parse_source(source)) == result)
 
 
-def test_print_float():
+def test_print_dict():
 	"""
 	Test to see if the print function will print a dict value.
 	"""
@@ -73,7 +77,8 @@ def test_print_float():
 		print: [hash: [name Pebaz age 23]]
 	]
 	"""
-	assert(capture_stdout(parse_source(source)) == "{'name': 'Pebaz', 'age': 23}\n")
+	result = "{'name': 'Pebaz', 'age': 23}\n"
+	assert(capture_stdout(parse_source(source)) == result)
 
 
 if __name__ == '__main__':

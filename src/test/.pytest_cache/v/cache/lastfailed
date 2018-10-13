@@ -1,1 +1,4 @@
-{}
+{
+  "test_for.py::test_print_stop": true,
+  "test_for.py::test_print_str": true
+}
