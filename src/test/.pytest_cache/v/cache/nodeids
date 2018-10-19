@@ -1,5 +1,6 @@
 [
-  "test_for.py::test_print_stop",
+  "test_for.py::test_for_stop",
+  "test_for.py::test_for_scoping",
   "test_print.py::test_print_str",
   "test_print.py::test_print_int",
   "test_print.py::test_print_float",

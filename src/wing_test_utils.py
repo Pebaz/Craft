@@ -1,11 +1,22 @@
 """
-
+Various utilities to reduce the amount of code needed to write a test case.
 """
 
 import io
 from contextlib import redirect_stdout
 from wing_core import *
 from wing_parser import *
+import textwrap
+
+
+PROGRAM = \
+"""
+Program:
+[
+%s
+]
+"""
+
 
 def parse_source(source):
 	"""
@@ -22,6 +33,13 @@ def load_source(filename):
 	with open(filename) as source:
 		return parse_source(source.read())
 
+def dedent_result(result):
+	"""
+	Since the result of each test is stored in a block string within the test,
+	this requires that extra whitespace be removed on the left margin.
+	"""
+	return textwrap.dedent(result)
+
 
 def capture_stdout(ast):
 	"""
@@ -33,3 +51,17 @@ def capture_stdout(ast):
 	with redirect_stdout(wrapper):
 		handle_expression(ast)
 	return wrapper.getvalue()
+
+
+def run_test(source, result):
+	"""
+	Test to see if the print function will print a string value.
+	"""
+	output = capture_stdout(parse_source(source))
+	assert(output.strip() == dedent_result(result).strip())
+
+
+def run_test_program(source, result):
+	"""
+	"""
+	run_test(PROGRAM % source, result)

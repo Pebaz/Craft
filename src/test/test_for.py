@@ -5,34 +5,52 @@ except ImportError:
 finally:
 	from wing_test_utils import *
 
-import textwrap
 
-def test_print_stop():
+def test_for_stop():
 	"""
 	Test to see if the print function will print a string value.
 	"""
-
-	source = \
-	"""
-	Program:
-	[
+	run_test_program(
+		"""
 		for:
 		[
 			[i 3]
 			print: [$i]
 		]
-	]
-	"""
-
-	result = textwrap.dedent(
+		""",
 		"""
 		0
 		1
 		2
 		"""
 	)
-	assert(capture_stdout(parse_source(source)) == result)
+
+
+def test_for_scoping():
+	"""
+	Test and see if the for loop counter is destroyed when out of scope.
+	"""
+	run_test_program(
+		"""
+		for:
+		[
+			[i 3]
+			print: [$i]
+		]
+		try:
+		[
+			
+		]
+		""",
+		"""
+		0
+		1
+		2
+		"""
+	)
 
 
 if __name__ == '__main__':
-	test_for_stop()
+	for test in dir():
+		if test.startswith('test_'):
+			globals()[test]()
