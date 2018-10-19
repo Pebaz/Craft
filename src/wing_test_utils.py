@@ -57,8 +57,11 @@ def run_test(source, result):
 	"""
 	Test to see if the print function will print a string value.
 	"""
-	output = capture_stdout(parse_source(source))
-	assert(output.strip() == dedent_result(result).strip())
+	output = capture_stdout(parse_source(source)).strip()
+	result = dedent_result(result).strip()
+	print(repr(result))
+	print(repr(output))
+	assert(output == result)
 
 
 def run_test_program(source, result):

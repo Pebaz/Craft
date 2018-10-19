@@ -123,26 +123,48 @@ def handle_value(value):
 	string value is being passed, not a variable.
 	"""
 
-	# Is it a variable:
-	if isinstance(value, str):
+	# # Is it a variable:
+	# if isinstance(value, str):
 
-		# Treat as variable if not second $
-		if value.startswith('$'):
-			if value[1] != '$':
-				return query_symbol_table(value[1:], SCOPE)
+	# 	# Treat as variable if not second $
+	# 	if value.startswith('$'):
+	# 		if value[1] != '$':
+	# 			return query_symbol_table(value[1:], SCOPE)
 
-			# Shorthand syntax for passing by value: $$var_name
-			else:
-				return value[1:]
+	# 		# Shorthand syntax for passing by value: $$var_name
+	# 		else:
+	# 			return value[1:]
 
-	# Just return the value if there is nothing special about it
-	return value
+	# # Just return the value if there is nothing special about it
+	# return value
+
+	global SCOPE
+
+	try:
+		# Is it a variable:
+		if isinstance(value, str):
+
+			# Treat as variable if not second $
+			if value.startswith('$'):
+				if value[1] != '$':
+					return query_symbol_table(value[1:], SCOPE)
+
+				# Shorthand syntax for passing by value: $$var_name
+				else:
+					return value[1:]
+
+		# Just return the value if there is nothing special about it
+		return value
+
+	except Exception as e:
+		register_pyexception(e)
+		wing_raise(type(e).__name__)
 
 
 def handle_expression(dictn):
 	"""
 	"""
-	global SCOPE, DEBUG
+	global SCOPE, DEBUG, TRACEBACK
 	func = query_symbol_table(getkey(dictn), SCOPE)
 
 	# Add the function name to the traceback
@@ -210,7 +232,7 @@ def push_return_point():
 	Adds the scope at the current execution point in the event of a function
 	return or (in the future) an exception occurs.
 	"""
-	global RETURN_POINTS
+	global RETURN_POINTS, SCOPE
 	RETURN_POINTS.append(SCOPE)
 
 
@@ -228,6 +250,7 @@ def cull_scopes(return_point):
 	Removes scopes that were pushed but destroyed after a call to:
 	`pop_return_point()`.
 	"""
+	global SCOPE
 	for i in range(SCOPE - return_point):
 		wing_pop_scope()
 
@@ -339,12 +362,14 @@ def wing_push_named_scope(name):
 
 	Note that this is pushed DURING execution of a class constructor or method.
 	"""
+	# TODO(Pebaz): Do I want to keep this? Would make namespaces easier
 
 
 def wing_pop_named_scope(name):
 	"""
 	Used to remove a named scope temporarily?
 	"""
+	# TODO(Pebaz): Do I want to keep this? Would make namespaces easier
 
 
 def wing_push_scope():
@@ -361,7 +386,7 @@ def wing_push_scope():
 def wing_pop_scope():
 	"""
 	"""
-	global SCOPE, SYMBOL_TABLE
+	global SCOPE, SYMBOL_TABLE, TRACEBACK
 	SCOPE -= 1
 	SYMBOL_TABLE.pop()
 
@@ -385,7 +410,7 @@ def register_exception(name, desc, *args):
 		Using the lookup for the error code:
 			raise: [$WingException]
 	"""
-	global EXCEPTIONS
+	global EXCEPTIONS, SYMBOL_TABLE
 
 	if name in EXCEPTIONS:
 		return
@@ -407,7 +432,7 @@ def register_pyexception(exception):
 	Args:
 		exception(Exception): the exception object to register.
 	"""
-	global EXCEPTIONS
+	global EXCEPTIONS, SYMBOL_TABLE
 
 	name = type(exception).__name__
 

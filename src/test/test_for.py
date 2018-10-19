@@ -30,6 +30,7 @@ def test_for_scoping():
 	"""
 	Test and see if the for loop counter is destroyed when out of scope.
 	"""
+	
 	run_test_program(
 		"""
 		for:
@@ -48,11 +49,8 @@ def test_for_scoping():
 			]
 		]
 		""",
-		"""
-		Variable was hidden
-		"""
+		"0\n1\n2\nVariable was hidden"
 	)
-
 
 if __name__ == '__main__':
 	for test in dir():

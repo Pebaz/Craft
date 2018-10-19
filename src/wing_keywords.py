@@ -717,18 +717,14 @@ def wing_program(*args):
 	  <Description of Return Value>
 	"""
 	global TRACEBACK
+
+	# NOTE(Pebaz): To show a Python internal error, simply call: get_args(args)
+	# TODO(Pebaz): Make it so that a command line switch can show the traceback
+
 	try:
 		get_args(args)
 	except Exception as e:
-		#import ipdb; ipdb.set_trace()
-		register_pyexception(e)
-		try:
-			wing_raise(type(e).__name__)
-		except Exception as ee:
-			TRACEBACK.show_trace(ee)
-
-
-
+		TRACEBACK.show_trace(e)
 
 
 def wing_byval(*args):
