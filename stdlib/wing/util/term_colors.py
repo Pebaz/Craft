@@ -3,7 +3,7 @@ A collection of constants for use in making the usage of terminal coloring as
 simple as possible.
 These constants can be used very easily along with the Wing `format` function.
 
-print: [format: ["{0}Hello{1} again {0}World!{1}" _CLRfb _CLRreset]]
+print: [format: ["{0}Hello{1} again {0}World!{1}" $_CLRfb $_CLRreset]]
 """
 
 import colorama

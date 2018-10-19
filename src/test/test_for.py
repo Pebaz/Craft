@@ -8,7 +8,7 @@ finally:
 
 def test_for_stop():
 	"""
-	Test to see if the print function will print a string value.
+	For loop handle stop value.
 	"""
 	run_test_program(
 		"""
@@ -22,6 +22,81 @@ def test_for_stop():
 		0
 		1
 		2
+		"""
+	)
+
+
+def test_for_start():
+	"""
+	For loop handle start and stop values.
+	"""
+	run_test_program(
+		"""
+		for:
+		[
+			[i 2 10]
+			print: [$i]
+		]
+		""",
+		"""
+		2
+		3
+		4
+		5
+		6
+		7
+		8
+		9
+		"""
+	)
+
+
+def test_for_step():
+	"""
+	For loop handle start, stop, and step values.
+	"""
+	run_test_program(
+		"""
+		for:
+		[
+			[i 1 10 2]
+			print: [$i]
+		]
+		""",
+		"""
+		1
+		3
+		5
+		7
+		9
+		"""
+	)
+
+
+def test_for_break():
+	"""
+	For loop handle breaking in the middle.
+	"""
+	run_test_program(
+		"""
+		for:
+		[
+			[i 10]
+			print: [$i]
+			if:
+			[
+				=: [$i 5]
+				break: []
+			]
+		]
+		""",
+		"""
+		0
+		1
+		2
+		3
+		4
+		5
 		"""
 	)
 
@@ -51,6 +126,7 @@ def test_for_scoping():
 		""",
 		"0\n1\n2\nVariable was hidden"
 	)
+
 
 if __name__ == '__main__':
 	for test in dir():
