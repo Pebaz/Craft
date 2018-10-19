@@ -1,6 +1,7 @@
 class WingException(Exception):
 	"""
-	super() super()
+	Wing cannot use a raw Exception class anymore since it does not have a name
+	field.
 	"""
 	def __init__(self, name, desc, meta):
 		Exception.__init__(self)

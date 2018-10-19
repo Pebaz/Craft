@@ -1,3 +1,4 @@
 {
+  "test_for.py::test_for_scoping": true,
   "test_for.py::test_something": true
 }

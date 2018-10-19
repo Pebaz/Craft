@@ -35,6 +35,7 @@ def wing_try(*args):
 		for i in args:
 			if i not in exceptors:
 				get_arg_value(i)
+
 	# If an exception occurs, Wing will have already registered it!
 	except Exception as e:
 		# Make sure to keep track of enclosing scope
@@ -644,6 +645,9 @@ def wing_return(*args):
 	"""
 	if len(args) > 1:
 		ex = f'Only 1 value can be returned from function, got {len(args)}.'
+
+		# TODO(Pebaz): Should this return a tuple rather than crash?
+
 		raise Exception(ex)
 
 	value = get_arg_value(args[0])
@@ -716,7 +720,12 @@ def wing_program(*args):
 	try:
 		get_args(args)
 	except Exception as e:
-		TRACEBACK.show_trace(e)
+		#import ipdb; ipdb.set_trace()
+		register_pyexception(e)
+		try:
+			wing_raise(type(e).__name__)
+		except Exception as ee:
+			TRACEBACK.show_trace(ee)
 
 
 

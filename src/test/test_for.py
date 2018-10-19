@@ -34,18 +34,22 @@ def test_for_scoping():
 		"""
 		for:
 		[
-			[i 3]
-			print: [$i]
+			[hidden-var 3]
+			print: [$hidden-var]
 		]
+
 		try:
 		[
-			
+			print: [$hidden-var]
+			catch:
+			[
+				[] :: Catch any error
+				print: ["Variable was hidden"]
+			]
 		]
 		""",
 		"""
-		0
-		1
-		2
+		Variable was hidden
 		"""
 	)
 

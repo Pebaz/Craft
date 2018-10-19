@@ -418,7 +418,7 @@ def register_pyexception(exception):
 	meta = exception.args[1:] if len(exception.args) > 1 else None
 
 	error_code = int((len(EXCEPTIONS) / 2) + 1)
-	EXCEPTIONS[name] = {'name' : name, 'desc' : desc, 'meta' : None}
+	EXCEPTIONS[name]       = {'name' : name, 'desc' : desc, 'meta' : None}
 	EXCEPTIONS[error_code] = {'name' : name, 'desc' : desc, 'meta' : None}
 
 	#wing_set(name, error_code)
