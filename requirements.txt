@@ -1,2 +1,5 @@
+# Can't specify "*" so don't
 colorama
 pyparsing
+docopt
+yaml
