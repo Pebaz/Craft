@@ -214,8 +214,13 @@ def handle_expression(dictn):
 	# TODO(Pebaz): Fix the code to say this instead:
 	'''
 	try:
-		return func(*getvalue(dictn)) if callable(func) \
-			else wing_call(getkey(dictn), *getvalue(dictn))
+		# Python function
+		if callable(func):
+			return func(*getvalue(dictn))
+
+		# Wing function
+		else:
+			return wing_call(getkey(dictn), *getvalue(dictn))
 
 	# These Exceptions are not errors so pass them on to be caught by wing_call
 	except (WingFunctionReturnException, WingLoopBreakException, WingLoopContinueException) as e:

@@ -2,4 +2,4 @@
 colorama
 pyparsing
 docopt
-yaml
+pyyaml
