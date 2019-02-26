@@ -1,1 +1,3 @@
-{}
+{
+  "test_variables.py::test_for_scoping": true
+}

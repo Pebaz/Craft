@@ -771,12 +771,11 @@ def wing_hash(*args):
 		raise Exception(f'Expected even number of arguments, got {len(args)}.')
 
 	args = get_args(args)
-	ret = dict()
-	count = 0
 
-	for i in range(len(args) - 2):
-		ret.update({ args[i + count] : args[i + count + 1] })
-		count += 1
+	ret = {
+		args[i] : args[i + 1]
+		for i in range(0, len(args), 2)
+	}
 
 	return ret
 
