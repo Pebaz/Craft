@@ -53,18 +53,15 @@ def capture_stdout(ast):
 	return wrapper.getvalue()
 
 
-def run_test(source, result):
+def run_test(source, expected_result):
 	"""
 	Test to see if the print function will print a string value.
 	"""
 	output = capture_stdout(parse_source(source)).strip()
-	result = dedent_result(result).strip()
-	print(repr(result))
-	print(repr(output))
-	assert(output == result)
+	assert(output == expected_result)
 
 
-def run_test_program(source, result):
+def run_test_program(source, expected_result):
 	"""
 	"""
-	run_test(PROGRAM % source, result)
+	run_test(PROGRAM % source, dedent_result(expected_result).strip())

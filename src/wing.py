@@ -23,7 +23,7 @@ To run the Wing REPL, supply no arguments:
 """
 
 
-import sys, os, os.path, pprint, traceback, imp, time
+import sys, os, os.path, pprint, traceback, time
 
 from docopt import docopt
 

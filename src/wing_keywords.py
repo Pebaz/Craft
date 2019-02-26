@@ -455,7 +455,8 @@ def wing_for(*args):
 		except Exception as e:
 			traceback.print_exc()
 
-	cull_scopes(pop_return_point())
+	pnt = pop_return_point()
+	cull_scopes(pnt)
 
 
 def wing_if(*args):

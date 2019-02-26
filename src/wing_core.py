@@ -235,7 +235,7 @@ def handle_expression(dictn):
 def push_return_point():
 	"""
 	Adds the scope at the current execution point in the event of a function
-	return or (in the future) an exception occurs.
+	return or an exception occurs.
 	"""
 	global RETURN_POINTS, SCOPE
 	RETURN_POINTS.append(SCOPE)
@@ -562,6 +562,10 @@ WING_PATH = [os.getcwd(), 'X:/Wing/stdlib']
 DEBUG = False
 
 def setup_sym_tab():
+	# TODO(Pebaz): What else needs to be cleared?
+	SYMBOL_TABLE.clear()
+	RETURN_POINTS.clear()
+
 	import wing_operators
 	import wing_keywords
 	SYMBOL_TABLE.append(dict())
