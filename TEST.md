@@ -28,12 +28,13 @@
 
 #### Setting Variables
 
-- [ ] Numbers
-- [ ] Booleans
-- [ ] Variables
-- [ ] Floats
-- [ ] Strings
-- [ ] Hashes
+- [x] Numbers
+- [x] Booleans
+- [x] Variables
+- [x] Floats
+- [x] Strings
+- [x] Hashes
+- [x] Tuples
 
 
 

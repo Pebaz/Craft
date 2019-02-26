@@ -1,0 +1,28 @@
+Program:
+[
+	print: ["FizzBuzz!"]
+	for:
+	[
+		[i 1000]
+
+		if:
+		[
+			=: [%: [$i 3] 0]
+			prin: [Fizz]
+		]
+
+		if:
+		[
+			=: [%: [$i 5] 0]
+			prin: [Buzz]
+		]
+
+		if:
+		[
+			and: [!=: [%: [$i 5] 0] !=: [%: [$i 3] 0]]
+			prin: [$i]
+		]
+
+		print: []
+	]
+]

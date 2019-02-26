@@ -558,7 +558,7 @@ SCOPE = 0 # For now, functions have to increment and decrement scope
 RETURN_POINTS = []
 EXCEPTIONS = dict()
 TRACEBACK = Trace()
-WING_PATH = [os.getcwd(), 'X:/Wing/stdlib']
+WING_PATH = [os.getcwd(), 'stdlib']
 DEBUG = False
 
 def setup_sym_tab():

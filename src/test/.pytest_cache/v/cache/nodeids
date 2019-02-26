@@ -16,5 +16,7 @@
   "test_variables.py::test_set_str_single_quotes",
   "test_variables.py::test_set_bool",
   "test_variables.py::test_set_list",
-  "test_variables.py::test_set_dict"
+  "test_variables.py::test_set_dict",
+  "test_variables.py::test_set_tuple",
+  "test_variables.py::test_set_variable"
 ]

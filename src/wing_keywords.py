@@ -13,236 +13,236 @@ pp = pprint.PrettyPrinter(width=1)
 
 
 def wing_try(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	global SCOPE
-	catches = [i for i in args if getkey(i) == 'catch']
-	finale = [i for i in args if getkey(i) == 'finally']
-	exceptors = catches + finale
+    Returns:
+      <Description of Return Value>
+    """
+    global SCOPE
+    catches = [i for i in args if getkey(i) == 'catch']
+    finale = [i for i in args if getkey(i) == 'finally']
+    exceptors = catches + finale
 
-	wing_push_scope()
-	pushed = True
-	try:
-		for i in args:
-			if i not in exceptors:
-				get_arg_value(i)
+    wing_push_scope()
+    pushed = True
+    try:
+        for i in args:
+            if i not in exceptors:
+                get_arg_value(i)
 
-	# If an exception occurs, Wing will have already registered it!
-	except Exception as e:
-		# Make sure to keep track of enclosing scope
-		wing_pop_scope()
-		pushed = False
+    # If an exception occurs, Wing will have already registered it!
+    except Exception as e:
+        # Make sure to keep track of enclosing scope
+        wing_pop_scope()
+        pushed = False
 
-		error_code = query_symbol_table(e.name, SCOPE)
+        error_code = query_symbol_table(e.name, SCOPE)
 
-		for catch in catches:
-			if len(getvalue(catch)) == 0:
-				continue
-			exceptions = get_args(getvalue(catch)[0])
-			except_matches = any(i in [error_code, e.name] for i in exceptions)
+        for catch in catches:
+            if len(getvalue(catch)) == 0:
+                continue
+            exceptions = get_args(getvalue(catch)[0])
+            except_matches = any(i in [error_code, e.name] for i in exceptions)
 
-			#import ipdb; ipdb.set_trace()
+            #import ipdb; ipdb.set_trace()
 
-			# This is the `as` functionality
-			the_as = getvalue(catch)[1]
-			the_exception = {
-				'name' : e.name, 'desc' : e.desc, 'meta' : e.meta
-			}
+            # This is the `as` functionality
+            the_as = getvalue(catch)[1]
+            the_exception = {
+                'name' : e.name, 'desc' : e.desc, 'meta' : e.meta
+            }
 
-			if len(exceptions) == 0 or except_matches:
-				# Make the second statement that the catch function interprets
-				# to be binding the exception to local scope since it ignores
-				# the first one in the list.
-				if isinstance(the_as, list):
-					catch[getkey(catch)][1] = {
-						'set' : [the_as[0], { 'byval' : [the_exception] }]
-					}
+            if len(exceptions) == 0 or except_matches:
+                # Make the second statement that the catch function interprets
+                # to be binding the exception to local scope since it ignores
+                # the first one in the list.
+                if isinstance(the_as, list):
+                    catch[getkey(catch)][1] = {
+                        'set' : [the_as[0], { 'byval' : [the_exception] }]
+                    }
 
-				get_arg_value(catch)
+                get_arg_value(catch)
 
-				# Stop since the error has already been caught
-				break
-	finally:
-		if pushed:
-			wing_pop_scope()
+                # Stop since the error has already been caught
+                break
+    finally:
+        if pushed:
+            wing_pop_scope()
 
-		if len(finale) > 0:
-			get_args(finale)
+        if len(finale) > 0:
+            get_args(finale)
 
 
 def wing_catch(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	# Must ignore first argument since `wing_try` reads it.
-	wing_push_scope()
-	get_args(args[1:])
-	wing_pop_scope()
+    Returns:
+      <Description of Return Value>
+    """
+    # Must ignore first argument since `wing_try` reads it.
+    wing_push_scope()
+    get_args(args[1:])
+    wing_pop_scope()
 
 
 def wing_finally(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	wing_push_scope()
-	get_args(args)
-	wing_pop_scope()
+    Returns:
+      <Description of Return Value>
+    """
+    wing_push_scope()
+    get_args(args)
+    wing_pop_scope()
 
 
 def wing_exception(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	register_exception(*get_args(args))
+    Returns:
+      <Description of Return Value>
+    """
+    register_exception(*get_args(args))
 
 
 
 def wing_switch(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	match = get_arg_value(args[0])
-	cases = [i for i in args[1:] if getkey(i) == 'case']
-	default = [i for i in args[1:] if getkey(i) == 'default'][0]
+    Returns:
+      <Description of Return Value>
+    """
+    match = get_arg_value(args[0])
+    cases = [i for i in args[1:] if getkey(i) == 'case']
+    default = [i for i in args[1:] if getkey(i) == 'default'][0]
 
-	# Handle malformed switch statement
-	if len(default) > 1:
-		ldefs = len(default)
-		raise Exception(f'Only 1 default clause excepted, found: {ldefs}')
+    # Handle malformed switch statement
+    if len(default) > 1:
+        ldefs = len(default)
+        raise Exception(f'Only 1 default clause excepted, found: {ldefs}')
 
-	# Create a blank program function call if there is no default
-	if len(default) == 0:
-		default = { 'Program' : [] }
+    # Create a blank program function call if there is no default
+    if len(default) == 0:
+        default = { 'Program' : [] }
 
-	# Run the case block if the value matches
-	for case in cases:
-		# Obtain the first value in the case block and potentially match it
-		statements = getvalue(case)
-		if get_arg_value(statements[0]) == match:
-			get_args(statements[1:])
-			break
+    # Run the case block if the value matches
+    for case in cases:
+        # Obtain the first value in the case block and potentially match it
+        statements = getvalue(case)
+        if get_arg_value(statements[0]) == match:
+            get_args(statements[1:])
+            break
 
-	# Matching case was not found, handle default clause
-	else:
-		get_arg_value(default)
+    # Matching case was not found, handle default clause
+    else:
+        get_arg_value(default)
 
 
 def wing_case(*args):
-	"""
-	Ignores the first argument since it is a value to use with `switch`.
-	"""
-	get_args(args[1:])
+    """
+    Ignores the first argument since it is a value to use with `switch`.
+    """
+    get_args(args[1:])
 
 
 def wing_default(*args):
-	"""
-	Run the code therein since there is no match condition
-	"""
-	get_args(args)
+    """
+    Run the code therein since there is no match condition
+    """
+    get_args(args)
 
 
 def wing_break(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	raise WingLoopBreakException()
+    Returns:
+      <Description of Return Value>
+    """
+    raise WingLoopBreakException()
 
 
 def wing_continue(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	raise WingLoopContinueException()
+    Returns:
+      <Description of Return Value>
+    """
+    raise WingLoopContinueException()
 
 
 def wing_while(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	condition = args[0]
+    Returns:
+      <Description of Return Value>
+    """
+    condition = args[0]
 
-	push_return_point()
+    push_return_point()
 
-	wing_push_scope()
+    wing_push_scope()
 
-	while get_arg_value(condition):
-		try:
-			get_args(args[1:])
-		except WingLoopContinueException:
-			pass
-		except WingLoopBreakException:
-			break
+    while get_arg_value(condition):
+        try:
+            get_args(args[1:])
+        except WingLoopContinueException:
+            pass
+        except WingLoopBreakException:
+            break
 
-	cull_scopes(pop_return_point())
+    cull_scopes(pop_return_point())
 
 
 def wing_until(*args):
-	"""
+    """
 <Short Description>
 
 <Long Description>
@@ -253,502 +253,517 @@ Args:
 Returns:
   <Description of Return Value>
 """
-	condition = args[0]
+    condition = args[0]
 
-	push_return_point()
+    push_return_point()
 
-	wing_push_scope()
+    wing_push_scope()
 
-	while not get_arg_value(condition):
-		try:
-			get_args(args[1:])
-		except WingLoopContinueException:
-			pass
-		except WingLoopBreakException:
-			break
+    while not get_arg_value(condition):
+        try:
+            get_args(args[1:])
+        except WingLoopContinueException:
+            pass
+        except WingLoopBreakException:
+            break
 
-	cull_scopes(pop_return_point())
+    cull_scopes(pop_return_point())
 
 
 def __wing_import__query_dir(filename):
-	"""
-	Returns the YAML/WING/PY file after searching the path.
-	"""
-	global WING_PATH
+    """
+    Returns the YAML/WING/PY file after searching the path.
+    """
+    global WING_PATH
 
-	for path in WING_PATH:
-		p = Path(path)
-		mod_yaml = p / f'{filename}.yaml'
-		mod_wing = p / f'{filename}.wing'
-		mod_py = p / f'{filename}.py'
+    for path in WING_PATH:
+        p = Path(path)
+        mod_yaml = p / f'{filename}.yaml'
+        mod_wing = p / f'{filename}.wing'
+        mod_py = p / f'{filename}.py'
 
-		if mod_yaml.exists():
-			return mod_yaml
+        if mod_yaml.exists():
+            return mod_yaml
 
-		elif mod_wing.exists():
-			return mod_wing
+        elif mod_wing.exists():
+            return mod_wing
 
-		elif mod_py.exists():
-			return mod_py
+        elif mod_py.exists():
+            return mod_py
 
-	# If none has been returned, it doesn't exist in WING_PATH
-	raise Exception(f'Cannot import name: {filename}. No matching .WING, .YAML or .PY was found in WING_PATH.')
+    # If none has been returned, it doesn't exist in WING_PATH
+    raise Exception(f'Cannot import name: {filename}. No matching .WING, .YAML or .PY was found in WING_PATH.')
 
 
 def wing_import(*args):
-	"""
-	1. YAML import
-	2. Wing import
-	3. Py import
+    """
+    1. YAML import
+    2. Wing import
+    3. Py import
 
-	```YAML
-	# Import searches start from CWD and go inward:
-	import: [wing.lang.builtins]
-	# It would look in <CWD>/wing/lang/builtins
+    ```YAML
+    # Import searches start from CWD and go inward:
+    import: [wing.lang.builtins]
+    # It would look in <CWD>/wing/lang/builtins
 
-	# From imports:
-	import: [[wing.lang.builtins, name1]]
-	# from wing.lang.builtins import name1
-	```
+    # From imports:
+    import: [[wing.lang.builtins, name1]]
+    # from wing.lang.builtins import name1
+    ```
 
-	1. Get import name.
-	2. If no dots, search CWD
-	3. If not found, search WingPath (in future)
-	4. If dots, search all WingPath dirs for it
-	"""
-	args = get_args(args)
+    1. Get import name.
+    2. If no dots, search CWD
+    3. If not found, search WingPath (in future)
+    4. If dots, search all WingPath dirs for it
+    """
+    args = get_args(args)
 
-	for impp in args:
-		to_import = impp if isinstance(impp, str) else impp[0]
-		module = __wing_import__query_dir(to_import.replace('.', '/'))
+    for impp in args:
+        to_import = impp if isinstance(impp, str) else impp[0]
+        module = __wing_import__query_dir(to_import.replace('.', '/'))
 
-		with open(str(module)) as file:
-			if module.suffix == '.yaml':
-				ast = yaml.load(file.read())
-				if ast != None:
-					handle_expression({ 'Program' : ast['Program'] })
+        with open(str(module)) as file:
+            if module.suffix == '.yaml':
+                ast = yaml.load(file.read())
+                if ast != None:
+                    handle_expression({ 'Program' : ast['Program'] })
 
-			elif module.suffix == '.wing':
-				ast = wing_parse(file.read())
-				handle_expression({ 'Program' : ast['Program'] })
+            elif module.suffix == '.wing':
+                ast = wing_parse(file.read())
+                handle_expression({ 'Program' : ast['Program'] })
 
-			else:
-				# TODO(Pebaz): Update to allow for imporing PYDs
-				sys.path.append(str(module.parent))
+            else:
+                # TODO(Pebaz): Update to allow for imporing PYDs
+                sys.path.append(str(module.parent))
 
-				pymod = module.name.replace(module.suffix, '')
-				pymod = imp.load_source(pymod, str(module))
+                pymod = module.name.replace(module.suffix, '')
+                pymod = imp.load_source(pymod, str(module))
 
-				if '__wing__' not in dir(pymod):
-					raise Exception('Unable to import Python module: no __wing__ variable.')
+                if '__wing__' not in dir(pymod):
+                    raise Exception('Unable to import Python module: no __wing__ variable.')
 
-				if isinstance(impp, str):
-					for name in pymod.__wing__:
-						wing_set(name, pymod.__wing__[name])
-				else:
-					for name in impp[1:]:
-						wing_set(name, pymod.__wing__[name])
+                if isinstance(impp, str):
+                    for name in pymod.__wing__:
+                        wing_set(name, pymod.__wing__[name])
+                else:
+                    for name in impp[1:]:
+                        wing_set(name, pymod.__wing__[name])
 
 
 def wing_and(*args):
-	"""
-	Logical AND operator.
-	"""
-	if len(args) > 2:
-		raise Exception(f'Too many operands in logical AND: {args}')
+    """
+    Logical AND operator.
+    """
+    if len(args) > 2:
+        raise Exception(f'Too many operands in logical AND: {args}')
 
-	args = get_args(args)
-	return args[0] and args[1]
+    args = get_args(args)
+    return args[0] and args[1]
 
 
 def wing_or(*args):
-	"""
-	Logical OR operator.
-	"""
-	if len(args) > 2:
-		raise Exception(f'Too many operands in logical OR: {args}')
+    """
+    Logical OR operator.
+    """
+    if len(args) > 2:
+        raise Exception(f'Too many operands in logical OR: {args}')
 
-	args = get_args(args)
-	return args[0] or args[1]
+    args = get_args(args)
+    return args[0] or args[1]
 
 
 def wing_not(*args):
-	"""
-	Logical NOT operator.
-	"""
-	if len(args) > 1:
-		raise Exception(f'Too many operands in logical NOT: {args}')
+    """
+    Logical NOT operator.
+    """
+    if len(args) > 1:
+        raise Exception(f'Too many operands in logical NOT: {args}')
 
-	return not get_arg_value(args[0])
+    return not get_arg_value(args[0])
 
 
 def wing_foreach(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	var, iterable = get_args(args[0])
+    Returns:
+      <Description of Return Value>
+    """
+    var, iterable = get_args(args[0])
 
-	push_return_point()
-	wing_push_scope()
+    push_return_point()
+    wing_push_scope()
 
-	for i in iterable:
-		try:
-			wing_set(var, i)
-			get_args(args[1:])
-		except WingLoopContinueException:
-			continue
-		except WingLoopBreakException:
-			break
-		except Exception:
-			traceback.print_exc()
+    for i in iterable:
+        try:
+            wing_set(var, i)
+            get_args(args[1:])
+        except WingLoopContinueException:
+            continue
+        except WingLoopBreakException:
+            break
+        except Exception:
+            traceback.print_exc()
 
-	cull_scopes(pop_return_point())
+    cull_scopes(pop_return_point())
 
 
 def wing_for(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	control = args[0]
+    Returns:
+      <Description of Return Value>
+    """
+    control = args[0]
 
-	var, start, stop, step = [None] * 4
+    var, start, stop, step = [None] * 4
 
-	if len(control) == 4:
-		var, start, stop, step = get_arg_value(control)
+    if len(control) == 4:
+        var, start, stop, step = get_arg_value(control)
 
-	elif len(control) == 3:
-		var, start, stop, step = *get_arg_value(control), 1
+    elif len(control) == 3:
+        var, start, stop, step = *get_arg_value(control), 1
 
-	elif len(control) == 2:
-		var, stop, start, step = *get_arg_value(control), 0, 1
+    elif len(control) == 2:
+        var, stop, start, step = *get_arg_value(control), 0, 1
 
-	else:
-		raise Exception(f'Malformed control value: (var, start, stop, step)')
+    else:
+        raise Exception(f'Malformed control value: (var, start, stop, step)')
 
-	push_return_point()
-	wing_push_scope()
+    push_return_point()
+    wing_push_scope()
 
-	for i in range(start, stop, step):
-		try:
-			wing_set(var, i)
-			get_args(args[1:])
-		except WingLoopContinueException:
-			continue
-		except WingLoopBreakException:
-			break
-		except Exception as e:
-			traceback.print_exc()
+    for i in range(start, stop, step):
+        try:
+            wing_set(var, i)
+            get_args(args[1:])
+        except WingLoopContinueException:
+            continue
+        except WingLoopBreakException:
+            break
+        except Exception as e:
+            traceback.print_exc()
 
-	pnt = pop_return_point()
-	cull_scopes(pnt)
+    pnt = pop_return_point()
+    cull_scopes(pnt)
 
 
 def wing_if(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	if len(args) > 3 or len(args) < 2:
-		raise Exception(f'Malformed if statement at:\n{args}')
+    Returns:
+      <Description of Return Value>
+    """
+    if len(args) > 3 or len(args) < 2:
+        raise Exception(f'Malformed if statement at:\n{args}')
 
-	# Testing condition
-	c = args[0]
+    # Testing condition
+    c = args[0]
 
-	# Run the THEN function if the condition is equal to True
-	if handle_expression(c) if isinstance(c, dict) else handle_value(c):
-		wing_push_scope()
-		handle_expression(args[1])
-		wing_pop_scope()
+    # Run the THEN function if the condition is equal to True
+    if handle_expression(c) if isinstance(c, dict) else handle_value(c):
+        wing_push_scope()
+        handle_expression(args[1])
+        wing_pop_scope()
 
-	# Handle ELSE clause if it was added
-	elif len(args) == 3:
-		wing_push_scope()
-		handle_expression(args[2])
-		wing_pop_scope()
+    # Handle ELSE clause if it was added
+    elif len(args) == 3:
+        wing_push_scope()
+        handle_expression(args[2])
+        wing_pop_scope()
 
 
 def wing_unless(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	if len(args) > 3 or len(args) < 2:
-		raise Exception(f'Malformed if statement at:\n{args}')
+    Returns:
+      <Description of Return Value>
+    """
+    if len(args) > 3 or len(args) < 2:
+        raise Exception(f'Malformed if statement at:\n{args}')
 
-	# Testing condition
-	c = args[0]
+    # Testing condition
+    c = args[0]
 
-	# Run the THEN function if the condition is equal to True
-	if not handle_expression(c) if isinstance(c, dict) else not handle_value(c):
-		wing_push_scope()
-		handle_expression(args[1])
-		wing_pop_scope()
+    # Run the THEN function if the condition is equal to True
+    if not handle_expression(c) if isinstance(c, dict) else not handle_value(c):
+        wing_push_scope()
+        handle_expression(args[1])
+        wing_pop_scope()
 
-	# Handle ELSE clause if it was added
-	elif len(args) == 3:
-		wing_push_scope()
-		handle_expression(args[2])
-		wing_pop_scope()
+    # Handle ELSE clause if it was added
+    elif len(args) == 3:
+        wing_push_scope()
+        handle_expression(args[2])
+        wing_pop_scope()
 
 
 def wing_then(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	args = get_args(args)
+    Returns:
+      <Description of Return Value>
+    """
+    args = get_args(args)
 
 
 def wing_else(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	args = get_args(args)
+    Returns:
+      <Description of Return Value>
+    """
+    args = get_args(args)
 
 
 def wing_globals(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	pp.pprint(SYMBOL_TABLE)
-	pp.pprint(EXCEPTIONS)
+    Returns:
+      <Description of Return Value>
+    """
+    pp.pprint(SYMBOL_TABLE)
+    pp.pprint(EXCEPTIONS)
 
 
 def wing_locals(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	global SYMBOL_TABLE, SCOPE
-	pp.pprint(SYMBOL_TABLE[SCOPE])
+    Returns:
+      <Description of Return Value>
+    """
+    global SYMBOL_TABLE, SCOPE
+    pp.pprint(SYMBOL_TABLE[SCOPE])
 
 
 def wing_exit(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	sys.exit()
+    Returns:
+      <Description of Return Value>
+    """
+    sys.exit()
 
 
 def wing_comment(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
+    Returns:
+      <Description of Return Value>
+    """
 
 
 def wing_print(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	print(*get_args(args))
+    Returns:
+      <Description of Return Value>
+    """
+    print(*get_args(args))
+
+
+def wing_prin(*args):
+    """
+    <Short Description>
+
+    <Long Description>
+
+    Args:
+      <Argument List>
+
+    Returns:
+      <Description of Return Value>
+    """
+    print(*get_args(args), end='')
 
 
 def wing_def(*args):
-	"""
-	Bind function name to variable in current scope. This will allow it to be
-	called.
-	"""
-	declaration = get_arg_value(args[0])
-	func_name = declaration[0]
-	func_args = declaration[1:]
-	func_definition = args[1:]
-	wing_set(func_name, [func_args, func_definition])
+    """
+    Bind function name to variable in current scope. This will allow it to be
+    called.
+    """
+    declaration = get_arg_value(args[0])
+    func_name = declaration[0]
+    func_args = declaration[1:]
+    func_definition = args[1:]
+    wing_set(func_name, [func_args, func_definition])
 
 
 def wing_return(*args):
-	"""
-	The `wing_call` function will catch this exception and then return the
-	value from it.
-	"""
-	if len(args) > 1:
-		ex = f'Only 1 value can be returned from function, got {len(args)}.'
+    """
+    The `wing_call` function will catch this exception and then return the
+    value from it.
+    """
+    if len(args) > 1:
+        ex = f'Only 1 value can be returned from function, got {len(args)}.'
 
-		# TODO(Pebaz): Should this return a tuple rather than crash?
+        # TODO(Pebaz): Should this return a tuple rather than crash?
 
-		raise Exception(ex)
+        raise Exception(ex)
 
-	value = get_arg_value(args[0])
-	raise WingFunctionReturnException(value)
+    value = get_arg_value(args[0])
+    raise WingFunctionReturnException(value)
 
 
 def wing_lambda(*args):
-	"""
-	TODO(Pebaz): Fix `wing_call` to be able to handle lambdas.
-	"""
-	arguments = get_arg_value(args[0])
-	definition = args[1:]
-	return [arguments, definition]
+    """
+    TODO(Pebaz): Fix `wing_call` to be able to handle lambdas.
+    """
+    arguments = get_arg_value(args[0])
+    definition = args[1:]
+    return [arguments, definition]
 
 
 def wing_struct(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	args = get_args(args)
-	struct_name = args[0]
-	struct_members = args[1:]
-	wing_set(struct_name, struct_members)
+    Returns:
+      <Description of Return Value>
+    """
+    args = get_args(args)
+    struct_name = args[0]
+    struct_members = args[1:]
+    wing_set(struct_name, struct_members)
 
 
 def wing_new(*args):
-	"""
-	Must be able to be extended to build classes/types later.
+    """
+    Must be able to be extended to build classes/types later.
 
-	Structs: hold only vars
-	Types: hold vars and functions
-	Classes: hold vars, functions, and support oop
-	"""
-	args = get_args(args)
-	definition, member_values = args[0], args[1:]
+    Structs: hold only vars
+    Types: hold vars and functions
+    Classes: hold vars, functions, and support oop
+    """
+    args = get_args(args)
+    definition, member_values = args[0], args[1:]
 
-	# If the values provided do not match the definition given,
-	# initialize the blank members to zero.
-	if len(definition) > len(member_values):
-		member_values.extend([
-			None for i in range(len(definition) - len(member_values))
-		])
+    # If the values provided do not match the definition given,
+    # initialize the blank members to zero.
+    if len(definition) > len(member_values):
+        member_values.extend([
+            None for i in range(len(definition) - len(member_values))
+        ])
 
-	# Create a dictionary out of the names and values of the members
-	struct = dict(zip(definition, member_values))
-	return struct
+    # Create a dictionary out of the names and values of the members
+    struct = dict(zip(definition, member_values))
+    return struct
 
 
 def wing_program(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	global TRACEBACK
+    Returns:
+      <Description of Return Value>
+    """
+    global TRACEBACK
 
-	# NOTE(Pebaz): To show a Python internal error, simply call: get_args(args)
-	# TODO(Pebaz): Make it so that a command line switch can show the traceback
+    # NOTE(Pebaz): To show a Python internal error, simply call: get_args(args)
+    # TODO(Pebaz): Make it so that a command line switch can show the traceback
 
-	try:
-		get_args(args)
-	except Exception as e:
-		TRACEBACK.show_trace(e)
+    try:
+        get_args(args)
+    except Exception as e:
+        TRACEBACK.show_trace(e)
 
 
 def wing_byval(*args):
-	"""
-	Since functions only try one round of evaluation for arguments, arguments
-	can be passed "by value" instead of "by reference/name".
-	"""
-	return args[0]
+    """
+    Since functions only try one round of evaluation for arguments, arguments
+    can be passed "by value" instead of "by reference/name".
+    """
+    return args[0]
 
 
 def wing_byref(*args):
-	"""
-	Wrap the dictionary in a protective layer.
-	"""
-	return get_args(args)
+    """
+    Wrap the dictionary in a protective layer.
+    """
+    return get_args(args)
 
 
 def wing_dir(value):
-	global pp
-	if isinstance(value, str):
-		pp.pprint(get_arg_value(value))
-	elif isinstance(value, dict):
-		pp.pprint(dict)
+    global pp
+    if isinstance(value, str):
+        pp.pprint(get_arg_value(value))
+    elif isinstance(value, dict):
+        pp.pprint(dict)
 
 
 # -----------------------------------------------------------------------------
@@ -756,236 +771,239 @@ def wing_dir(value):
 # -----------------------------------------------------------------------------
 
 def wing_hash(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	if len(args) % 2 != 0:
-		raise Exception(f'Expected even number of arguments, got {len(args)}.')
+    Returns:
+      <Description of Return Value>
+    """
+    if len(args) % 2 != 0:
+        raise Exception(f'Expected even number of arguments, got {len(args)}.')
 
-	args = get_args(args)
+    args = get_args(args)
 
-	ret = {
-		args[i] : args[i + 1]
-		for i in range(0, len(args), 2)
-	}
+    ret = {
+        args[i] : args[i + 1]
+        for i in range(0, len(args), 2)
+    }
 
-	return ret
+    return ret
 
 def wing_get(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	if len(args) > 2:
-		raise Exception(f'Too many arguments supplied, got: {len(args)}')
+    Returns:
+      <Description of Return Value>
+    """
+    if len(args) > 2:
+        raise Exception(f'Too many arguments supplied, got: {len(args)}')
 
-	args = get_args(args)
-	return args[0][args[1]]
+    args = get_args(args)
+    return args[0][args[1]]
 
 
 def wing_cut(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	args = get_args(args)
-	raise Exception('Not implemented yet: cut')
+    Returns:
+      <Description of Return Value>
+    """
+    args = get_args(args)
+    raise Exception('Not implemented yet: cut')
 
 
 def wing_str(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	return str(get_arg_value(args[0]))
+    Returns:
+      <Description of Return Value>
+    """
+    return str(get_arg_value(args[0]))
 
 
 def wing_int(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	return int(get_arg_value(args[0]))
+    Returns:
+      <Description of Return Value>
+    """
+    return int(get_arg_value(args[0]))
 
 def wing_bool(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	return bool(get_arg_value(args[0]))
+    Returns:
+      <Description of Return Value>
+    """
+    return bool(get_arg_value(args[0]))
 
 
 def wing_float(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	return float(get_arg_value(args[0]))
+    Returns:
+      <Description of Return Value>
+    """
+    return float(get_arg_value(args[0]))
 
 
 def wing_tuple(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	return tuple(get_arg_value(args[0]))
+    Returns:
+      <Description of Return Value>
+    """
+    if len(args) == 0:
+        raise Exception(f'Expected a list of values, got nothing.')
+    return tuple(get_arg_value(args[0]))
 
 
 def wing_list(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	return list(get_arg_value(args[0]))
+    Returns:
+      <Description of Return Value>
+    """
+    return list(get_arg_value(args[0]))
 
 
 def wing_collected_set(*args):
-	"""
-	<Short Description>
+    """
+    <Short Description>
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	return set(get_arg_value(args[0]))
+    Returns:
+      <Description of Return Value>
+    """
+    return set(get_arg_value(args[0]))
 
 
 def wing_format(*args):
-	"""
-	Formats a given string with the given arguments.
+    """
+    Formats a given string with the given arguments.
 
-	<Long Description>
+    <Long Description>
 
-	Args:
-	  <Argument List>
+    Args:
+      <Argument List>
 
-	Returns:
-	  <Description of Return Value>
-	"""
-	args = get_args(args)
-	return args[0].format(*args[1:])
+    Returns:
+      <Description of Return Value>
+    """
+    args = get_args(args)
+    return args[0].format(*args[1:])
 
 
 __wing__ = {
-	# Built-Ins
-	'Program' 				: wing_program,
-	'push-scope' 			: wing_push_scope,
-	'pop-scope' 			: wing_pop_scope,
-	'create-named-scope' 	: wing_create_named_scope,
-	'globals' 				: wing_globals,
-	'locals' 				: wing_locals,
-	'quit' 					: wing_exit,
-	'exit' 					: wing_exit,
-	'def' 					: wing_def,
-	'return' 				: wing_return,
-	'call' 					: wing_call,
-	'fn' 					: wing_lambda,
-	'struct' 				: wing_struct,
-	'new' 					: wing_new,
-	'set' 					: wing_set,
-	'get' 					: wing_get,
-	'cut' 					: wing_cut,
-	'for' 					: wing_for,
-	'foreach' 				: wing_foreach,
-	'if' 					: wing_if,
-	'unless' 				: wing_unless,
-	'then' 					: wing_then,
-	'else' 					: wing_else,
-	'print' 				: wing_print,
-	'comment' 				: wing_comment,
-	'and' 					: wing_and,
-	'or' 					: wing_or,
-	'not' 					: wing_not,
-	'byval' 				: wing_byval,
-	'import' 				: wing_import,
-	'dir' 					: wing_dir,
-	'break' 				: wing_break,
-	'continue' 				: wing_continue,
-	'while' 				: wing_while,
-	'until' 				: wing_until,
-	'hash' 					: wing_hash,
-	'str' 					: wing_str,
-	'int' 					: wing_int,
-	'bool' 					: wing_bool,
-	'float' 				: wing_float,
-	'tuple' 				: wing_tuple,
-	'list' 					: wing_list,
-	'collected_set' 		: wing_collected_set,
-	'switch' 				: wing_switch,
-	'case' 					: wing_case,
-	'default' 				: wing_default,
-	'try' 					: wing_try,
-	'catch' 				: wing_catch,
-	'finally' 				: wing_finally,
-	'exception' 			: wing_exception,
-	'raise' 				: wing_raise,
-	'format'				: wing_format,
+    # Built-Ins
+    'Program'               : wing_program,
+    'push-scope'            : wing_push_scope,
+    'pop-scope'             : wing_pop_scope,
+    'create-named-scope'    : wing_create_named_scope,
+    'globals'               : wing_globals,
+    'locals'                : wing_locals,
+    'quit'                  : wing_exit,
+    'exit'                  : wing_exit,
+    'def'                   : wing_def,
+    'return'                : wing_return,
+    'call'                  : wing_call,
+    'fn'                    : wing_lambda,
+    'struct'                : wing_struct,
+    'new'                   : wing_new,
+    'set'                   : wing_set,
+    'get'                   : wing_get,
+    'cut'                   : wing_cut,
+    'for'                   : wing_for,
+    'foreach'               : wing_foreach,
+    'if'                    : wing_if,
+    'unless'                : wing_unless,
+    'then'                  : wing_then,
+    'else'                  : wing_else,
+    'print'                 : wing_print,
+    'prin'                  : wing_prin,
+    'comment'               : wing_comment,
+    'and'                   : wing_and,
+    'or'                    : wing_or,
+    'not'                   : wing_not,
+    'byval'                 : wing_byval,
+    'import'                : wing_import,
+    'dir'                   : wing_dir,
+    'break'                 : wing_break,
+    'continue'              : wing_continue,
+    'while'                 : wing_while,
+    'until'                 : wing_until,
+    'hash'                  : wing_hash,
+    'str'                   : wing_str,
+    'int'                   : wing_int,
+    'bool'                  : wing_bool,
+    'float'                 : wing_float,
+    'tuple'                 : wing_tuple,
+    'list'                  : wing_list,
+    'collected_set'         : wing_collected_set,
+    'switch'                : wing_switch,
+    'case'                  : wing_case,
+    'default'               : wing_default,
+    'try'                   : wing_try,
+    'catch'                 : wing_catch,
+    'finally'               : wing_finally,
+    'exception'             : wing_exception,
+    'raise'                 : wing_raise,
+    'format'                : wing_format,
 }
