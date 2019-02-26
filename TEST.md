@@ -9,8 +9,8 @@
 
 #### Scopes
 
-- [ ] Push scope
-- [ ] Pop scope
+- [x] Push scope
+- [x] Pop scope
 - [ ] Variables
 - [ ] Structs
 - [ ] Functions
