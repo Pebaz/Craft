@@ -1,5 +1,4 @@
-pushd .
-cd ../src/test
+pushd "$PSScriptRoot/../src/test"
 py.test
 
 if ($lastExitCode -eq 0) { }
