@@ -333,7 +333,7 @@ def wing_import(*args):
                 handle_expression({ 'Program' : ast['Program'] })
 
             else:
-                # TODO(Pebaz): Update to allow for imporing PYDs
+                # TODO(Pebaz): Update to allow for importing PYDs
                 sys.path.append(str(module.parent))
 
                 pymod = module.name.replace(module.suffix, '')
@@ -348,7 +348,6 @@ def wing_import(*args):
                 else:
                     for name in impp[1:]:
                         wing_set(name, pymod.__wing__[name])
-
 
 def wing_and(*args):
     """

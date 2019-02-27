@@ -5,6 +5,9 @@ class WingException(Exception):
 	"""
 	def __init__(self, name, desc, meta):
 		Exception.__init__(self)
+		self.name = name
+		self.desc = desc
+		self.meta = meta
 
 class WingInternalException(Exception):
 	"""
