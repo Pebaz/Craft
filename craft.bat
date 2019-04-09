@@ -1,7 +1,7 @@
 @echo off
-title Wing
+title Craft
 SET file=%~dpnx1
 pushd %~dp0
-python src/wing.py %file%
+python src/craft.py %file%
 popd
 @echo on

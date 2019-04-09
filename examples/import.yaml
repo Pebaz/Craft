@@ -2,14 +2,14 @@ Program:
   - print: ["Testing Imports"]
 
   - import:
-    - wing_import_test
-    - wing_import_test2
-    - wing_import_test3
-    - wing.lang.builtins
-    #- [wing.lang.builtins, name1] # From import
+    - craft_import_test
+    - craft_import_test2
+    - craft_import_test3
+    - craft.lang.builtins
+    #- [craft.lang.builtins, name1] # From import
 
-  - print: ["Calling wing_import_test3.func1 ->"]
+  - print: ["Calling craft_import_test3.func1 ->"]
   - func1: []
 
-  - print: ["Printing a name obtained from wing.lang.builtins ->"]
+  - print: ["Printing a name obtained from craft.lang.builtins ->"]
   - print: [$name1]

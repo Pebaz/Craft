@@ -1,23 +1,23 @@
 Program:
 [
-	create-named-scope: [wing]
+	create-named-scope: [craft]
 
 	struct:
 	[
-		wing.point
+		craft.point
 		x
 		y
 	]
 
 	def:
 	[
-		[wing.show-point the-point]
+		[craft.show-point the-point]
 		print: [$the-point.x $the-point.y]
 	]
 
 	def:
 	[
-		[wing.move-point the-point inc-x inc-y]
+		[craft.move-point the-point inc-x inc-y]
 		set: [the-point.x +: [$the-point.x inc-x]]
 		set: [the-point.x +: [$the-point.y inc-y]]
 	]

@@ -3,8 +3,8 @@
 block_cipher = None
 
 
-a = Analysis(['..\\src\\wing.py'],
-             pathex=['X:\\Wing\\bin'],
+a = Analysis(['..\\src\\craft.py'],
+             pathex=['X:\\Craft\\bin'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -21,10 +21,10 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-          name='wing',
+          name='craft',
           debug=False,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
           console=True,
-          icon='..\misc\Wing-Logo.ico')
+          icon='..\misc\Craft-Logo.ico')

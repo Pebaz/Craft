@@ -30,11 +30,11 @@ Program:
     - print: [$hidden_var]
     - pop-scope: []
 
-    # Adds a dictionary named: 'wing' in the current scope
-    - create-named-scope: [wing]
-    # This will create a variable in the 'wing' dict
-    - set: [wing.dodim, Null]
+    # Adds a dictionary named: 'craft' in the current scope
+    - create-named-scope: [craft]
+    # This will create a variable in the 'craft' dict
+    - set: [craft.dodim, Null]
 
     # You can access the variable via:
-    - print: ["wing.dodim value:"]
-    - print: [$wing.dodim] # The dot is used to perform lookups in named scopes
+    - print: ["craft.dodim value:"]
+    - print: [$craft.dodim] # The dot is used to perform lookups in named scopes

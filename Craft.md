@@ -1,8 +1,8 @@
-# Wing Programming Language
+# Craft Programming Language
 
 
 
-I originally created the Wing Programming Language on a whim.  I was sitting at the office one day and thought, "I wonder how hard it would be to write an interpreter for a given YAML syntax in Python."  I had been itching to use a popular Python [YAML parsing library](https://github.com/yaml/pyyaml) and had just found my reason.
+I originally created the Craft Programming Language on a whim.  I was sitting at the office one day and thought, "I wonder how hard it would be to write an interpreter for a given YAML syntax in Python."  I had been itching to use a popular Python [YAML parsing library](https://github.com/yaml/pyyaml) and had just found my reason.
 
 I went through several different possible designs for interpreting the YAML syntax.  I finally found a structure that, when parsed, produced the following Python dictionary:
 
@@ -83,8 +83,8 @@ while True:
 
 
 
-### Wing Syntax Parser
+### Craft Syntax Parser
 
-After creating a lot of different language features, I started feeling like the project would be better served having it's own syntax since I was already referring to it by its own name: Wing.
+After creating a lot of different language features, I started feeling like the project would be better served having it's own syntax since I was already referring to it by its own name: Craft.
 
-I built the entire parser in just a few lines of code using the [PyParsing](https://github.com/pyparsing) library.  This library is by far the best parsing library for Python in my opinion, but it did require an enormous amount of study in order to get it to work great.  In the end, I had a parser that did the equivalent of the YAML parser, but for the new Wing syntax.
+I built the entire parser in just a few lines of code using the [PyParsing](https://github.com/pyparsing) library.  This library is by far the best parsing library for Python in my opinion, but it did require an enormous amount of study in order to get it to work great.  In the end, I had a parser that did the equivalent of the YAML parser, but for the new Craft syntax.

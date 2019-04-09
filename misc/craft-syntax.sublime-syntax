@@ -1,7 +1,7 @@
 %YAML 1.2
 ---
-name: Wing
-file_extensions: [wing]
+name: Craft
+file_extensions: [craft]
 scope: source.c
 
 contexts:

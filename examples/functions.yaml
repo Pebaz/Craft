@@ -34,12 +34,12 @@ Program:
 
   - print: []
 
-  - create-named-scope: [wing]
+  - create-named-scope: [craft]
 
   - def:
-    - [wing.hi]
+    - [craft.hi]
     - print: ["Hello World"]
 
-  - wing.hi: []
+  - craft.hi: []
 
   

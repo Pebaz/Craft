@@ -1,7 +1,7 @@
 """
 A collection of constants for use in making the usage of terminal coloring as
 simple as possible.
-These constants can be used very easily along with the Wing `format` function.
+These constants can be used very easily along with the Craft `format` function.
 
 print: [format: ["{0}Hello{1} again {0}World!{1}" $_CLRfb $_CLRreset]]
 """
@@ -35,7 +35,7 @@ _CLRbreset = colorama.Back.RESET
 # Styles
 _CLRreset = colorama.Style.RESET_ALL
 
-__wing__ = {
+__craft__ = {
 	i : globals()[i]
 	for i in globals() if i.startswith('_CLR')
 }

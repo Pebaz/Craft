@@ -1,10 +1,10 @@
 import random
 
-def wing_random():
+def craft_random():
 	return random.random()
 
-__wing__ = {
+__craft__ = {
 	'rng' : {
-		'byval' : [{ 'random' : wing_random }]
+		'byval' : [{ 'random' : craft_random }]
 	}
 }

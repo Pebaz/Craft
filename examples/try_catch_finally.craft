@@ -1,8 +1,8 @@
 Program:
 [
-	print: ["Testing `try`, `catch`, and `finally` keywords, as well as registering a new Wing exception"]
+	print: ["Testing `try`, `catch`, and `finally` keywords, as well as registering a new Craft exception"]
 
-	import: [wing.util.term_colors]
+	import: [craft.util.term_colors]
 
 	exception:
 	[

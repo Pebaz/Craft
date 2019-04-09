@@ -1,8 +1,8 @@
-# <img src="./misc/Wing-Logo.png" alt="Wing Logo" width="128" />Wing Programming Language
+# <img src="./misc/Craft-Logo.png" alt="Craft Logo" width="128" />Craft Programming Language
 
 
 
-Wing is an interpreted, high-level scripting language.
+Craft is an interpreted, high-level scripting language.
 
 
 
@@ -38,7 +38,7 @@ interpreter to lookup that word in the symbol table and retrieve its value.
 
 
 
-## Wing Roadmap
+## Craft Roadmap
 
 
 
@@ -56,9 +56,9 @@ interpreter to lookup that word in the symbol table and retrieve its value.
 
  * Data Type Interop with Python
 
- * Importing Wing/YAML/Python modules
+ * Importing Craft/YAML/Python modules
 
- * Wing/YAML REPL
+ * Craft/YAML REPL
 
  * Create documentation page that looks like [this](https://common-lisp.net/project/parenscript/reference.html)
 

@@ -3,7 +3,7 @@
 #### Testing Methodology
 
 1. Create Python functions to test output from functionality.
-2. Run Wing files that test their own output?
+2. Run Craft files that test their own output?
 
 
 
@@ -90,7 +90,7 @@
 - [ ] Finally
 - [ ] Raise
 - [ ] exception
-- [ ] Obtaining meta values from Python/Wing exceptions
+- [ ] Obtaining meta values from Python/Craft exceptions
 
 
 
@@ -126,7 +126,7 @@
 
 #### Importing
 
-- [ ] Wing modules
+- [ ] Craft modules
 - [ ] YAML modules
 - [ ] Python modules
 - [ ] Scoping?

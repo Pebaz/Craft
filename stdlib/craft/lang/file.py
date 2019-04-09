@@ -1,4 +1,4 @@
 # Populate this with names later.
-__wing__ = {
+__craft__ = {
 	'happy-func' : lambda: print('Hurray!')
 }

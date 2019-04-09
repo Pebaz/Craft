@@ -1,0 +1,2 @@
+Program:
+  - set: [name1, "This is a value obtained from craft.lang.builtins"]
