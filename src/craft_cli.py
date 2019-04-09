@@ -1,5 +1,5 @@
-from wing_core import *
-from wing_parser import *
+from craft_core import *
+from craft_parser import *
 
 
 def __cli_sanitize_yaml_code(code):
@@ -19,7 +19,7 @@ def __cli_sanitize_yaml_code(code):
 
 	return new_code
 
-def __cli_sanitize_wing_code(code):
+def __cli_sanitize_craft_code(code):
 	"""
 	Ensure that the code is wrapped in a Program function.
 	"""
@@ -30,13 +30,13 @@ def run_cli(yaml_lang):
 	"""
 	"""
 	global TRACEBACK
-	print('Wing Programming Language')
+	print('Craft Programming Language')
 	print('Version: 0.1.0\n')
 	print('Press <enter> twice for running single commands.')
 	print('Type "quit: []" or press CTCL > C to leave the program.\n')
 
 	if yaml_lang:
-		print('NOTE: Interpreting YAML code as Wing syntax.')
+		print('NOTE: Interpreting YAML code as Craft syntax.')
 
 	try:
 		code = ''
@@ -52,18 +52,18 @@ def run_cli(yaml_lang):
 					continue
 
 				code = __cli_sanitize_yaml_code(code) if yaml_lang \
-					else __cli_sanitize_wing_code(code)
+					else __cli_sanitize_craft_code(code)
 
 				# Run the code
 				try:
-					ast = yaml.load(code) if yaml_lang else wing_parse(code)
+					ast = yaml.load(code) if yaml_lang else craft_parse(code)
 					output = handle_expression(ast)
 
 					if output != None:
 						print(f' -> {output}')
 
 				except Exception as e:
-					print('WING ERROR:')
+					print('CRAFT ERROR:')
 					traceback.print_exc()
 					code = ''
 					continue

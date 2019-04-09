@@ -4,8 +4,8 @@ Various utilities to reduce the amount of code needed to write a test case.
 
 import io
 from contextlib import redirect_stdout
-from wing_core import *
-from wing_parser import *
+from craft_core import *
+from craft_parser import *
 import textwrap
 
 
@@ -22,7 +22,7 @@ def parse_source(source):
 	"""
 	Converts the given string into AST.
 	"""
-	return wing_parse(source)
+	return craft_parse(source)
 
 
 def load_source(filename):

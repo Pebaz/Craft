@@ -2,9 +2,9 @@
 #           S T A N D A R D   L I B R A R Y   O P E R A T O R S
 # -----------------------------------------------------------------------------
 
-from wing_core import *
+from craft_core import *
 
-def wing_add(*args):
+def craft_add(*args):
 	"""
 	Addition operator.
 	"""
@@ -15,7 +15,7 @@ def wing_add(*args):
 	return v
 
 
-def wing_add_equal(*args):
+def craft_add_equal(*args):
 	"""
 	Usage:
 
@@ -33,10 +33,10 @@ def wing_add_equal(*args):
 	for i in args[1:]:
 		v += i
 
-	wing_set(var_name, v)
+	craft_set(var_name, v)
 
 
-def wing_sub(*args):
+def craft_sub(*args):
 	"""
 	Subtraction operator.
 	"""
@@ -47,7 +47,7 @@ def wing_sub(*args):
 	return v
 
 
-def wing_sub_equal(*args):
+def craft_sub_equal(*args):
 	"""
 	"""
 	var_name = args[0].replace('$', '')
@@ -56,10 +56,10 @@ def wing_sub_equal(*args):
 	for i in args[1:]:
 		v -= i
 
-	wing_set(var_name, v)
+	craft_set(var_name, v)
 
 
-def wing_mul(*args):
+def craft_mul(*args):
 	"""
 	Multiplication operator.
 	"""
@@ -70,7 +70,7 @@ def wing_mul(*args):
 	return v
 
 
-def wing_mul_equal(*args):
+def craft_mul_equal(*args):
 	"""
 	"""
 	var_name = args[0].replace('$', '')
@@ -79,10 +79,10 @@ def wing_mul_equal(*args):
 	for i in args[1:]:
 		v *= i
 
-	wing_set(var_name, v)
+	craft_set(var_name, v)
 
 
-def wing_div(*args):
+def craft_div(*args):
 	"""
 	Division operator.
 	"""
@@ -93,7 +93,7 @@ def wing_div(*args):
 	return v
 
 
-def wing_div_equal(*args):
+def craft_div_equal(*args):
 	"""
 	"""
 	var_name = args[0].replace('$', '')
@@ -102,10 +102,10 @@ def wing_div_equal(*args):
 	for i in args[1:]:
 		v /= i
 
-	wing_set(var_name, v)
+	craft_set(var_name, v)
 
 
-def wing_mod(*args):
+def craft_mod(*args):
 	"""
 	Modulus operator.
 	"""
@@ -116,7 +116,7 @@ def wing_mod(*args):
 	return v
 
 
-def wing_mod_equal(*args):
+def craft_mod_equal(*args):
 	"""
 	"""
 	var_name = args[0].replace('$', '')
@@ -125,10 +125,10 @@ def wing_mod_equal(*args):
 	for i in args[1:]:
 		v %= i
 
-	wing_set(var_name, v)
+	craft_set(var_name, v)
 
 
-def wing_exp(*args):
+def craft_exp(*args):
 	"""
 	Exponent operator.
 	"""
@@ -139,7 +139,7 @@ def wing_exp(*args):
 	return v
 
 
-def wing_exp_equal(*args):
+def craft_exp_equal(*args):
 	"""
 	"""
 	var_name = args[0].replace('$', '')
@@ -148,10 +148,10 @@ def wing_exp_equal(*args):
 	for i in args[1:]:
 		v **= i
 
-	wing_set(var_name, v)
+	craft_set(var_name, v)
 
 
-def wing_equals(*args):
+def craft_equals(*args):
 	"""
 	Equality operator.
 	"""
@@ -159,7 +159,7 @@ def wing_equals(*args):
 	return len(set(args)) <= 1
 
 
-def wing_not_equals(*args):
+def craft_not_equals(*args):
 	"""
 	Inequality operator.
 	"""
@@ -167,7 +167,7 @@ def wing_not_equals(*args):
 	return not len(set(args)) <= 1
 
 
-def wing_greater_than(*args):
+def craft_greater_than(*args):
 	"""
 	Greater than operator.
 	"""
@@ -178,7 +178,7 @@ def wing_greater_than(*args):
 	])
 
 
-def wing_less_than(*args):
+def craft_less_than(*args):
 	"""
 	Less than operator.
 	"""
@@ -189,7 +189,7 @@ def wing_less_than(*args):
 	])
 
 
-def wing_greater_than_or_equal_to(*args):
+def craft_greater_than_or_equal_to(*args):
 	"""
 	Greater than or equal to operator.
 	"""
@@ -200,7 +200,7 @@ def wing_greater_than_or_equal_to(*args):
 	])
 
 
-def wing_less_than_or_equal_to(*args):
+def craft_less_than_or_equal_to(*args):
 	"""
 	Less than or equal to operator.
 	"""
@@ -211,7 +211,7 @@ def wing_less_than_or_equal_to(*args):
 	])
 
 
-def wing_bitwise_and(*args):
+def craft_bitwise_and(*args):
 	"""
 	Bitwise AND operator.
 	"""
@@ -222,7 +222,7 @@ def wing_bitwise_and(*args):
 	return v
 
 
-def wing_bitwise_and_equal(*args):
+def craft_bitwise_and_equal(*args):
 	"""
 	"""
 	var_name = args[0].replace('$', '')
@@ -231,10 +231,10 @@ def wing_bitwise_and_equal(*args):
 	for i in args[1:]:
 		v &= i
 
-	wing_set(var_name, v)
+	craft_set(var_name, v)
 
 
-def wing_bitwise_or(*args):
+def craft_bitwise_or(*args):
 	"""
 	Bitwise OR operator.
 	"""
@@ -244,7 +244,7 @@ def wing_bitwise_or(*args):
 		v |= i
 	return v
 
-def wing_bitwise_or_equal(*args):
+def craft_bitwise_or_equal(*args):
 	"""
 	"""
 	var_name = args[0].replace('$', '')
@@ -253,10 +253,10 @@ def wing_bitwise_or_equal(*args):
 	for i in args[1:]:
 		v |= i
 
-	wing_set(var_name, v)
+	craft_set(var_name, v)
 
 
-def wing_bitwise_xor(*args):
+def craft_bitwise_xor(*args):
 	"""
 	Bitwise XOR operator.
 	"""
@@ -267,7 +267,7 @@ def wing_bitwise_xor(*args):
 	return v
 
 
-def wing_bitwise_xor_equal(*args):
+def craft_bitwise_xor_equal(*args):
 	"""
 	"""
 	var_name = args[0].replace('$', '')
@@ -276,10 +276,10 @@ def wing_bitwise_xor_equal(*args):
 	for i in args[1:]:
 		v ^= i
 
-	wing_set(var_name, v)
+	craft_set(var_name, v)
 
 
-def wing_bitwise_complement(*args):
+def craft_bitwise_complement(*args):
 	"""
 	Bitwise complement operator.
 
@@ -291,7 +291,7 @@ def wing_bitwise_complement(*args):
 	return ~get_arg_value(args[0])
 
 
-def wing_bitwise_left_shift(*args):
+def craft_bitwise_left_shift(*args):
 	"""
 	Bitwise left shift operator.
 	"""
@@ -302,7 +302,7 @@ def wing_bitwise_left_shift(*args):
 	return v
 
 
-def wing_bitwise_left_shift_equal(*args):
+def craft_bitwise_left_shift_equal(*args):
 	"""
 	"""
 	var_name = args[0].replace('$', '')
@@ -311,10 +311,10 @@ def wing_bitwise_left_shift_equal(*args):
 	for i in args[1:]:
 		v <<= i
 
-	wing_set(var_name, v)
+	craft_set(var_name, v)
 
 
-def wing_bitwise_right_shift(*args):
+def craft_bitwise_right_shift(*args):
 	"""
 	Bitwise right shift operator.
 	"""
@@ -325,7 +325,7 @@ def wing_bitwise_right_shift(*args):
 	return v
 
 
-def wing_bitwise_right_shift_equal(*args):
+def craft_bitwise_right_shift_equal(*args):
 	"""
 	"""
 	var_name = args[0].replace('$', '')
@@ -334,10 +334,10 @@ def wing_bitwise_right_shift_equal(*args):
 	for i in args[1:]:
 		v -= i
 
-	wing_set(var_name, v)
+	craft_set(var_name, v)
 
 
-def wing_negative(*args):
+def craft_negative(*args):
 	"""
 	Looks like I can't parse negative numbers :(
 	"""
@@ -347,36 +347,36 @@ def wing_negative(*args):
 
 	return -args[0]
 
-__wing__ = {
-	'neg'    : wing_negative,
-	'+'      : wing_add,
-	'+='     : wing_add_equal,
-	'-'      : wing_sub,
-	'-='     : wing_sub_equal,
-	'*'      : wing_mul,
-	'*='     : wing_mul_equal,
-	'/'      : wing_div,
-	'/='     : wing_div_equal,
-	'%'      : wing_mod,
-	'%='     : wing_mod_equal,
-	'**'     : wing_exp,
-	'**='    : wing_exp_equal,
-	'&'      : wing_bitwise_and,
-	'&='     : wing_bitwise_and_equal,
-	'|'      : wing_bitwise_or,
-	'|='     : wing_bitwise_or_equal,
-	'^'      : wing_bitwise_xor,
-	'^='     : wing_bitwise_xor_equal,
-	'<<'     : wing_bitwise_left_shift,
-	'<<='    : wing_bitwise_left_shift_equal,
-	'>>'     : wing_bitwise_right_shift,
-	'>>='    : wing_bitwise_right_shift_equal,
-	'~'      : wing_bitwise_complement,
-	'='      : wing_equals,
-	'<>'     : wing_not_equals,
-	'!='     : wing_not_equals,
-	'>'      : wing_greater_than,
-	'<'      : wing_less_than,
-	'>='     : wing_greater_than_or_equal_to,
-	'<='     : wing_less_than_or_equal_to,
+__craft__ = {
+	'neg'    : craft_negative,
+	'+'      : craft_add,
+	'+='     : craft_add_equal,
+	'-'      : craft_sub,
+	'-='     : craft_sub_equal,
+	'*'      : craft_mul,
+	'*='     : craft_mul_equal,
+	'/'      : craft_div,
+	'/='     : craft_div_equal,
+	'%'      : craft_mod,
+	'%='     : craft_mod_equal,
+	'**'     : craft_exp,
+	'**='    : craft_exp_equal,
+	'&'      : craft_bitwise_and,
+	'&='     : craft_bitwise_and_equal,
+	'|'      : craft_bitwise_or,
+	'|='     : craft_bitwise_or_equal,
+	'^'      : craft_bitwise_xor,
+	'^='     : craft_bitwise_xor_equal,
+	'<<'     : craft_bitwise_left_shift,
+	'<<='    : craft_bitwise_left_shift_equal,
+	'>>'     : craft_bitwise_right_shift,
+	'>>='    : craft_bitwise_right_shift_equal,
+	'~'      : craft_bitwise_complement,
+	'='      : craft_equals,
+	'<>'     : craft_not_equals,
+	'!='     : craft_not_equals,
+	'>'      : craft_greater_than,
+	'<'      : craft_less_than,
+	'>='     : craft_greater_than_or_equal_to,
+	'<='     : craft_less_than_or_equal_to,
 }

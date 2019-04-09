@@ -2,8 +2,8 @@ import sys, pprint, traceback
 from pathlib import Path
 import yaml, os
 import pyparsing as pyp
-from wing_core import *
-from wing_parser import *
+from craft_core import *
+from craft_parser import *
 
 pp = pprint.PrettyPrinter(width=1)
 
@@ -12,7 +12,7 @@ pp = pprint.PrettyPrinter(width=1)
 # -----------------------------------------------------------------------------
 
 
-def wing_try(*args):
+def craft_try(*args):
     """
     <Short Description>
 
@@ -29,17 +29,17 @@ def wing_try(*args):
     finale = [i for i in args if getkey(i) == 'finally']
     exceptors = catches + finale
 
-    wing_push_scope()
+    craft_push_scope()
     pushed = True
     try:
         for i in args:
             if i not in exceptors:
                 get_arg_value(i)
 
-    # If an exception occurs, Wing will have already registered it!
+    # If an exception occurs, Craft will have already registered it!
     except Exception as e:
         # Make sure to keep track of enclosing scope
-        wing_pop_scope()
+        craft_pop_scope()
         pushed = False
 
         error_code = query_symbol_table(e.name, SCOPE)
@@ -73,13 +73,13 @@ def wing_try(*args):
                 break
     finally:
         if pushed:
-            wing_pop_scope()
+            craft_pop_scope()
 
         if len(finale) > 0:
             get_args(finale)
 
 
-def wing_catch(*args):
+def craft_catch(*args):
     """
     <Short Description>
 
@@ -91,13 +91,13 @@ def wing_catch(*args):
     Returns:
       <Description of Return Value>
     """
-    # Must ignore first argument since `wing_try` reads it.
-    wing_push_scope()
+    # Must ignore first argument since `craft_try` reads it.
+    craft_push_scope()
     get_args(args[1:])
-    wing_pop_scope()
+    craft_pop_scope()
 
 
-def wing_finally(*args):
+def craft_finally(*args):
     """
     <Short Description>
 
@@ -109,12 +109,12 @@ def wing_finally(*args):
     Returns:
       <Description of Return Value>
     """
-    wing_push_scope()
+    craft_push_scope()
     get_args(args)
-    wing_pop_scope()
+    craft_pop_scope()
 
 
-def wing_exception(*args):
+def craft_exception(*args):
     """
     <Short Description>
 
@@ -130,7 +130,7 @@ def wing_exception(*args):
 
 
 
-def wing_switch(*args):
+def craft_switch(*args):
     """
     <Short Description>
 
@@ -168,21 +168,21 @@ def wing_switch(*args):
         get_arg_value(default)
 
 
-def wing_case(*args):
+def craft_case(*args):
     """
     Ignores the first argument since it is a value to use with `switch`.
     """
     get_args(args[1:])
 
 
-def wing_default(*args):
+def craft_default(*args):
     """
     Run the code therein since there is no match condition
     """
     get_args(args)
 
 
-def wing_break(*args):
+def craft_break(*args):
     """
     <Short Description>
 
@@ -194,10 +194,10 @@ def wing_break(*args):
     Returns:
       <Description of Return Value>
     """
-    raise WingLoopBreakException()
+    raise CraftLoopBreakException()
 
 
-def wing_continue(*args):
+def craft_continue(*args):
     """
     <Short Description>
 
@@ -209,10 +209,10 @@ def wing_continue(*args):
     Returns:
       <Description of Return Value>
     """
-    raise WingLoopContinueException()
+    raise CraftLoopContinueException()
 
 
-def wing_while(*args):
+def craft_while(*args):
     """
     <Short Description>
 
@@ -228,20 +228,20 @@ def wing_while(*args):
 
     push_return_point()
 
-    wing_push_scope()
+    craft_push_scope()
 
     while get_arg_value(condition):
         try:
             get_args(args[1:])
-        except WingLoopContinueException:
+        except CraftLoopContinueException:
             pass
-        except WingLoopBreakException:
+        except CraftLoopBreakException:
             break
 
     cull_scopes(pop_return_point())
 
 
-def wing_until(*args):
+def craft_until(*args):
     """
 <Short Description>
 
@@ -257,70 +257,70 @@ Returns:
 
     push_return_point()
 
-    wing_push_scope()
+    craft_push_scope()
 
     while not get_arg_value(condition):
         try:
             get_args(args[1:])
-        except WingLoopContinueException:
+        except CraftLoopContinueException:
             pass
-        except WingLoopBreakException:
+        except CraftLoopBreakException:
             break
 
     cull_scopes(pop_return_point())
 
 
-def __wing_import__query_dir(filename):
+def __craft_import__query_dir(filename):
     """
-    Returns the YAML/WING/PY file after searching the path.
+    Returns the YAML/CRAFT/PY file after searching the path.
     """
-    global WING_PATH
+    global CRAFT_PATH
 
-    for path in WING_PATH:
+    for path in CRAFT_PATH:
         p = Path(path)
         mod_yaml = p / f'{filename}.yaml'
-        mod_wing = p / f'{filename}.wing'
+        mod_craft = p / f'{filename}.craft'
         mod_py = p / f'{filename}.py'
 
         if mod_yaml.exists():
             return mod_yaml
 
-        elif mod_wing.exists():
-            return mod_wing
+        elif mod_craft.exists():
+            return mod_craft
 
         elif mod_py.exists():
             return mod_py
 
-    # If none has been returned, it doesn't exist in WING_PATH
-    raise Exception(f'Cannot import name: {filename}. No matching .WING, .YAML or .PY was found in WING_PATH.')
+    # If none has been returned, it doesn't exist in CRAFT_PATH
+    raise Exception(f'Cannot import name: {filename}. No matching .CRAFT, .YAML or .PY was found in CRAFT_PATH.')
 
 
-def wing_import(*args):
+def craft_import(*args):
     """
     1. YAML import
-    2. Wing import
+    2. Craft import
     3. Py import
 
     ```YAML
     # Import searches start from CWD and go inward:
-    import: [wing.lang.builtins]
-    # It would look in <CWD>/wing/lang/builtins
+    import: [craft.lang.builtins]
+    # It would look in <CWD>/craft/lang/builtins
 
     # From imports:
-    import: [[wing.lang.builtins, name1]]
-    # from wing.lang.builtins import name1
+    import: [[craft.lang.builtins, name1]]
+    # from craft.lang.builtins import name1
     ```
 
     1. Get import name.
     2. If no dots, search CWD
-    3. If not found, search WingPath (in future)
-    4. If dots, search all WingPath dirs for it
+    3. If not found, search CraftPath (in future)
+    4. If dots, search all CraftPath dirs for it
     """
     args = get_args(args)
 
     for impp in args:
         to_import = impp if isinstance(impp, str) else impp[0]
-        module = __wing_import__query_dir(to_import.replace('.', '/'))
+        module = __craft_import__query_dir(to_import.replace('.', '/'))
 
         with open(str(module)) as file:
             if module.suffix == '.yaml':
@@ -328,8 +328,8 @@ def wing_import(*args):
                 if ast != None:
                     handle_expression({ 'Program' : ast['Program'] })
 
-            elif module.suffix == '.wing':
-                ast = wing_parse(file.read())
+            elif module.suffix == '.craft':
+                ast = craft_parse(file.read())
                 handle_expression({ 'Program' : ast['Program'] })
 
             else:
@@ -339,17 +339,17 @@ def wing_import(*args):
                 pymod = module.name.replace(module.suffix, '')
                 pymod = imp.load_source(pymod, str(module))
 
-                if '__wing__' not in dir(pymod):
-                    raise Exception('Unable to import Python module: no __wing__ variable.')
+                if '__craft__' not in dir(pymod):
+                    raise Exception('Unable to import Python module: no __craft__ variable.')
 
                 if isinstance(impp, str):
-                    for name in pymod.__wing__:
-                        wing_set(name, pymod.__wing__[name])
+                    for name in pymod.__craft__:
+                        craft_set(name, pymod.__craft__[name])
                 else:
                     for name in impp[1:]:
-                        wing_set(name, pymod.__wing__[name])
+                        craft_set(name, pymod.__craft__[name])
 
-def wing_and(*args):
+def craft_and(*args):
     """
     Logical AND operator.
     """
@@ -360,7 +360,7 @@ def wing_and(*args):
     return args[0] and args[1]
 
 
-def wing_or(*args):
+def craft_or(*args):
     """
     Logical OR operator.
     """
@@ -371,7 +371,7 @@ def wing_or(*args):
     return args[0] or args[1]
 
 
-def wing_not(*args):
+def craft_not(*args):
     """
     Logical NOT operator.
     """
@@ -381,7 +381,7 @@ def wing_not(*args):
     return not get_arg_value(args[0])
 
 
-def wing_foreach(*args):
+def craft_foreach(*args):
     """
     <Short Description>
 
@@ -396,15 +396,15 @@ def wing_foreach(*args):
     var, iterable = get_args(args[0])
 
     push_return_point()
-    wing_push_scope()
+    craft_push_scope()
 
     for i in iterable:
         try:
-            wing_set(var, i)
+            craft_set(var, i)
             get_args(args[1:])
-        except WingLoopContinueException:
+        except CraftLoopContinueException:
             continue
-        except WingLoopBreakException:
+        except CraftLoopBreakException:
             break
         except Exception:
             traceback.print_exc()
@@ -412,7 +412,7 @@ def wing_foreach(*args):
     cull_scopes(pop_return_point())
 
 
-def wing_for(*args):
+def craft_for(*args):
     """
     <Short Description>
 
@@ -441,15 +441,15 @@ def wing_for(*args):
         raise Exception(f'Malformed control value: (var, start, stop, step)')
 
     push_return_point()
-    wing_push_scope()
+    craft_push_scope()
 
     for i in range(start, stop, step):
         try:
-            wing_set(var, i)
+            craft_set(var, i)
             get_args(args[1:])
-        except WingLoopContinueException:
+        except CraftLoopContinueException:
             continue
-        except WingLoopBreakException:
+        except CraftLoopBreakException:
             break
         except Exception as e:
             traceback.print_exc()
@@ -458,7 +458,7 @@ def wing_for(*args):
     cull_scopes(pnt)
 
 
-def wing_if(*args):
+def craft_if(*args):
     """
     <Short Description>
 
@@ -478,18 +478,18 @@ def wing_if(*args):
 
     # Run the THEN function if the condition is equal to True
     if handle_expression(c) if isinstance(c, dict) else handle_value(c):
-        wing_push_scope()
+        craft_push_scope()
         handle_expression(args[1])
-        wing_pop_scope()
+        craft_pop_scope()
 
     # Handle ELSE clause if it was added
     elif len(args) == 3:
-        wing_push_scope()
+        craft_push_scope()
         handle_expression(args[2])
-        wing_pop_scope()
+        craft_pop_scope()
 
 
-def wing_unless(*args):
+def craft_unless(*args):
     """
     <Short Description>
 
@@ -509,18 +509,18 @@ def wing_unless(*args):
 
     # Run the THEN function if the condition is equal to True
     if not handle_expression(c) if isinstance(c, dict) else not handle_value(c):
-        wing_push_scope()
+        craft_push_scope()
         handle_expression(args[1])
-        wing_pop_scope()
+        craft_pop_scope()
 
     # Handle ELSE clause if it was added
     elif len(args) == 3:
-        wing_push_scope()
+        craft_push_scope()
         handle_expression(args[2])
-        wing_pop_scope()
+        craft_pop_scope()
 
 
-def wing_then(*args):
+def craft_then(*args):
     """
     <Short Description>
 
@@ -535,7 +535,7 @@ def wing_then(*args):
     args = get_args(args)
 
 
-def wing_else(*args):
+def craft_else(*args):
     """
     <Short Description>
 
@@ -550,7 +550,7 @@ def wing_else(*args):
     args = get_args(args)
 
 
-def wing_globals(*args):
+def craft_globals(*args):
     """
     <Short Description>
 
@@ -566,7 +566,7 @@ def wing_globals(*args):
     pp.pprint(EXCEPTIONS)
 
 
-def wing_locals(*args):
+def craft_locals(*args):
     """
     <Short Description>
 
@@ -582,7 +582,7 @@ def wing_locals(*args):
     pp.pprint(SYMBOL_TABLE[SCOPE])
 
 
-def wing_exit(*args):
+def craft_exit(*args):
     """
     <Short Description>
 
@@ -597,7 +597,7 @@ def wing_exit(*args):
     sys.exit()
 
 
-def wing_comment(*args):
+def craft_comment(*args):
     """
     <Short Description>
 
@@ -611,7 +611,7 @@ def wing_comment(*args):
     """
 
 
-def wing_print(*args):
+def craft_print(*args):
     """
     <Short Description>
 
@@ -626,7 +626,7 @@ def wing_print(*args):
     print(*get_args(args))
 
 
-def wing_prin(*args):
+def craft_prin(*args):
     """
     <Short Description>
 
@@ -641,7 +641,7 @@ def wing_prin(*args):
     print(*get_args(args), end='')
 
 
-def wing_def(*args):
+def craft_def(*args):
     """
     Bind function name to variable in current scope. This will allow it to be
     called.
@@ -650,12 +650,12 @@ def wing_def(*args):
     func_name = declaration[0]
     func_args = declaration[1:]
     func_definition = args[1:]
-    wing_set(func_name, [func_args, func_definition])
+    craft_set(func_name, [func_args, func_definition])
 
 
-def wing_return(*args):
+def craft_return(*args):
     """
-    The `wing_call` function will catch this exception and then return the
+    The `craft_call` function will catch this exception and then return the
     value from it.
     """
     if len(args) > 1:
@@ -666,19 +666,19 @@ def wing_return(*args):
         raise Exception(ex)
 
     value = get_arg_value(args[0])
-    raise WingFunctionReturnException(value)
+    raise CraftFunctionReturnException(value)
 
 
-def wing_lambda(*args):
+def craft_lambda(*args):
     """
-    TODO(Pebaz): Fix `wing_call` to be able to handle lambdas.
+    TODO(Pebaz): Fix `craft_call` to be able to handle lambdas.
     """
     arguments = get_arg_value(args[0])
     definition = args[1:]
     return [arguments, definition]
 
 
-def wing_struct(*args):
+def craft_struct(*args):
     """
     <Short Description>
 
@@ -693,10 +693,10 @@ def wing_struct(*args):
     args = get_args(args)
     struct_name = args[0]
     struct_members = args[1:]
-    wing_set(struct_name, struct_members)
+    craft_set(struct_name, struct_members)
 
 
-def wing_new(*args):
+def craft_new(*args):
     """
     Must be able to be extended to build classes/types later.
 
@@ -719,7 +719,7 @@ def wing_new(*args):
     return struct
 
 
-def wing_program(*args):
+def craft_program(*args):
     """
     <Short Description>
 
@@ -742,7 +742,7 @@ def wing_program(*args):
         TRACEBACK.show_trace(e)
 
 
-def wing_byval(*args):
+def craft_byval(*args):
     """
     Since functions only try one round of evaluation for arguments, arguments
     can be passed "by value" instead of "by reference/name".
@@ -750,14 +750,14 @@ def wing_byval(*args):
     return args[0]
 
 
-def wing_byref(*args):
+def craft_byref(*args):
     """
     Wrap the dictionary in a protective layer.
     """
     return get_args(args)
 
 
-def wing_dir(value):
+def craft_dir(value):
     global pp
     if isinstance(value, str):
         pp.pprint(get_arg_value(value))
@@ -769,7 +769,7 @@ def wing_dir(value):
 # Data Types
 # -----------------------------------------------------------------------------
 
-def wing_hash(*args):
+def craft_hash(*args):
     """
     <Short Description>
 
@@ -793,7 +793,7 @@ def wing_hash(*args):
 
     return ret
 
-def wing_get(*args):
+def craft_get(*args):
     """
     <Short Description>
 
@@ -812,7 +812,7 @@ def wing_get(*args):
     return args[0][args[1]]
 
 
-def wing_cut(*args):
+def craft_cut(*args):
     """
     <Short Description>
 
@@ -828,7 +828,7 @@ def wing_cut(*args):
     raise Exception('Not implemented yet: cut')
 
 
-def wing_str(*args):
+def craft_str(*args):
     """
     <Short Description>
 
@@ -843,7 +843,7 @@ def wing_str(*args):
     return str(get_arg_value(args[0]))
 
 
-def wing_int(*args):
+def craft_int(*args):
     """
     <Short Description>
 
@@ -857,7 +857,7 @@ def wing_int(*args):
     """
     return int(get_arg_value(args[0]))
 
-def wing_bool(*args):
+def craft_bool(*args):
     """
     <Short Description>
 
@@ -872,7 +872,7 @@ def wing_bool(*args):
     return bool(get_arg_value(args[0]))
 
 
-def wing_float(*args):
+def craft_float(*args):
     """
     <Short Description>
 
@@ -887,7 +887,7 @@ def wing_float(*args):
     return float(get_arg_value(args[0]))
 
 
-def wing_tuple(*args):
+def craft_tuple(*args):
     """
     <Short Description>
 
@@ -904,7 +904,7 @@ def wing_tuple(*args):
     return tuple(get_arg_value(args[0]))
 
 
-def wing_list(*args):
+def craft_list(*args):
     """
     <Short Description>
 
@@ -919,7 +919,7 @@ def wing_list(*args):
     return list(get_arg_value(args[0]))
 
 
-def wing_collected_set(*args):
+def craft_collected_set(*args):
     """
     <Short Description>
 
@@ -934,7 +934,7 @@ def wing_collected_set(*args):
     return set(get_arg_value(args[0]))
 
 
-def wing_format(*args):
+def craft_format(*args):
     """
     Formats a given string with the given arguments.
 
@@ -950,60 +950,60 @@ def wing_format(*args):
     return args[0].format(*args[1:])
 
 
-__wing__ = {
+__craft__ = {
     # Built-Ins
-    'Program'               : wing_program,
-    'push-scope'            : wing_push_scope,
-    'pop-scope'             : wing_pop_scope,
-    'create-named-scope'    : wing_create_named_scope,
-    'globals'               : wing_globals,
-    'locals'                : wing_locals,
-    'quit'                  : wing_exit,
-    'exit'                  : wing_exit,
-    'def'                   : wing_def,
-    'return'                : wing_return,
-    'call'                  : wing_call,
-    'fn'                    : wing_lambda,
-    'struct'                : wing_struct,
-    'new'                   : wing_new,
-    'set'                   : wing_set,
-    'get'                   : wing_get,
+    'Program'               : craft_program,
+    'push-scope'            : craft_push_scope,
+    'pop-scope'             : craft_pop_scope,
+    'create-named-scope'    : craft_create_named_scope,
+    'globals'               : craft_globals,
+    'locals'                : craft_locals,
+    'quit'                  : craft_exit,
+    'exit'                  : craft_exit,
+    'def'                   : craft_def,
+    'return'                : craft_return,
+    'call'                  : craft_call,
+    'fn'                    : craft_lambda,
+    'struct'                : craft_struct,
+    'new'                   : craft_new,
+    'set'                   : craft_set,
+    'get'                   : craft_get,
     'cut'                   : None,
     'slice'                 : None,
-    'for'                   : wing_for,
-    'foreach'               : wing_foreach,
-    'if'                    : wing_if,
-    'unless'                : wing_unless,
-    'then'                  : wing_then,
-    'else'                  : wing_else,
-    'print'                 : wing_print,
-    'prin'                  : wing_prin,
-    'comment'               : wing_comment,
-    'and'                   : wing_and,
-    'or'                    : wing_or,
-    'not'                   : wing_not,
-    'byval'                 : wing_byval,
-    'import'                : wing_import,
-    'dir'                   : wing_dir,
-    'break'                 : wing_break,
-    'continue'              : wing_continue,
-    'while'                 : wing_while,
-    'until'                 : wing_until,
-    'hash'                  : wing_hash,
-    'str'                   : wing_str,
-    'int'                   : wing_int,
-    'bool'                  : wing_bool,
-    'float'                 : wing_float,
-    'tuple'                 : wing_tuple,
-    'list'                  : wing_list,
-    'collected_set'         : wing_collected_set,
-    'switch'                : wing_switch,
-    'case'                  : wing_case,
-    'default'               : wing_default,
-    'try'                   : wing_try,
-    'catch'                 : wing_catch,
-    'finally'               : wing_finally,
-    'exception'             : wing_exception,
-    'raise'                 : wing_raise,
-    'format'                : wing_format,
+    'for'                   : craft_for,
+    'foreach'               : craft_foreach,
+    'if'                    : craft_if,
+    'unless'                : craft_unless,
+    'then'                  : craft_then,
+    'else'                  : craft_else,
+    'print'                 : craft_print,
+    'prin'                  : craft_prin,
+    'comment'               : craft_comment,
+    'and'                   : craft_and,
+    'or'                    : craft_or,
+    'not'                   : craft_not,
+    'byval'                 : craft_byval,
+    'import'                : craft_import,
+    'dir'                   : craft_dir,
+    'break'                 : craft_break,
+    'continue'              : craft_continue,
+    'while'                 : craft_while,
+    'until'                 : craft_until,
+    'hash'                  : craft_hash,
+    'str'                   : craft_str,
+    'int'                   : craft_int,
+    'bool'                  : craft_bool,
+    'float'                 : craft_float,
+    'tuple'                 : craft_tuple,
+    'list'                  : craft_list,
+    'collected_set'         : craft_collected_set,
+    'switch'                : craft_switch,
+    'case'                  : craft_case,
+    'default'               : craft_default,
+    'try'                   : craft_try,
+    'catch'                 : craft_catch,
+    'finally'               : craft_finally,
+    'exception'             : craft_exception,
+    'raise'                 : craft_raise,
+    'format'                : craft_format,
 }

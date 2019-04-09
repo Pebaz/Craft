@@ -1,5 +1,5 @@
-from wing_core import *
-from wing_parser import *
+from craft_core import *
+from craft_parser import *
 
 def run_file(filename):
 	"""
@@ -16,8 +16,8 @@ def run_file(filename):
 		if extension.lower() == '.yaml':
 			ast = yaml.load(file)
 
-		elif extension.lower() == '.wing':
-			ast = wing_parse(file.read())
+		elif extension.lower() == '.craft':
+			ast = craft_parse(file.read())
 
 		if ast != None:
 

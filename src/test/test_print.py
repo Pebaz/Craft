@@ -3,7 +3,7 @@ try:
 except ImportError:
 	from . context import *
 finally:
-	from wing_test_utils import *
+	from craft_test_utils import *
 
 
 def test_print_str():

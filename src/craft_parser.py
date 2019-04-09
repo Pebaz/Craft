@@ -18,7 +18,7 @@ def __walk(obj):
 
 def _type_cast_value(x, y, value):
 	"""
-	Convert the following strings to Python objects:
+	Convert the follocraft strings to Python objects:
 
 	 * Boolean
 	 * Integer (hex, bin, oct, int)
@@ -66,7 +66,7 @@ class SourceValidator:
 		print("ERROR!")
 
 
-def wing_parse(text):
+def craft_parse(text):
 	"""
 	"""
 	LineComment = pyp.Combine(pyp.Literal('::') + pyp.restOfLine).suppress()

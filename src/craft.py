@@ -1,4 +1,4 @@
-"""Wing Programming Language
+"""Craft Programming Language
 
 Usage:
   {0}
@@ -12,13 +12,13 @@ Usage:
   {0} [[-y | --yaml] [-d | --debug] [-t | --time]] FILENAME
 
 Options:
-  FILE            Run a Wing Program From Source
-  -v --version    Display Wing Version and Exit
-  -d --debug      Debug a Wing Program
-  -y --yaml       Interpret YAML as a Wing program
+  FILE            Run a Craft Program From Source
+  -v --version    Display Craft Version and Exit
+  -d --debug      Debug a Craft Program
+  -y --yaml       Interpret YAML as a Craft program
   -t --time       Time and Display How Long the Script Took to Run
 
-To run the Wing REPL, supply no arguments:
+To run the Craft REPL, supply no arguments:
   {0}
 """
 
@@ -27,19 +27,19 @@ import sys, os, os.path, pprint, traceback, time
 
 from docopt import docopt
 
-from wing_core 			import *
-from wing_parser 		import *
-from wing_exceptions 	import *
-from wing_cli 			import *
-from wing_interpreter 	import *
+from craft_core 			import *
+from craft_parser 		import *
+from craft_exceptions 	import *
+from craft_cli 			import *
+from craft_interpreter 	import *
 
-# Needed to import __wing__ dicts for built-in symbol table entries
-import wing_operators
-import wing_keywords
+# Needed to import __craft__ dicts for built-in symbol table entries
+import craft_operators
+import craft_keywords
 
 SYMBOL_TABLE.append(dict())
-SYMBOL_TABLE[0].update(wing_operators.__wing__)
-SYMBOL_TABLE[0].update(wing_keywords.__wing__)
+SYMBOL_TABLE[0].update(craft_operators.__craft__)
+SYMBOL_TABLE[0].update(craft_keywords.__craft__)
 
 # Lambda to get the system current time millis
 millis = lambda: int(round(time.time() * 1000))
@@ -51,7 +51,7 @@ def main(args):
 
 	# Make the docstring .EXE friendly
 	usage = __doc__.format(args[0])
-	arguments = docopt(usage, argv=args[1:], version='Wing 0.1.0')
+	arguments = docopt(usage, argv=args[1:], version='Craft 0.1.0')
 
 	if arguments['FILENAME'] != None:
 		DEBUG = arguments['--debug']

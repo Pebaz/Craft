@@ -7,8 +7,8 @@ import pyparsing as pyp
 from docopt import docopt
 
 
-from wing_exceptions import *
-from wing_colors import *
+from craft_exceptions import *
+from craft_colors import *
 
 
 # -----------------------------------------------------------------------------
@@ -158,7 +158,7 @@ def handle_value(value):
 
 	except Exception as e:
 		register_pyexception(e)
-		wing_raise(type(e).__name__)
+		craft_raise(type(e).__name__)
 
 
 def handle_expression(dictn):
@@ -185,31 +185,31 @@ def handle_expression(dictn):
 	'''
 	if callable(func):
 
-		# TODO(Pebaz): Handle Python exceptions here and translate to Wing ones
+		# TODO(Pebaz): Handle Python exceptions here and translate to Craft ones
 		try:
 			return func(*getvalue(dictn))
-		except (WingFunctionReturnException, WingLoopBreakException, WingLoopContinueException) as e:
+		except (CraftFunctionReturnException, CraftLoopBreakException, CraftLoopContinueException) as e:
 			raise e
 		except Exception as e:
 			register_pyexception(e)
-			wing_raise(type(e).__name__)
+			craft_raise(type(e).__name__)
 
-	# Function is defined in Wing
+	# Function is defined in Craft
 	# Pass it's name to the call function
 	else:
 
-		# TODO(Pebaz): Handle Wing exceptions here
-		# TODO(Pebaz): If WingException is returned, how to fix all the other
+		# TODO(Pebaz): Handle Craft exceptions here
+		# TODO(Pebaz): If CraftException is returned, how to fix all the other
 		# functions from catching it before here? Will this `try` be able to
 		# capture it?
 
 		try:
-			return wing_call(getkey(dictn), *getvalue(dictn))
-		except (WingFunctionReturnException, WingLoopBreakException, WingLoopContinueException) as e:
+			return craft_call(getkey(dictn), *getvalue(dictn))
+		except (CraftFunctionReturnException, CraftLoopBreakException, CraftLoopContinueException) as e:
 			raise e
 		except Exception as e:
 			register_pyexception(e)
-			wing_raise(type(e).__name__)
+			craft_raise(type(e).__name__)
 
 	# TODO(Pebaz): Fix the code to say this instead:
 	'''
@@ -218,17 +218,17 @@ def handle_expression(dictn):
 		if callable(func):
 			return func(*getvalue(dictn))
 
-		# Wing function
+		# Craft function
 		else:
-			return wing_call(getkey(dictn), *getvalue(dictn))
+			return craft_call(getkey(dictn), *getvalue(dictn))
 
-	# These Exceptions are not errors so pass them on to be caught by wing_call
-	except (WingFunctionReturnException, WingLoopBreakException, WingLoopContinueException) as e:
+	# These Exceptions are not errors so pass them on to be caught by craft_call
+	except (CraftFunctionReturnException, CraftLoopBreakException, CraftLoopContinueException) as e:
 		raise e
 
 	except Exception as e:
 		register_pyexception(e)
-		wing_raise(type(e).__name__)
+		craft_raise(type(e).__name__)
 
 
 
@@ -243,7 +243,7 @@ def push_return_point():
 
 def pop_return_point():
 	"""
-	Return the scope that Wing should return to after a function call or
+	Return the scope that Craft should return to after a function call or
 	an exception occurs.
 	"""
 	global RETURN_POINTS
@@ -257,10 +257,10 @@ def cull_scopes(return_point):
 	"""
 	global SCOPE
 	for i in range(SCOPE - return_point):
-		wing_pop_scope()
+		craft_pop_scope()
 
 
-def wing_call(*args):
+def craft_call(*args):
 	"""
 	"""
 	global SCOPE
@@ -279,11 +279,11 @@ def wing_call(*args):
 	push_return_point()
 
 	# Push a new scope to bind all local variables to
-	wing_push_scope()
+	craft_push_scope()
 
 	# Bind each variable to the new function scope
 	for i in range(len(arg_names)):
-		wing_set(arg_names[i], func_args[i])
+		craft_set(arg_names[i], func_args[i])
 
 	# Return value
 	return_value = None
@@ -296,11 +296,11 @@ def wing_call(*args):
 			get_arg_value(statement)
 
 		# Improper usage of keywords
-		except (WingLoopBreakException, WingLoopContinueException):
+		except (CraftLoopBreakException, CraftLoopContinueException):
 			raise Exception(f'BREAK or CONTINUE used outside of loop: {statement}')
 
 		# Get return value and stop handling expressions
-		except WingFunctionReturnException as wfre:
+		except CraftFunctionReturnException as wfre:
 			return_value = wfre.return_value
 			break
 
@@ -309,11 +309,11 @@ def wing_call(*args):
 
 			# TODO(Pebaz): Remove this and raise new exception for
 			# handle_expression() to handle.
-			# raise WingException("SOMETHING TERRIBLE HAS HAPPENED", e)
+			# raise CraftException("SOMETHING TERRIBLE HAS HAPPENED", e)
 			# -----> traceback.print_exc()
 			# -----> break
 
-			# TODO(Pebaz): Exit early and raise a new WingException now.
+			# TODO(Pebaz): Exit early and raise a new CraftException now.
 			# It will be caught by handle_expression.
 			raise e from e
 
@@ -328,7 +328,7 @@ def wing_call(*args):
 	# Return the value returned from the function (if any)
 	return return_value
 
-def wing_set(name, value):
+def craft_set(name, value):
 	"""
 	This function does not evaluate arguments because it needs the raw variable
 	value untouched. For instance, if a map (dict) is passed, it will get run
@@ -349,7 +349,7 @@ def wing_set(name, value):
 	else:
 		SYMBOL_TABLE[SCOPE][var_name] = value
 
-def wing_create_named_scope(*args):
+def craft_create_named_scope(*args):
 	"""
 	"""
 	args = get_args(args)
@@ -357,7 +357,7 @@ def wing_create_named_scope(*args):
 	SYMBOL_TABLE[SCOPE][args[0]] = dict()
 
 
-def wing_push_named_scope(name):
+def craft_push_named_scope(name):
 	"""
 	Used in classes:
 	push "this"
@@ -370,14 +370,14 @@ def wing_push_named_scope(name):
 	# TODO(Pebaz): Do I want to keep this? Would make namespaces easier
 
 
-def wing_pop_named_scope(name):
+def craft_pop_named_scope(name):
 	"""
 	Used to remove a named scope temporarily?
 	"""
 	# TODO(Pebaz): Do I want to keep this? Would make namespaces easier
 
 
-def wing_push_scope():
+def craft_push_scope():
 	"""
 	"""
 	global SCOPE, SYMBOL_TABLE
@@ -388,7 +388,7 @@ def wing_push_scope():
 	TRACEBACK.set_scope(SCOPE)
 
 
-def wing_pop_scope():
+def craft_pop_scope():
 	"""
 	"""
 	global SCOPE, SYMBOL_TABLE, TRACEBACK
@@ -407,13 +407,13 @@ def register_exception(name, desc, *args):
 	 1. Register the exception as a variable with the exact name in scope level
 	    zero.
 	 2. The exception can be raised using the name:
-	 		raise: [WingException]
+	 		raise: [CraftException]
 
 		Using the error code:
 			raise: [1]
 
 		Using the lookup for the error code:
-			raise: [$WingException]
+			raise: [$CraftException]
 	"""
 	global EXCEPTIONS, SYMBOL_TABLE
 
@@ -425,7 +425,7 @@ def register_exception(name, desc, *args):
 	EXCEPTIONS[name] = {'name' : name, 'desc' : desc, 'meta' : args}
 	EXCEPTIONS[error_code] = {'name' : name, 'desc' : desc, 'meta' : args}
 
-	#wing_set(name, error_code)
+	#craft_set(name, error_code)
 	# Manually place exception var in global namespace
 	SYMBOL_TABLE[0][name] = error_code
 
@@ -451,12 +451,12 @@ def register_pyexception(exception):
 	EXCEPTIONS[name]       = {'name' : name, 'desc' : desc, 'meta' : None}
 	EXCEPTIONS[error_code] = {'name' : name, 'desc' : desc, 'meta' : None}
 
-	#wing_set(name, error_code)
+	#craft_set(name, error_code)
 	# Manually place exception var in global namespace
 	SYMBOL_TABLE[0][name] = error_code
 
 
-def wing_raise(error_code, *args):
+def craft_raise(error_code, *args):
 	"""
 	Raises the given exception if it exists in the EXCEPTION list.
 
@@ -477,7 +477,7 @@ def wing_raise(error_code, *args):
 	desc = EXCEPTIONS[error_code]['desc']
 	meta = EXCEPTIONS[error_code]['meta'] if len(args) == 0 else args
 
-	wing_exception = type(
+	craft_exception = type(
 		name,
 		(Exception,),
 		{
@@ -488,7 +488,7 @@ def wing_raise(error_code, *args):
 		}
 	)
 
-	raise wing_exception
+	raise craft_exception
 
 
 
@@ -558,7 +558,7 @@ SCOPE = 0 # For now, functions have to increment and decrement scope
 RETURN_POINTS = []
 EXCEPTIONS = dict()
 TRACEBACK = Trace()
-WING_PATH = [os.getcwd(), 'stdlib']
+CRAFT_PATH = [os.getcwd(), 'stdlib']
 DEBUG = False
 
 def setup_sym_tab():
@@ -566,8 +566,8 @@ def setup_sym_tab():
 	SYMBOL_TABLE.clear()
 	RETURN_POINTS.clear()
 
-	import wing_operators
-	import wing_keywords
+	import craft_operators
+	import craft_keywords
 	SYMBOL_TABLE.append(dict())
-	SYMBOL_TABLE[0].update(wing_operators.__wing__)
-	SYMBOL_TABLE[0].update(wing_keywords.__wing__)
+	SYMBOL_TABLE[0].update(craft_operators.__craft__)
+	SYMBOL_TABLE[0].update(craft_keywords.__craft__)
