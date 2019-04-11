@@ -1,11 +1,6 @@
 import time, ctypes, sys
 import pytcc as pcc
 
-def py_foobar(n):
-	i = 0
-	for r in range(n):
-		i += r
-	return i
 program =b"""
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
