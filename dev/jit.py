@@ -7,10 +7,10 @@ program =b"""
 
 PyObject * pop(PyObject * self, PyObject * args, PyObject * kwargs) {
 	int a = 3;
-	//return PyLong_FromLong(25);
+	return PyLong_FromLong(25);
 
 	// WORKS
-	return NULL;
+	//return NULL;
 
 	//return Py_RETURN_TRUE;
 }
