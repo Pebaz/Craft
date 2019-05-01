@@ -59,13 +59,13 @@ foobar = foobar_proto(jit_code.get_symbol('foobar'))
 # print(bubbles())
 
 
-pop_proto = ctypes.CFUNCTYPE(ctypes.c_voidp)
+pop_proto = ctypes.CFUNCTYPE(ctypes.py_object)
 pop = pop_proto(jit_code.get_symbol('pop'))
 
 print('Try Call...')
 print(pop(133))
 print('DONE')
-sys.exit(0)
+#sys.exit(0)
 
 def py_foobar(n):
 	i = 0
@@ -79,11 +79,14 @@ start = time.time_ns()
 for i in range(times):
 	py_foobar(times)
 print(py_foobar(times))
-print(f'Took {(time.time_ns() - start) / 1000000000}s to complete.')
+py_end = (time.time_ns() - start) / 1000000000
+print(f'Took {py_end}s to complete.')
 
 start = time.time_ns()
 for i in range(times):
 	foobar(times)
 print(foobar(times))
-print(f'Took {(time.time_ns() - start) / 1000000000}s to complete.')
+c_end = (time.time_ns() - start) / 1000000000
+print(f'Took {c_end}s to complete.')
 
+print(f'The C version is around {int(py_end / c_end)} times faster.')
