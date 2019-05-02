@@ -2,7 +2,7 @@ import ctypes, sys
 import pytcc as pcc
 
 
-program = b"""
+program =b"""
 
 int foobar(int n) {
     return n * 2;
@@ -18,24 +18,23 @@ int main(int argc, char** argv)
 a = pcc.TCCState()
 a.compile_string(program)
 a.relocate()
-# a.run()
-# sys.exit(0)
+#a.run()
+#sys.exit(0)
 
 rettype = ctypes.c_int
 foobar_proto = ctypes.CFUNCTYPE(rettype, ctypes.c_int)
-foobar = foobar_proto(a.get_symbol("foobar"))
+foobar = foobar_proto(a.get_symbol('foobar'))
 
 
 def py_foobar(n):
-    return n * 2
-
+	return n * 2
 
 import time
 
 start = time.time_ns()
 print(foobar(123))
-print(f"Took {time.time_ns() - start} to complete.")
+print(f'Took {time.time_ns() - start} to complete.')
 
 start = time.time_ns()
 print(py_foobar(123))
-print(f"Took {time.time_ns() - start} to complete.")
+print(f'Took {time.time_ns() - start} to complete.')

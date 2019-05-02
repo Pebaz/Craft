@@ -25,8 +25,8 @@ def craft_try(*args):
       <Description of Return Value>
     """
     global SCOPE
-    catches = [i for i in args if getkey(i) == "catch"]
-    finale = [i for i in args if getkey(i) == "finally"]
+    catches = [i for i in args if getkey(i) == 'catch']
+    finale = [i for i in args if getkey(i) == 'finally']
     exceptors = catches + finale
 
     craft_push_scope()
@@ -50,11 +50,13 @@ def craft_try(*args):
             exceptions = get_args(getvalue(catch)[0])
             except_matches = any(i in [error_code, e.name] for i in exceptions)
 
-            # import ipdb; ipdb.set_trace()
+            #import ipdb; ipdb.set_trace()
 
             # This is the `as` functionality
             the_as = getvalue(catch)[1]
-            the_exception = {"name": e.name, "desc": e.desc, "meta": e.meta}
+            the_exception = {
+                'name' : e.name, 'desc' : e.desc, 'meta' : e.meta
+            }
 
             if len(exceptions) == 0 or except_matches:
                 # Make the second statement that the catch function interprets
@@ -62,7 +64,7 @@ def craft_try(*args):
                 # the first one in the list.
                 if isinstance(the_as, list):
                     catch[getkey(catch)][1] = {
-                        "set": [the_as[0], {"byval": [the_exception]}]
+                        'set' : [the_as[0], { 'byval' : [the_exception] }]
                     }
 
                 get_arg_value(catch)
@@ -127,6 +129,7 @@ def craft_exception(*args):
     register_exception(*get_args(args))
 
 
+
 def craft_switch(*args):
     """
     <Short Description>
@@ -140,17 +143,17 @@ def craft_switch(*args):
       <Description of Return Value>
     """
     match = get_arg_value(args[0])
-    cases = [i for i in args[1:] if getkey(i) == "case"]
-    default = [i for i in args[1:] if getkey(i) == "default"][0]
+    cases = [i for i in args[1:] if getkey(i) == 'case']
+    default = [i for i in args[1:] if getkey(i) == 'default'][0]
 
     # Handle malformed switch statement
     if len(default) > 1:
         ldefs = len(default)
-        raise Exception(f"Only 1 default clause excepted, found: {ldefs}")
+        raise Exception(f'Only 1 default clause excepted, found: {ldefs}')
 
     # Create a blank program function call if there is no default
     if len(default) == 0:
-        default = {"Program": []}
+        default = { 'Program' : [] }
 
     # Run the case block if the value matches
     for case in cases:
@@ -275,9 +278,9 @@ def __craft_import__query_dir(filename):
 
     for path in CRAFT_PATH:
         p = Path(path)
-        mod_yaml = p / f"{filename}.yaml"
-        mod_craft = p / f"{filename}.craft"
-        mod_py = p / f"{filename}.py"
+        mod_yaml = p / f'{filename}.yaml'
+        mod_craft = p / f'{filename}.craft'
+        mod_py = p / f'{filename}.py'
 
         if mod_yaml.exists():
             return mod_yaml
@@ -289,9 +292,7 @@ def __craft_import__query_dir(filename):
             return mod_py
 
     # If none has been returned, it doesn't exist in CRAFT_PATH
-    raise Exception(
-        f"Cannot import name: {filename}. No matching .CRAFT, .YAML or .PY was found in CRAFT_PATH."
-    )
+    raise Exception(f'Cannot import name: {filename}. No matching .CRAFT, .YAML or .PY was found in CRAFT_PATH.')
 
 
 def craft_import(*args):
@@ -319,29 +320,27 @@ def craft_import(*args):
 
     for impp in args:
         to_import = impp if isinstance(impp, str) else impp[0]
-        module = __craft_import__query_dir(to_import.replace(".", "/"))
+        module = __craft_import__query_dir(to_import.replace('.', '/'))
 
         with open(str(module)) as file:
-            if module.suffix == ".yaml":
+            if module.suffix == '.yaml':
                 ast = yaml.load(file.read())
                 if ast != None:
-                    handle_expression({"Program": ast["Program"]})
+                    handle_expression({ 'Program' : ast['Program'] })
 
-            elif module.suffix == ".craft":
+            elif module.suffix == '.craft':
                 ast = craft_parse(file.read())
-                handle_expression({"Program": ast["Program"]})
+                handle_expression({ 'Program' : ast['Program'] })
 
             else:
                 # TODO(Pebaz): Update to allow for importing PYDs
                 sys.path.append(str(module.parent))
 
-                pymod = module.name.replace(module.suffix, "")
+                pymod = module.name.replace(module.suffix, '')
                 pymod = imp.load_source(pymod, str(module))
 
-                if "__craft__" not in dir(pymod):
-                    raise Exception(
-                        "Unable to import Python module: no __craft__ variable."
-                    )
+                if '__craft__' not in dir(pymod):
+                    raise Exception('Unable to import Python module: no __craft__ variable.')
 
                 if isinstance(impp, str):
                     for name in pymod.__craft__:
@@ -350,13 +349,12 @@ def craft_import(*args):
                     for name in impp[1:]:
                         craft_set(name, pymod.__craft__[name])
 
-
 def craft_and(*args):
     """
     Logical AND operator.
     """
     if len(args) > 2:
-        raise Exception(f"Too many operands in logical AND: {args}")
+        raise Exception(f'Too many operands in logical AND: {args}')
 
     args = get_args(args)
     return args[0] and args[1]
@@ -367,7 +365,7 @@ def craft_or(*args):
     Logical OR operator.
     """
     if len(args) > 2:
-        raise Exception(f"Too many operands in logical OR: {args}")
+        raise Exception(f'Too many operands in logical OR: {args}')
 
     args = get_args(args)
     return args[0] or args[1]
@@ -378,7 +376,7 @@ def craft_not(*args):
     Logical NOT operator.
     """
     if len(args) > 1:
-        raise Exception(f"Too many operands in logical NOT: {args}")
+        raise Exception(f'Too many operands in logical NOT: {args}')
 
     return not get_arg_value(args[0])
 
@@ -440,7 +438,7 @@ def craft_for(*args):
         var, stop, start, step = *get_arg_value(control), 0, 1
 
     else:
-        raise Exception(f"Malformed control value: (var, start, stop, step)")
+        raise Exception(f'Malformed control value: (var, start, stop, step)')
 
     push_return_point()
     craft_push_scope()
@@ -473,7 +471,7 @@ def craft_if(*args):
       <Description of Return Value>
     """
     if len(args) > 3 or len(args) < 2:
-        raise Exception(f"Malformed if statement at:\n{args}")
+        raise Exception(f'Malformed if statement at:\n{args}')
 
     # Testing condition
     c = args[0]
@@ -504,7 +502,7 @@ def craft_unless(*args):
       <Description of Return Value>
     """
     if len(args) > 3 or len(args) < 2:
-        raise Exception(f"Malformed if statement at:\n{args}")
+        raise Exception(f'Malformed if statement at:\n{args}')
 
     # Testing condition
     c = args[0]
@@ -640,7 +638,7 @@ def craft_prin(*args):
     Returns:
       <Description of Return Value>
     """
-    print(*get_args(args), end="")
+    print(*get_args(args), end='')
 
 
 def craft_def(*args):
@@ -661,7 +659,7 @@ def craft_return(*args):
     value from it.
     """
     if len(args) > 1:
-        ex = f"Only 1 value can be returned from function, got {len(args)}."
+        ex = f'Only 1 value can be returned from function, got {len(args)}.'
 
         # TODO(Pebaz): Should this return a tuple rather than crash?
 
@@ -712,22 +710,19 @@ def craft_new(*args):
     # If the values provided do not match the definition given,
     # initialize the blank members to zero.
     if len(definition) > len(member_values):
-        member_values.extend(
-            [None for i in range(len(definition) - len(member_values))]
-        )
+        member_values.extend([
+            None for i in range(len(definition) - len(member_values))
+        ])
 
     # Create a dictionary out of the names and values of the members
     struct = dict(zip(definition, member_values))
     return struct
-
 
 """@jit_compiled('''
 while (1) {
 	int x = 0;
 }
 ''')"""
-
-
 def craft_program(*args):
     """
     <Short Description>
@@ -778,7 +773,6 @@ def craft_dir(value):
 # Data Types
 # -----------------------------------------------------------------------------
 
-
 def craft_hash(*args):
     """
     <Short Description>
@@ -792,14 +786,16 @@ def craft_hash(*args):
       <Description of Return Value>
     """
     if len(args) % 2 != 0:
-        raise Exception(f"Expected even number of arguments, got {len(args)}.")
+        raise Exception(f'Expected even number of arguments, got {len(args)}.')
 
     args = get_args(args)
 
-    ret = {args[i]: args[i + 1] for i in range(0, len(args), 2)}
+    ret = {
+        args[i] : args[i + 1]
+        for i in range(0, len(args), 2)
+    }
 
     return ret
-
 
 def craft_get(*args):
     """
@@ -814,7 +810,7 @@ def craft_get(*args):
       <Description of Return Value>
     """
     if len(args) > 2:
-        raise Exception(f"Too many arguments supplied, got: {len(args)}")
+        raise Exception(f'Too many arguments supplied, got: {len(args)}')
 
     args = get_args(args)
     return args[0][args[1]]
@@ -833,7 +829,7 @@ def craft_cut(*args):
       <Description of Return Value>
     """
     args = get_args(args)
-    raise Exception("Not implemented yet: cut")
+    raise Exception('Not implemented yet: cut')
 
 
 def craft_str(*args):
@@ -864,7 +860,6 @@ def craft_int(*args):
       <Description of Return Value>
     """
     return int(get_arg_value(args[0]))
-
 
 def craft_bool(*args):
     """
@@ -909,7 +904,7 @@ def craft_tuple(*args):
       <Description of Return Value>
     """
     if len(args) == 0:
-        raise Exception(f"Expected a list of values, got nothing.")
+        raise Exception(f'Expected a list of values, got nothing.')
     return tuple(get_arg_value(args[0]))
 
 
@@ -961,64 +956,66 @@ def craft_format(*args):
 
 __craft__ = {
     # Built-Ins
-    "Program": craft_program,
-    "push-scope": craft_push_scope,
-    "pop-scope": craft_pop_scope,
-    "create-named-scope": craft_create_named_scope,
-    "globals": craft_globals,
-    "locals": craft_locals,
-    "quit": craft_exit,
-    "exit": craft_exit,
-    "def": craft_def,
-    "return": craft_return,
-    "call": craft_call,
-    "fn": craft_lambda,
-    "struct": craft_struct,
-    "new": craft_new,
-    "set": craft_set,
-    "get": craft_get,
-    "cut": None,
-    "slice": None,
-    "for": craft_for,
-    "foreach": craft_foreach,
-    "if": craft_if,
-    "unless": craft_unless,
-    "then": craft_then,
-    "else": craft_else,
-    "print": craft_print,
-    "prin": craft_prin,
-    "comment": craft_comment,
-    "and": craft_and,
-    "or": craft_or,
-    "not": craft_not,
-    "byval": craft_byval,
-    "import": craft_import,
-    "dir": craft_dir,
-    "break": craft_break,
-    "continue": craft_continue,
-    "while": craft_while,
-    "until": craft_until,
-    "hash": craft_hash,
-    "str": craft_str,
-    "int": craft_int,
-    "bool": craft_bool,
-    "float": craft_float,
-    "tuple": craft_tuple,
-    "list": craft_list,
-    "collected_set": craft_collected_set,
-    "switch": craft_switch,
-    "case": craft_case,
-    "default": craft_default,
-    "try": craft_try,
-    "catch": craft_catch,
-    "finally": craft_finally,
-    "exception": craft_exception,
-    "raise": craft_raise,
-    "format": craft_format,
+    'Program'               : craft_program,
+    'push-scope'            : craft_push_scope,
+    'pop-scope'             : craft_pop_scope,
+    'create-named-scope'    : craft_create_named_scope,
+    'globals'               : craft_globals,
+    'locals'                : craft_locals,
+    'quit'                  : craft_exit,
+    'exit'                  : craft_exit,
+    'def'                   : craft_def,
+    'return'                : craft_return,
+    'call'                  : craft_call,
+    'fn'                    : craft_lambda,
+    'struct'                : craft_struct,
+    'new'                   : craft_new,
+    'set'                   : craft_set,
+    'get'                   : craft_get,
+    'cut'                   : None,
+    'slice'                 : None,
+    'for'                   : craft_for,
+    'foreach'               : craft_foreach,
+    'if'                    : craft_if,
+    'unless'                : craft_unless,
+    'then'                  : craft_then,
+    'else'                  : craft_else,
+    'print'                 : craft_print,
+    'prin'                  : craft_prin,
+    'comment'               : craft_comment,
+    'and'                   : craft_and,
+    'or'                    : craft_or,
+    'not'                   : craft_not,
+    'byval'                 : craft_byval,
+    'import'                : craft_import,
+    'dir'                   : craft_dir,
+    'break'                 : craft_break,
+    'continue'              : craft_continue,
+    'while'                 : craft_while,
+    'until'                 : craft_until,
+    'hash'                  : craft_hash,
+    'str'                   : craft_str,
+    'int'                   : craft_int,
+    'bool'                  : craft_bool,
+    'float'                 : craft_float,
+    'tuple'                 : craft_tuple,
+    'list'                  : craft_list,
+    'collected_set'         : craft_collected_set,
+    'switch'                : craft_switch,
+    'case'                  : craft_case,
+    'default'               : craft_default,
+    'try'                   : craft_try,
+    'catch'                 : craft_catch,
+    'finally'               : craft_finally,
+    'exception'             : craft_exception,
+    'raise'                 : craft_raise,
+    'format'                : craft_format,
 }
 
-__jit__ = {"Program": None}
+__jit__ = {
+	'Program'               : None
+}
 
-"""__code__ = {                : None
+'''__code__ = {                : None
 	
-}"""
+}'''
