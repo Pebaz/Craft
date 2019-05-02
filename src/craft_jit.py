@@ -4,6 +4,7 @@ from ctypes import *
 from pytcc import TCC
 
 source = '''
+#define PY_SSIZE_T_CLEAN
 #include "Python.h"
 
 PyObject * pop(PyObject * self, PyObject * args, PyObject * kwargs)

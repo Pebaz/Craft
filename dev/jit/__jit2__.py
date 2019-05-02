@@ -9,7 +9,7 @@ comp.add_library_path('C:/Python37')
 comp.add_library('python37')
 comp.add_file("test.c")
 comp.compile_string('''
-
+#define PY_SSIZE_T_CLEAN
 #include "Python.h"
 
 PyObject * pop(PyObject * self, PyObject * args, PyObject * kwargs) {

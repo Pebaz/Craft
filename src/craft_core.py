@@ -83,7 +83,9 @@ def get_args(args):
 def getkey(symbol):
 	"""
 	"""
-	return [i for i in symbol.keys()][0]
+	#return [i for i in symbol.keys()][0]
+	for i in symbol.keys():
+		return i
 
 
 def getvalue(symbol):
@@ -273,10 +275,12 @@ def craft_call(*args):
 	#arg_names, func_definition, __jit__, __jcode__ = query_symbol_table(
 	# 	func_name, SCOPE)
 
+	"""
 	if not __jit__:
 		'''jit in background'''
 	else:
 		'''ret = __jcode__(func_args)'''
+	"""
 
 	if len(arg_names) != len(func_args):
 		err = f'Argument count mismatch for function: '
