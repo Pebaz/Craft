@@ -4,6 +4,7 @@
 
 from craft_core import *
 
+
 def craft_add(*args):
 	"""
 	Addition operator.

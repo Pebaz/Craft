@@ -718,7 +718,11 @@ def craft_new(*args):
     struct = dict(zip(definition, member_values))
     return struct
 
-
+"""@jit_compiled('''
+while (1) {
+	int x = 0;
+}
+''')"""
 def craft_program(*args):
     """
     <Short Description>
@@ -1007,3 +1011,11 @@ __craft__ = {
     'raise'                 : craft_raise,
     'format'                : craft_format,
 }
+
+__jit__ = {
+	'Program'               : None
+}
+
+'''__code__ = {                : None
+	
+}'''
