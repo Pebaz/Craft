@@ -270,6 +270,14 @@ def craft_call(*args):
 	func_args = args[1:]
 	arg_names, func_definition = query_symbol_table(func_name, SCOPE)
 
+	#arg_names, func_definition, __jit__, __jcode__ = query_symbol_table(
+	# 	func_name, SCOPE)
+
+	if not __jit__:
+		'''jit in background'''
+	else:
+		'''ret = __jcode__(func_args)'''
+
 	if len(arg_names) != len(func_args):
 		err = f'Argument count mismatch for function: '
 		err += f'{func_name}. Expected {len(arg_names)}, got {len(func_args)}.'
