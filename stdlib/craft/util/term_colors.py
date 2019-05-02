@@ -35,7 +35,4 @@ _CLRbreset = colorama.Back.RESET
 # Styles
 _CLRreset = colorama.Style.RESET_ALL
 
-__craft__ = {
-	i : globals()[i]
-	for i in globals() if i.startswith('_CLR')
-}
+__craft__ = {i: globals()[i] for i in globals() if i.startswith("_CLR")}

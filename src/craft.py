@@ -27,11 +27,11 @@ import sys, os, os.path, pprint, traceback, time
 
 from docopt import docopt
 
-from craft_core 			import *
-from craft_parser 		import *
-from craft_exceptions 	import *
-from craft_cli 			import *
-from craft_interpreter 	import *
+from craft_core import *
+from craft_parser import *
+from craft_exceptions import *
+from craft_cli import *
+from craft_interpreter import *
 
 # Needed to import __craft__ dicts for built-in symbol table entries
 import craft_operators
@@ -44,37 +44,38 @@ SYMBOL_TABLE[0].update(craft_keywords.__craft__)
 # Lambda to get the system current time millis
 millis = lambda: int(round(time.time() * 1000))
 
+
 def main(args):
+    """
 	"""
-	"""
-	global DEBUG
+    global DEBUG
 
-	# Make the docstring .EXE friendly
-	usage = __doc__.format(args[0])
-	arguments = docopt(usage, argv=args[1:], version='Craft 0.1.0')
+    # Make the docstring .EXE friendly
+    usage = __doc__.format(args[0])
+    arguments = docopt(usage, argv=args[1:], version="Craft 0.1.0")
 
-	if arguments['FILENAME'] != None:
-		DEBUG = arguments['--debug']
+    if arguments["FILENAME"] != None:
+        DEBUG = arguments["--debug"]
 
-		# Start the timer to profile how long the script took to run
-		if arguments['--time']:
-			start = millis()
+        # Start the timer to profile how long the script took to run
+        if arguments["--time"]:
+            start = millis()
 
-		run_file(arguments['FILENAME'])
+        run_file(arguments["FILENAME"])
 
-		# Display how long the script took to run
-		if arguments['--time']:
-			print(f'[Finished in {(millis() - start) / 1000.0} seconds]')
-	else:
-		run_cli(arguments['--yaml'])
+        # Display how long the script took to run
+        if arguments["--time"]:
+            print(f"[Finished in {(millis() - start) / 1000.0} seconds]")
+    else:
+        run_cli(arguments["--yaml"])
 
 
-if __name__ == '__main__':
-	sys.exit(main(sys.argv))
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
 
-	'''
+    """
 	import cProfile
 	def profile():
 		main(sys.argv)
 	cProfile.run('profile()', sort='ncalls')
-	'''
+	"""

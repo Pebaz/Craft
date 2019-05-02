@@ -35,7 +35,7 @@ _CLRbreset = colorama.Back.RESET
 # Styles
 _CLRreset = colorama.Style.RESET_ALL
 
-__all__ = [i for i in globals() if i.startswith('_CLR')]
+__all__ = [i for i in globals() if i.startswith("_CLR")]
 
-if __name__ == '__main__':
-	print(f'This color is {_CLRfg}green{_CLRreset}!')
+if __name__ == "__main__":
+    print(f"This color is {_CLRfg}green{_CLRreset}!")
