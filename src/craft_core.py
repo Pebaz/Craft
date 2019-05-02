@@ -91,7 +91,9 @@ def getkey(symbol):
 def getvalue(symbol):
 	"""
 	"""
-	return symbol[getkey(symbol)]
+	#return symbol[getkey(symbol)]
+	for i in symbol.values():
+		return i
 
 
 def query_symbol_table(name, scope):
