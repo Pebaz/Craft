@@ -3,3 +3,4 @@ colorama
 pyparsing
 docopt
 pyyaml
+git+https://github.com/thgcode/pytcc
