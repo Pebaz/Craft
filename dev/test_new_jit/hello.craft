@@ -1,3 +1,4 @@
 Program : [
-	print : ["Hello World!"]
+	set: [name 'Pebaz']
+	print : [$name]
 ]
