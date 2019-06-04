@@ -1,42 +1,47 @@
-import sys
-from pathlib import Path
-from ctypes import *
+import ctypes
 from pytcc import TCC
 
-source = '''
-#define PY_SSIZE_T_CLEAN
-#include "Python.h"
+from craft_core 		import *
+from craft_parser 		import *
+from craft_exceptions 	import *
+from craft_cli 			import *
+from craft_interpreter 	import *
 
-PyObject * pop(PyObject * self, PyObject * args, PyObject * kwargs)
-{
-	return PyLong_FromLong(sum(2, square(2)));
-}
+# Needed to import __craft__ dicts for built-in symbol table entries
+import craft_operators
+import craft_keywords
 
-int sum(int a, int b)
-{
-	return a + b;
-}
+SYMBOL_TABLE.append(dict())
+SYMBOL_TABLE[0].update(craft_operators.__craft__)
+SYMBOL_TABLE[0].update(craft_keywords.__craft__)
 
-int main(int argc, char **argv)
-{
-	printf("%s %d\n", argv[0], sum(2, 2));
-	return 0;
-}
-'''
+# Lambda to get the system current time millis
+millis = lambda: int(round(time.time() * 1000))
 
-def square(n):
-	return n ** 2
 
-c_square = CFUNCTYPE(c_int, c_int)(square)
 
-python_dir = Path(sys.executable).parent
+class Craft:
+	def __init__(self):
+		self.name = "Pebaz"
+		self.asdf = lambda: [1, 2, 3]
+		self.print = print
+
+CRAFT = Craft()
+
 comp = TCC()
-comp.add_library_path(f'{python_dir}')
-comp.add_include_path(f'{python_dir / "include"}')
+comp.preprocessor_symbols["DEBUG"] = "1"
+comp.add_include_path('C:/Python37/include')
+comp.add_library_path('./')
+comp.add_library_path('C:/Python37')
 comp.add_library('python37')
-comp.add_symbol('square', c_square)
-comp.compile_string(source)
+comp.compile_file('jit/test.c')
 comp.relocate()
-pop = CFUNCTYPE(py_object)(comp.get_symbol('pop'))
 
-print(pop())
+print(":: Running JIT Compiled Code ::")
+craft_main_proto = ctypes.CFUNCTYPE(ctypes.py_object, ctypes.py_object)
+craft_main = craft_main_proto(comp.get_symbol('craft_main'))
+
+ret = craft_main(CRAFT)
+print(ret)
+
+print(":: Done running JIT Compiled Code ::")
