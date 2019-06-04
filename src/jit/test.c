@@ -2,7 +2,7 @@
 #include "Python.h"
 
 
-PyObject * craft_main(PyObject *craft)
+/*PyObject * craft_main_old(PyObject *craft)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
 
@@ -14,5 +14,21 @@ PyObject * craft_main(PyObject *craft)
 	
 	PyGILState_Release(gstate);
 	return Py_None;
-}
+}*/
 
+
+PyObject * craft_main(
+	PyObject * SYMBOL_TABLE,
+	PyObject * SCOPE,
+	PyObject * RETURN_POINTS,
+	PyObject * EXCEPTIONS,
+	PyObject * TRACEBACK,
+	PyObject * CRAFT_PATH,
+	PyObject * IS_DEBUG
+)
+{
+	PyGILState_STATE gstate = PyGILState_Ensure();
+
+	PyGILState_Release(gstate);
+	return Py_None;
+}

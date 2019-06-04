@@ -1,0 +1,1 @@
+LOAD_GLOBAL "print"  :: Equivalent to CRAFT.print

@@ -28,6 +28,7 @@ class Craft:
 
 CRAFT = Craft()
 
+print(':: Compiling                      ::')
 comp = TCC()
 comp.preprocessor_symbols["DEBUG"] = "1"
 comp.add_include_path('C:/Python37/include')
@@ -36,12 +37,52 @@ comp.add_library_path('C:/Python37')
 comp.add_library('python37')
 comp.compile_file('jit/test.c')
 comp.relocate()
+print(':: Done                           ::')
 
-print(":: Running JIT Compiled Code ::")
-craft_main_proto = ctypes.CFUNCTYPE(ctypes.py_object, ctypes.py_object)
+print(":: Running JIT Compiled Code      ::")
+craft_main_proto = ctypes.CFUNCTYPE(
+	ctypes.py_object,  # Return type
+	ctypes.py_object,  # SYMBOL_TABLE
+	ctypes.py_object,  # SCOPE
+	ctypes.py_object,  # RETURN_POINTS
+	ctypes.py_object,  # EXCEPTIONS
+	ctypes.py_object,  # TRACEBACK
+	ctypes.py_object,  # CRAFT_PATH
+	ctypes.py_object,  # DEBUG
+)
+
 craft_main = craft_main_proto(comp.get_symbol('craft_main'))
 
-ret = craft_main(CRAFT)
+#ret = craft_main(CRAFT)
+ret = craft_main(
+	SYMBOL_TABLE,
+	SCOPE,
+	RETURN_POINTS,
+	EXCEPTIONS,
+	TRACEBACK,
+	CRAFT_PATH,
+	DEBUG
+)
+
 print(ret)
 
 print(":: Done running JIT Compiled Code ::")
+
+print()
+src = '''
+Program : [
+	set: [name 'Pebaz']
+	print : [$name]
+]
+'''
+ast = craft_parse(src)
+
+handle_expression({
+	'Program' : [
+		{
+			'print': [
+				'Hello World!'
+			]
+		}
+	]
+})
