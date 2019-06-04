@@ -66,6 +66,7 @@ ret = craft_main(
 
 print(ret)
 
+
 print(":: Done running JIT Compiled Code ::")
 
 print()
@@ -86,3 +87,7 @@ handle_expression({
 		}
 	]
 })
+
+
+# Python: Around 550 ms
+# C: Around 530 ms
