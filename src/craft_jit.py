@@ -1,4 +1,4 @@
-import ctypes
+import ctypes, pathlib, itertools
 from pytcc import TCC
 
 from craft_core 		import *
@@ -19,7 +19,6 @@ SYMBOL_TABLE[0].update(craft_keywords.__craft__)
 millis = lambda: int(round(time.time() * 1000))
 
 
-
 class Craft:
 	def __init__(self):
 		self.name = "Pebaz"
@@ -28,11 +27,11 @@ class Craft:
 
 CRAFT = Craft()
 
+
 print(':: Compiling                      ::')
 comp = TCC()
 comp.preprocessor_symbols["DEBUG"] = "1"
 comp.add_include_path('C:/Python37/include')
-comp.add_library_path('./')
 comp.add_library_path('C:/Python37')
 comp.add_library('python37')
 comp.compile_file('jit/test.c')
@@ -91,3 +90,95 @@ handle_expression({
 
 # Python: Around 550 ms
 # C: Around 530 ms
+
+print('\n\n')
+
+
+fibo = '''
+def: [
+	[fibo x]
+
+	if: [
+		<=: [$x 1]
+		return: [$x]
+	]
+
+	return: [
+		+: [
+			fibo: [-: [$x 1]]
+			fibo: [-: [$x 2]]
+		]
+	]
+]
+'''
+
+hello = '''
+def: [
+	[hello]
+	print: ["Hello World!"]
+]
+'''
+
+class JIT:
+	PATH_PREFIX = pathlib.Path() / 'jit'
+
+	def __load_template(self, filename):
+		with open(str(JIT.PATH_PREFIX / filename)) as file:
+			return file.read()
+
+	def transpile(self, ast):
+		arg_names = getvalue(ast)[0][1:]
+		body = getvalue(ast)[1:]
+		var_num = itertools.count()
+
+		print(':: Transpiling            ::')
+		print(ast, '\n\n')
+		print('=-' * 20)
+
+		print(self.__load_template('header.c'))
+
+		# Bind arguments to values
+		for i, arg in enumerate(arg_names):
+			print(f'    PyObject * {arg} = PyList_GetItem(ARGS, {i});')
+
+
+		# Function body
+		is_statement = lambda x: isinstance(x, dict) and len(x) == 1
+		for statement in body:
+			if is_statement(statement):
+				print(statement)
+			else:
+				raise CraftException('SyntaxError', {}, {})
+
+			# Load global "print"
+			func_name = getkey(statement)
+			#print(f'    PyObject * var{next(var_num)} = PyDict_GetItemString(scope0, "{func_name}");')
+			print(f'    PyObject * var{next(var_num)} = craft_get(')
+
+		# Return type?
+
+		print(self.__load_template('footer.c'))
+		print('-=' * 20)
+		return '...'
+
+	def compile(self, code):
+		return lambda ARGS, x, y, z, p, d, q, s: print('<Your module here>')
+
+	def compile_function(self, func):
+		return self.compile(self.transpile(func))
+
+
+
+jit = JIT()
+func = craft_parse(hello)
+__code__ = jit.compile_function(func)
+__code__(
+	[],
+	SYMBOL_TABLE,
+	SCOPE,
+	RETURN_POINTS,
+	EXCEPTIONS,
+	TRACEBACK,
+	CRAFT_PATH,
+	DEBUG
+)
