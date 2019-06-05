@@ -34,6 +34,7 @@ comp.preprocessor_symbols["DEBUG"] = "1"
 comp.add_include_path('C:/Python37/include')
 comp.add_library_path('C:/Python37')
 comp.add_library('python37')
+#comp.add_file('jit/craft.c')
 comp.compile_file('jit/test.c')
 comp.relocate()
 print(':: Done                           ::')
@@ -54,6 +55,7 @@ craft_main = craft_main_proto(comp.get_symbol('craft_main'))
 
 #ret = craft_main(CRAFT)
 try:
+	# TODO(pebaz): Implement this using STRUCT?? import struct? (raylib)
 	ret = craft_main(
 		SYMBOL_TABLE,
 		SCOPE,
@@ -119,7 +121,7 @@ def: [
 hello = '''
 def: [
 	[hello]
-	print: ["Hello World!"]
+	print: ["Hello World!" "1" "2"]
 ]
 '''
 
@@ -150,14 +152,26 @@ class JIT:
 		is_statement = lambda x: isinstance(x, dict) and len(x) == 1
 		for statement in body:
 			if is_statement(statement):
-				print(statement)
+				print('    //', statement)
 			else:
 				raise CraftException('SyntaxError', {}, {})
 
 			# Load global "print"
 			func_name = getkey(statement)
-			#print(f'    PyObject * var{next(var_num)} = PyDict_GetItemString(scope0, "{func_name}");')
-			print(f'    PyObject * var{next(var_num)} = craft_get(')
+			arguments = getvalue(statement)
+
+			# Emit the deepest argument first and assign it to a variable!
+			for argument in reversed(arguments):
+				# Primitives first
+				print(f'    PyObject * var{next(var_num)} = Py_BuildValue("s", "{argument}"");')
+
+			func_var = f'var{next(var_num)}'
+			func_var_args = f'CALL_{func_var}_args{next(var_num)}'
+			print(f'    PyObject * {func_var} = query_symbol_table(SYMBOL_TABLE, SCOPE, "{func_name}");')
+			print(f'    PyObject * {func_var_args} = PyTuple_New({len(arguments)});')
+			print(f'    PyTuple_SET_ITEM({func_var_args}, ')
+			print(f'    PyObject_Call({func_var}, {func_var_args}, NULL);')
+			print()
 
 		# Return type?
 
