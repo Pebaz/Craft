@@ -1,4 +1,4 @@
-import ctypes, pathlib, itertools
+import ctypes, pathlib, itertools, traceback
 from pytcc import TCC
 
 from craft_core 		import *
@@ -53,17 +53,21 @@ craft_main_proto = ctypes.CFUNCTYPE(
 craft_main = craft_main_proto(comp.get_symbol('craft_main'))
 
 #ret = craft_main(CRAFT)
-ret = craft_main(
-	SYMBOL_TABLE,
-	SCOPE,
-	RETURN_POINTS,
-	EXCEPTIONS,
-	TRACEBACK,
-	CRAFT_PATH,
-	DEBUG
-)
-
-print(ret)
+try:
+	ret = craft_main(
+		SYMBOL_TABLE,
+		SCOPE,
+		RETURN_POINTS,
+		EXCEPTIONS,
+		TRACEBACK,
+		CRAFT_PATH,
+		DEBUG
+	)
+	print(ret)
+except SystemError as e:
+	print(f'!! Error                          !!')
+	traceback.print_exc()
+	
 
 
 print(":: Done running JIT Compiled Code ::")
