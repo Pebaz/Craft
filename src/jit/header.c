@@ -1,5 +1,6 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
+#include "jit/craft_common.c"
 
 
 PyObject * craft_main(
