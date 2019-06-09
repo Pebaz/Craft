@@ -186,7 +186,27 @@ class JIT:
 			for argument in reversed(arguments):
 				# Primitives first
 				aname = f'var{next(var_num)}'
-				emit(f'    PyObject * {aname} = Py_BuildValue("s", "{argument}");')
+
+				# TODO(pebaz): Fix this
+				bools = {'True' : 'Py_True', 'False' :  'Py_False'}
+
+				# Name lookup
+				if isinstance(argument, str) and argument.startswith('$') and argument[1:] in arg_names:
+					emit(f'    PyObject * {aname} = {argument[1:]};')
+				# Boolean Literal
+				elif isinstance(argument, bool):
+					emit(f'    PyObject * {aname} = {"Py_True" if argument else "Py_False"};')
+				# String Literal
+				elif isinstance(argument, str):
+					emit(f'    PyObject * {aname} = Py_BuildValue("s", "{argument}");')
+				# Integer Literal
+				elif isinstance(argument, int):
+					print(argument, type(argument))
+					emit(f'    PyObject * {aname} = Py_BuildValue("i", {argument});')
+				# Float Literal
+				elif isinstance(argument, float):
+					emit(f'    PyObject * {aname} = Py_BuildValue("f", {argument});')
+
 				bound_arg_names.append(aname)
 
 			func_var = f'var{next(var_num)}'
@@ -251,12 +271,26 @@ class JIT:
 
 hello = '''
 def: [
-	[hello]
+	[hello person]
 	print: ["Hello World!"]
 	:: This crashes sometimes...
 	:: I think it has to do with the length of the string...
-	print: ["Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!"]
-	:: print: ["This is run from JITted Craft code :D"]
+
+	:: UPDATE: For some reason, it works in PowerShell as well as never fails here...
+	:: print: ["Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!"]
+	
+	print: [$person]
+]
+'''
+hello = '''
+def: [
+	[hello person]
+	print: ["Hello World!"]
+	print: [$person]
+	print: [314]
+	print: [3.14]
+	print: [True]
+	print: [False]
 ]
 '''
 jit = JIT()
@@ -278,7 +312,9 @@ def CALL(func, args):
 	)
 
 print('Running...\n')
-CALL(__code__, [])
+
+print('\n\n\n------------------------\n\n\n')
+CALL(__code__, ['Pebaz'])
 print('\nDone.')
 
 
