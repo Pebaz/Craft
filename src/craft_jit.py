@@ -149,6 +149,17 @@ class JIT:
 			return file.read()
 
 	def transpile(self, ast):
+		"""
+		
+		Plan:
+
+		Some functions can be turned straight into their C equivalents.
+		For instance, get:[] can be turned into array[index].
+		Although that is slightly risky since the user could have occluded the
+		get function with their own function. However, perhaps I could just check to see if they did?
+
+
+		"""
 		source = []
 		def emit(text=''):
 			print(text)
@@ -187,9 +198,6 @@ class JIT:
 				# Primitives first
 				aname = f'var{next(var_num)}'
 
-				# TODO(pebaz): Fix this
-				bools = {'True' : 'Py_True', 'False' :  'Py_False'}
-
 				# Name lookup
 				if isinstance(argument, str) and argument.startswith('$') and argument[1:] in arg_names:
 					emit(f'    PyObject * {aname} = {argument[1:]};')
@@ -201,11 +209,13 @@ class JIT:
 					emit(f'    PyObject * {aname} = Py_BuildValue("s", "{argument}");')
 				# Integer Literal
 				elif isinstance(argument, int):
-					print(argument, type(argument))
 					emit(f'    PyObject * {aname} = Py_BuildValue("i", {argument});')
 				# Float Literal
 				elif isinstance(argument, float):
 					emit(f'    PyObject * {aname} = Py_BuildValue("f", {argument});')
+				# List literal
+				elif isinstance(argument, list):
+					raise Exception('Need to recursively evaluate things in list.')
 
 				bound_arg_names.append(aname)
 
@@ -291,6 +301,7 @@ def: [
 	print: [3.14]
 	print: [True]
 	print: [False]
+	print: [1 2 3 4 5]
 ]
 '''
 jit = JIT()
