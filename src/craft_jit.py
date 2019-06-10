@@ -175,10 +175,20 @@ class JIT:
 
 		emit(self.__load_template('header.c'))
 
+		# Push Scope
+		emit(f'    PyObject * push_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "push-scope");')
+		emit(f'    PyObject_Call(push_scope, PyTuple_New(0), NULL);')
+
+		emit('')
+
 		# Bind arguments to values
+		emit('    // Bind arguments to values')
+		emit('    // Used for by-value usage.')
+		emit('    // For references, lookup the value each time.')
 		for i, arg in enumerate(arg_names):
 			emit(f'    PyObject * {arg} = PyList_GetItem(ARGS, {i});')
 
+		emit('')
 
 		# Function body
 		is_statement = lambda x: isinstance(x, dict) and len(x) == 1
@@ -198,9 +208,18 @@ class JIT:
 				# Primitives first
 				aname = f'var{next(var_num)}'
 
-				# Name lookup
+				# Argument lookup
 				if isinstance(argument, str) and argument.startswith('$') and argument[1:] in arg_names:
 					emit(f'    PyObject * {aname} = {argument[1:]};')
+				# Name lookup
+				elif isinstance(argument, str) and argument.startswith('$'):
+					lookup = argument[1:]
+
+					# Second lookup
+					if lookup.startswith('$'):
+						emit(f'    PyObject * {aname} = Py_BuildValue("s", "{lookup}");')
+					else:
+						emit(f'    PyObject * {aname} = query_symbol_table(SYMBOL_TABLE, SCOPE, "{argument[1:]}");')
 				# Boolean Literal
 				elif isinstance(argument, bool):
 					emit(f'    PyObject * {aname} = {"Py_True" if argument else "Py_False"};')
@@ -228,6 +247,14 @@ class JIT:
 
 			emit(f'    PyObject_Call({func_var}, {func_var_args}, NULL);')
 			emit()
+
+		# Pop Scope
+		# This Crashes....
+		#emit(f'    PyObject * pop_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "pop-scope");')
+		#emit(f'    PyObject_Call(pop_scope, PyTuple_New(0), NULL);')
+
+		#emit(f'    // Try to set a reference...')
+		#emit(f'    person = Py_BuildValue("s", "hi");')
 
 		# Return type?
 
@@ -302,6 +329,7 @@ def: [
 	print: [True]
 	print: [False]
 	print: [1 2 3 4 5]
+	::print: [$$person]
 ]
 '''
 jit = JIT()
@@ -325,7 +353,8 @@ def CALL(func, args):
 print('Running...\n')
 
 print('\n\n\n------------------------\n\n\n')
-CALL(__code__, ['Pebaz'])
+name = 'Pebaz123'
+CALL(__code__, ['asdf'])
 print('\nDone.')
 
 

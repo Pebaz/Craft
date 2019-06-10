@@ -27,4 +27,30 @@ PyObject * query_symbol_table(PyObject * SYMBOL_TABLE, PyObject * SCOPE, char * 
 	return Py_None;
 }
 
+
+
+/*
+def craft_push_scope():
+	"""
+	"""
+	global SCOPE, SYMBOL_TABLE
+	SCOPE += 1
+	SYMBOL_TABLE.append(dict())
+
+	# UNDO(Pebaz):
+	TRACEBACK.set_scope(SCOPE)
+
+
+def craft_pop_scope():
+	"""
+	"""
+	global SCOPE, SYMBOL_TABLE, TRACEBACK
+	SCOPE -= 1
+	SYMBOL_TABLE.pop()
+
+	# UNDO(Pebaz):
+	TRACEBACK.set_scope(SCOPE)
+
+*/
+
 #endif  // CRAFT_COMMON
