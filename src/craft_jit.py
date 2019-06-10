@@ -190,6 +190,18 @@ class JIT:
 
 		emit('')
 
+		# Now Bind all arguments to current (function) scope
+		emit('    // Now bind values to current function scope')
+		emit(f'    PyObject * set = query_symbol_table(SYMBOL_TABLE, SCOPE, "set");')
+		'''
+		emit(f'    PyObject * ARGS_set = PyTuple_New(2);')
+		for i, arg in enumerate(arg_names):
+			emit(f'    PyTuple_SET_ITEM(ARGS_set, 0, Py_BuildValue("s", "{arg}"));')
+			emit(f'    PyTuple_SET_ITEM(ARGS_set, 1, PyList_GetItem(ARGS, {i}));')
+			emit(f'    PyObject_Call(set, ARGS_set, NULL);')
+		'''
+		emit('')
+
 		# Function body
 		is_statement = lambda x: isinstance(x, dict) and len(x) == 1
 		for statement in body:
