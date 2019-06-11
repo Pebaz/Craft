@@ -156,6 +156,12 @@ class JIT:
 			print(text)
 			source.append(text)
 
+		def emit_call(func, args, var_names):
+			"""
+			This will be recursively called if an argument is a function call.
+			It will also do all processing for scalar values.
+			"""
+
 		arg_names = getvalue(ast)[0][1:]
 		body = getvalue(ast)[1:]
 		var_num = itertools.count()
@@ -168,10 +174,10 @@ class JIT:
 		emit('#include <stdio.h>')
 
 		# Push Scope
-		emit(f'    PyObject * push_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "push-scope");')
-		emit(f'    PyObject_Call(push_scope, PyTuple_New(0), NULL);')
-
-		#emit('printf("hi\\n");')
+		#emit('printf("%lu\\n", PyLong_AsLong(SCOPE));')
+		#emit(f'    PyObject * push_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "push-scope");')
+		#emit(f'    PyObject_Call(push_scope, PyTuple_New(0), NULL);')
+		#emit('printf("%lu\\n", PyLong_AsLong(SCOPE));')
 
 		emit('')
 
@@ -187,13 +193,16 @@ class JIT:
 		# Now Bind all arguments to current (function) scope
 		emit('    // Now bind values to current function scope')
 		emit(f'    PyObject * set = query_symbol_table(SYMBOL_TABLE, SCOPE, "set");')
-		'''
 		emit(f'    PyObject * ARGS_set = PyTuple_New(2);')
 		for i, arg in enumerate(arg_names):
 			emit(f'    PyTuple_SET_ITEM(ARGS_set, 0, Py_BuildValue("s", "{arg}"));')
-			emit(f'    PyTuple_SET_ITEM(ARGS_set, 1, PyList_GetItem(ARGS, {i}));')
+			# TODO(pebaz): Get each time or use C variable?
+			#emit(f'    PyTuple_SET_ITEM(ARGS_set, 1, PyList_GetItem(ARGS, {i}));')
+			emit(f'    PyTuple_SET_ITEM(ARGS_set, 1, {arg});')
 			emit(f'    PyObject_Call(set, ARGS_set, NULL);')
-		'''
+		
+		emit('printf("DONE SETTING\\n");')
+
 		emit('')
 
 		# Function body
@@ -215,10 +224,10 @@ class JIT:
 				aname = f'var{next(var_num)}'
 
 				# Argument lookup
-				if isinstance(argument, str) and argument.startswith('$') and argument[1:] in arg_names:
-					emit(f'    PyObject * {aname} = {argument[1:]};')
+				#if isinstance(argument, str) and argument.startswith('$') and argument[1:] in arg_names:
+				#	emit(f'    PyObject * {aname} = {argument[1:]};')
 				# Name lookup
-				elif isinstance(argument, str) and argument.startswith('$'):
+				if isinstance(argument, str) and argument.startswith('$'):
 					lookup = argument[1:]
 
 					# Second lookup
@@ -255,9 +264,11 @@ class JIT:
 			emit()
 
 		# Pop Scope
-		# This Crashes....
-		emit(f'    PyObject * pop_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "pop-scope");')
-		emit(f'    PyObject_Call(pop_scope, PyTuple_New(0), NULL);')
+		#emit(f'    PyObject * pop_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "pop-scope");')
+		#emit(f'    PyObject_Call(pop_scope, PyTuple_New(0), NULL);')
+
+		#emit(f'    person = Py_BuildValue("i", 3);')
+		emit(f'    PyList_SET_ITEM(ARGS, 0, Py_BuildValue("i", 3));')
 
 		# Return type?
 
@@ -343,25 +354,29 @@ __code__ = jit.compile_function(func)
 
 def CALL(func, args):
 	global SYMBOL_TABLE, SCOPE, RETURN_POINTS, EXCEPTIONS, TRACEBACK, CRAFT_PATH, DEBUG
-	return func(
-		args,
-		SYMBOL_TABLE,
-		SCOPE,
-		RETURN_POINTS,
-		EXCEPTIONS,
-		TRACEBACK,
-		CRAFT_PATH,
-		DEBUG
-	)
+	try:
+		return func(
+			args,
+			SYMBOL_TABLE,
+			SCOPE,
+			RETURN_POINTS,
+			EXCEPTIONS,
+			TRACEBACK,
+			CRAFT_PATH,
+			DEBUG
+		)
+	except SystemError as e:
+		traceback.print_exc()
 
 print('Running...\n')
 
 print('\n\n\n------------------------\n\n\n')
 name = 'Pebaz123'
-CALL(__code__, ['asdf'])
+CALL(__code__, [name])
 print('\nDone.')
+print('Name is now:', name)
 
-
+print(SYMBOL_TABLE[1:])
 
 if False:
 	hello2 = craft_parse('''
