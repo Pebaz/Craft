@@ -274,6 +274,7 @@ def craft_call(*args):
 	func_args = args[1:]
 	arg_names, func_definition = query_symbol_table(func_name, SCOPE)
 
+	# NEED TO ADD (None, None) to craft_def!
 	#arg_names, func_definition, __jit__, __jcode__ = query_symbol_table(
 	# 	func_name, SCOPE)
 
@@ -389,6 +390,41 @@ def craft_pop_named_scope(name):
 	Used to remove a named scope temporarily?
 	"""
 	# TODO(Pebaz): Do I want to keep this? Would make namespaces easier
+
+
+def craft_get_symbol_table(*args):
+	global SYMBOL_TABLE
+	return SYMBOL_TABLE
+
+
+def craft_get_scope(*args):
+	global SCOPE
+	return SCOPE
+
+
+def craft_get_return_points(*args):
+	global RETURN_POINTS
+	return RETURN_POINTS
+
+
+def craft_get_exceptions(*args):
+	global EXCEPTIONS
+	return EXCEPTIONS
+
+
+def craft_get_traceback(*args):
+	global TRACEBACK
+	return TRACEBACK
+
+
+def craft_get_path(*args):
+	global CRAFT_PATH
+	return CRAFT_PATH
+
+
+def craft_get_is_debug(*args):
+	global IS_DEBUG
+	return IS_DEBUG
 
 
 def craft_push_scope():

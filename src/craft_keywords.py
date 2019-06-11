@@ -956,6 +956,14 @@ def craft_format(*args):
 
 __craft__ = {
     # Built-Ins
+	'get-scope'             : craft_get_scope,
+	'get-symbol-table'      : craft_get_symbol_table,
+	'get-return-points'     : craft_get_return_points,
+	'get-exceptions'        : craft_get_exceptions,
+	'get-traceback'         : craft_get_traceback,
+	'get-craft-path'        : craft_get_path,
+	'get-is-debug'          : craft_get_is_debug,
+	'query-symbol-table'    : query_symbol_table,
     'Program'               : craft_program,
     'push-scope'            : craft_push_scope,
     'pop-scope'             : craft_pop_scope,

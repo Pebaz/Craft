@@ -16,4 +16,6 @@ PyObject * craft_main(
 {
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject * scope0 = PyList_GetItem(SYMBOL_TABLE, 0);
-    PyObject * craft_get = PyDict_GetItemString(scope0, "get");
+	PyObject * query = PyDict_GetItemString(scope0, "query-symbol-table");
+	PyObject * scope = PyDict_GetItemString(scope0, "get-scope");
+    
