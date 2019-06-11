@@ -33,65 +33,56 @@ SYMBOL_TABLE[0].update(craft_keywords.__craft__)
 # Lambda to get the system current time millis
 ctm = lambda: int(round(time.time() * 1000))
 
+if False:
+	print(':: Compiling                      ::')
+	compiler = TCC()
+	compiler.preprocessor_symbols["DEBUG"] = "1"
+	compiler.add_include_path('C:/Python37/include')
+	compiler.add_library_path('C:/Python37')
+	compiler.add_library('python37')
+	# Don't use add_file() because it causes the Python interpreter to hang when
+	# Certain functions are called in C such as PyObject_Call()... No idea why
+	# just include C files as normal in the code.
+	#compiler.add_file('jit/craft_common.c')
+	compiler.compile_file('jit/test.c')
+	compiler.relocate()
+	print(':: Done                           ::')
 
-class Craft:
-	def __init__(self):
-		self.name = "Pebaz"
-		self.asdf = lambda: [1, 2, 3]
-		self.print = print
-
-CRAFT = Craft()
-
-
-print(':: Compiling                      ::')
-comp = TCC()
-comp.preprocessor_symbols["DEBUG"] = "1"
-comp.add_include_path('C:/Python37/include')
-comp.add_library_path('C:/Python37')
-comp.add_library('python37')
-# Don't use add_file() because it causes the Python interpreter to hang when
-# Certain functions are called in C such as PyObject_Call()... No idea why
-# just include C files as normal in the code.
-#comp.add_file('jit/craft_common.c')
-comp.compile_file('jit/test.c')
-comp.relocate()
-print(':: Done                           ::')
-
-print(":: Running JIT Compiled Code      ::")
-craft_main_proto = ctypes.CFUNCTYPE(
-	ctypes.py_object,  # Return type
-	ctypes.py_object,  # SYMBOL_TABLE
-	ctypes.py_object,  # SCOPE
-	ctypes.py_object,  # RETURN_POINTS
-	ctypes.py_object,  # EXCEPTIONS
-	ctypes.py_object,  # TRACEBACK
-	ctypes.py_object,  # CRAFT_PATH
-	ctypes.py_object,  # DEBUG
-)
-
-craft_main = craft_main_proto(comp.get_symbol('craft_main'))
-
-#ret = craft_main(CRAFT)
-try:
-	# TODO(pebaz): Implement this using STRUCT?? import struct? (raylib)
-	ret = craft_main(
-		SYMBOL_TABLE,
-		SCOPE,
-		RETURN_POINTS,
-		EXCEPTIONS,
-		TRACEBACK,
-		CRAFT_PATH,
-		DEBUG
+	print(":: Running JIT Compiled Code      ::")
+	craft_main_proto = ctypes.CFUNCTYPE(
+		ctypes.py_object,  # Return type
+		ctypes.py_object,  # SYMBOL_TABLE
+		ctypes.py_object,  # SCOPE
+		ctypes.py_object,  # RETURN_POINTS
+		ctypes.py_object,  # EXCEPTIONS
+		ctypes.py_object,  # TRACEBACK
+		ctypes.py_object,  # CRAFT_PATH
+		ctypes.py_object,  # DEBUG
 	)
-	print(ret)
-except SystemError as e:
-	print(f'!! Error                          !!')
-	traceback.print_exc()
-	
+
+	craft_main = craft_main_proto(compiler.get_symbol('craft_main'))
+
+	#ret = craft_main(CRAFT)
+	try:
+		# TODO(pebaz): Implement this using STRUCT?? import struct? (raylib)
+		ret = craft_main(
+			SYMBOL_TABLE,
+			SCOPE,
+			RETURN_POINTS,
+			EXCEPTIONS,
+			TRACEBACK,
+			CRAFT_PATH,
+			DEBUG
+		)
+		print(ret)
+	except SystemError as e:
+		print(f'!! Error                          !!')
+		traceback.print_exc()
+		
 
 
-print(":: Done running JIT Compiled Code ::")
-print()
+	print(":: Done running JIT Compiled Code ::")
+	print()
 
 if False:
 	src = '''
@@ -174,10 +165,13 @@ class JIT:
 		print('=-' * 20)
 
 		emit(self.__load_template('header.c'))
+		emit('#include <stdio.h>')
 
 		# Push Scope
 		emit(f'    PyObject * push_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "push-scope");')
 		emit(f'    PyObject_Call(push_scope, PyTuple_New(0), NULL);')
+
+		#emit('printf("hi\\n");')
 
 		emit('')
 
@@ -262,11 +256,8 @@ class JIT:
 
 		# Pop Scope
 		# This Crashes....
-		#emit(f'    PyObject * pop_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "pop-scope");')
-		#emit(f'    PyObject_Call(pop_scope, PyTuple_New(0), NULL);')
-
-		#emit(f'    // Try to set a reference...')
-		#emit(f'    person = Py_BuildValue("s", "hi");')
+		emit(f'    PyObject * pop_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "pop-scope");')
+		emit(f'    PyObject_Call(pop_scope, PyTuple_New(0), NULL);')
 
 		# Return type?
 
@@ -275,7 +266,8 @@ class JIT:
 		return '\n'.join(source)
 
 	def compile(self, code):
-		comp = TCC()
+		import pytcc
+		comp = pytcc.TCC()
 		comp.preprocessor_symbols["DEBUG"] = "1"
 		comp.add_include_path('C:/Python37/include')
 		comp.add_library_path('C:/Python37')

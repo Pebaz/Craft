@@ -4,6 +4,7 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 
+
 PyObject * query_symbol_table(PyObject * SYMBOL_TABLE, PyObject * SCOPE, char * symbol)
 {
 	PyGILState_STATE gstate = PyGILState_Ensure();
