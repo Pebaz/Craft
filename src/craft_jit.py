@@ -269,14 +269,15 @@ class JIT:
 			NOTE: `args` must be a list of C variable names.
 			"""
 			emit('')
-			emit(f'    // CALLING FUNCTION: {func}')
+			emit(f'    // Lookup Function: {func}')
 			func_var = emit_lookup(func, counter)
+			emit('    // Now Call Function')
 			func_var_args = f'ARGS_{func_var}{next(counter)}'
 			return_value = f'RET_{func_var}{next(counter)}'
 			emit(f'    PyObject * {func_var_args} = PyTuple_New({len(args)});')
 			for i, arg in enumerate(args):
 				emit(f'    PyTuple_SET_ITEM({func_var_args}, {i}, {arg});')
-			emit(f'    PyObject * {return_value} = PyObject_Call(query, {func_var_args}, NULL);')
+			emit(f'    PyObject * {return_value} = PyObject_Call({func_var}, {func_var_args}, NULL);')
 			return return_value
 
 		def emit_lookup(name, counter):
@@ -385,8 +386,10 @@ class JIT:
 			emit()
 
 		# Pop Scope
-		emit(f'    PyObject * pop_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "pop-scope");')
-		emit(f'    PyObject_Call(pop_scope, PyTuple_New(0), NULL);')
+		#emit(f'    PyObject * pop_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "pop-scope");')
+		#emit(f'    PyObject_Call(pop_scope, PyTuple_New(0), NULL);')
+
+		emit_call('pop-scope', [], var_num)
 
 		# Return type?
 
