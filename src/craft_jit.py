@@ -261,11 +261,20 @@ class JIT:
 			print(text)
 			source.append(text)
 
-		def emit_call(func, args, var_names):
+		def emit_call(func, args, counter):
 			"""
 			This will be recursively called if an argument is a function call.
 			It will also do all processing for scalar values.
 			"""
+
+		def emit_lookup(name, counter):
+			ARGS_query = f'ARGS_query{next(counter)}'
+			lookup = f'var{next(counter)}'
+			emit(f'    PyObject * {ARGS_query} = PyTuple_New(2);')
+			emit(f'    PyTuple_SET_ITEM({ARGS_query}, 0, Py_BuildValue("s", "{name}"));')
+			emit(f'    PyTuple_SET_ITEM({ARGS_query}, 1, PyObject_Call(scope, PyTuple_New(0), NULL));')
+			emit(f'    PyObject * {lookup} = PyObject_Call(query, {ARGS_query}, NULL);')
+			return lookup
 
 		arg_names = getvalue(ast)[0][1:]
 		body = getvalue(ast)[1:]
@@ -299,6 +308,11 @@ class JIT:
 			emit(f'    PyObject_Call(set, ARGS_set, NULL);')
 		
 		emit('printf("DONE SETTING\\n");')
+
+		emit('')
+
+		sym_tab = emit_lookup('get-symbol-table', var_num)
+		print(f'GOT {sym_tab}')
 
 		emit('')
 
