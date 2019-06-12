@@ -1,0 +1,7 @@
+
+    // CALLING FUNCTION: {{ func }}
+    PyObject * {{ func_var_args }} = PyTuple_New({{ len(args) }});
+	{% for arg in args %}
+    PyTuple_SET_ITEM({{ func_var_args }}, {{ loop.index }}, {{ arg }});
+	{% endfor %}
+    PyObject * {{ return_value }} = PyObject_Call(query, {{ func_var_args }}, NULL);

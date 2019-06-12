@@ -265,7 +265,19 @@ class JIT:
 			"""
 			This will be recursively called if an argument is a function call.
 			It will also do all processing for scalar values.
+
+			NOTE: `args` must be a list of C variable names.
 			"""
+			emit('')
+			emit(f'    // CALLING FUNCTION: {func}')
+			func_var = emit_lookup(func, counter)
+			func_var_args = f'ARGS_{func_var}{next(counter)}'
+			return_value = f'RET_{func_var}{next(counter)}'
+			emit(f'    PyObject * {func_var_args} = PyTuple_New({len(args)});')
+			for i, arg in enumerate(args):
+				emit(f'    PyTuple_SET_ITEM({func_var_args}, {i}, {arg});')
+			emit(f'    PyObject * {return_value} = PyObject_Call(query, {func_var_args}, NULL);')
+			return return_value
 
 		def emit_lookup(name, counter):
 			ARGS_query = f'ARGS_query{next(counter)}'
@@ -284,8 +296,8 @@ class JIT:
 		print(ast, '\n\n')
 		print('=-' * 20)
 
-		emit(self.__load_template('header.c'))
 		emit('#include <stdio.h>')
+		emit(self.__load_template('header.c'))
 
 		# Push Scope
 		#emit(f'    PyObject * push_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "push-scope");')
@@ -306,13 +318,11 @@ class JIT:
 			emit(f'    PyTuple_SET_ITEM(ARGS_set, 0, Py_BuildValue("s", "{arg}"));')
 			emit(f'    PyTuple_SET_ITEM(ARGS_set, 1, PyList_GetItem(ARGS, {i}));')
 			emit(f'    PyObject_Call(set, ARGS_set, NULL);')
-		
-		emit('printf("DONE SETTING\\n");')
 
 		emit('')
 
 		sym_tab = emit_lookup('get-symbol-table', var_num)
-		print(f'GOT {sym_tab}')
+		r = emit_call('print', [sym_tab], var_num)
 
 		emit('')
 
