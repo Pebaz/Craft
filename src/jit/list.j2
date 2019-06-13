@@ -1,0 +1,4 @@
+    PyObject * {{ aname }} = PyList_New({{ argument|length }});
+{%- for list_arg_name in list_arg_names %}
+    PyList_SetItem({{ aname }}, {{ loop.index - 1 }}, {{ list_arg_name }});
+{%- endfor %}

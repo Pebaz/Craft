@@ -287,16 +287,22 @@ class JIT:
 				# List literal
 				elif isinstance(argument, list):
 					list_arg_names = emit_args(argument, counter)
+					'''
 					emit(f'    PyObject * {aname} = PyList_New({len(argument)});')
 					for i, list_arg_name in enumerate(list_arg_names):
 						#emit(f'    PyList_SetItem({aname}, {len(list_arg_names) - 1 - i}, {list_arg_name});')
 						emit(f'    PyList_SetItem({aname}, {i}, {list_arg_name});')
+					'''
+					emit_template('list.j2', dict(
+						aname = aname,
+						argument = argument,
+						list_arg_names = list_arg_names
+					))
 
 				# Function call
 				elif isinstance(argument, dict):
-					#raise Exception('Need to do a depth-first search of the things.')
-					ret = emit_func(argument, counter)
-					emit(f'    PyObject * {aname} = {ret};')
+					bound_arg_names.append(emit_func(argument, counter))
+					continue
 
 				bound_arg_names.append(aname)
 
@@ -500,32 +506,6 @@ print('Running...')
 print('\n------------------------')
 CALL(__code__, ['Pebaz!'])
 print('------------------------\nDone.')
-
-
-
-# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-# B U G   B U G   B U G   B U G   B U G   B U G   B U G   B U G   B U G   B U G
-# Evaluation order is not preserved:
-# getA = lambda: print('a'); return 'a'
-# getB = lambda: print('b'); return 'b'
-# getC = lambda: print('c'); return 'c'
-# print(getA(), getB(), getC())
-# BUG:
-# This will print:
-# c
-# b
-# a
-# a b c
-# It should print:
-# a
-# b
-# c
-# a b c
-# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-
-
-
 
 
 if False:
