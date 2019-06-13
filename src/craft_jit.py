@@ -215,6 +215,7 @@ class JIT:
 			print(text)
 			source.append(text)
 
+		'''
 		def emit_call(func, args, counter):
 			"""
 			This will be recursively called if an argument is a function call.
@@ -233,6 +234,7 @@ class JIT:
 				emit(f'    PyTuple_SET_ITEM({func_var_args}, {i}, {arg});')
 			emit(f'    PyObject * {return_value} = PyObject_Call({func_var}, {func_var_args}, NULL);')
 			return return_value
+		'''
 
 		def emit_lookup(name, counter):
 			ARGS_query = f'ARGS_query{next(counter)}'
@@ -402,7 +404,10 @@ class JIT:
 
 		# Return type?
 		# Catch FunctionReturnException... :(
-		emit(self.__load_template('footer.c'))
+		#emit(self.__load_template('footer.c'))
+
+		emit_template('footer.j2', {})
+		
 		print('-=' * 20)
 		return '\n'.join(source)
 
