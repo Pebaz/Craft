@@ -1,71 +1,3 @@
-'''
-import itertools
-counter = itertools.count()
-
-code = ['a', 'b', ['c', 'd', 'e', ['f']]]
-
-
-def recurse(code, indent=0):
-	global counter
-	duff = []
-	for i in reversed(code):
-		if isinstance(i, list):
-			duff.extend(recurse(i, indent))
-		else:
-			print(f'{"    " * indent}{i}', end='')
-			name = f'var{next(counter)}'
-			print(f'{"    " * indent}{name} = {i}')
-			duff.append(name)
-	return duff
-
-
-a = list(reversed(recurse(code)))
-print()
-print(a)
-
-print('__func__(', end='')
-b = iter(a)
-for i in b:
-	print(i, end='')
-	if b.__length_hint__():
-		print(',', end=' ')
-print(')')
-'''
-#import sys; sys.exit()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 """
 Notes:
 
@@ -407,7 +339,7 @@ class JIT:
 		#emit(self.__load_template('footer.c'))
 
 		emit_template('footer.j2', {})
-		
+
 		print('-=' * 20)
 		return '\n'.join(source)
 
