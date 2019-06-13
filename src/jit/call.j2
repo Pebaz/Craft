@@ -4,5 +4,5 @@
 {%- for aname in bound_arg_names %}
     PyTuple_SET_ITEM({{ func_var_args }}, {{ arguments|length - 1 - (loop.index - 1) }}, {{ aname }});
 {%- endfor %}
-    PyObject_Call({{ func_var }}, {{ func_var_args }}, NULL);
+    PyObject * {{ ret_name }} = PyObject_Call({{ func_var }}, {{ func_var_args }}, NULL);
 

@@ -292,7 +292,9 @@ class JIT:
 
 				# Function call
 				elif isinstance(argument, dict):
-					raise Exception('Need to do a depth-first search of the things.')
+					#raise Exception('Need to do a depth-first search of the things.')
+					ret = emit_func(argument, counter)
+					emit(f'PyObject * {aname} = {ret};')
 
 				bound_arg_names.append(aname)
 
@@ -304,6 +306,7 @@ class JIT:
 			bound_arg_names = emit_args(arguments, counter)
 			func_var = f'var{next(counter)}'
 			func_var_args = f'CALL_{func_var}_args{next(counter)}'
+			ret_name = f'var{next(counter)}'
 
 			'''
 			emit(f'    PyObject * {func_var} = query_symbol_table(SYMBOL_TABLE, SCOPE, "{func_name}");')
@@ -320,9 +323,11 @@ class JIT:
 				arguments = arguments,
 				bound_arg_names = bound_arg_names,
 				func_var = func_var,
-				func_var_args = func_var_args
+				func_var_args = func_var_args,
+				ret_name = ret_name
 			)
 			emit_template('call.j2', data)
+			return ret_name
 
 
 		def emit_template(template, data):
@@ -441,7 +446,9 @@ def: [
 	print: ["Hello World!"]
 	print: [$person]
 	print: [[a b c]]
-	::print: [[list of words +: [2 4]]]
+	set: [name Protodip]
+	print: [[list of words +: [2 4]]]
+	print: [$name]
 	:>
 	print: [
 		+: [2 4]
@@ -488,6 +495,32 @@ print('Running...')
 print('\n------------------------')
 CALL(__code__, ['Pebaz!'])
 print('------------------------\nDone.')
+
+
+
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# B U G   B U G   B U G   B U G   B U G   B U G   B U G   B U G   B U G   B U G
+# Evaluation order is not preserved:
+# getA = lambda: print('a'); return 'a'
+# getB = lambda: print('b'); return 'b'
+# getC = lambda: print('c'); return 'c'
+# print(getA(), getB(), getC())
+# BUG:
+# This will print:
+# c
+# b
+# a
+# a b c
+# It should print:
+# a
+# b
+# c
+# a b c
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+
+
 
 
 if False:
