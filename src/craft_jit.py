@@ -1,6 +1,9 @@
-code = ['a', 'b', ['c', 'd', 'e', ['f']]]
+'''
 import itertools
 counter = itertools.count()
+
+code = ['a', 'b', ['c', 'd', 'e', ['f']]]
+
 
 def recurse(code, indent=0):
 	global counter
@@ -14,6 +17,8 @@ def recurse(code, indent=0):
 			print(f'{"    " * indent}{name} = {i}')
 			duff.append(name)
 	return duff
+
+
 a = list(reversed(recurse(code)))
 print()
 print(a)
@@ -25,8 +30,41 @@ for i in b:
 	if b.__length_hint__():
 		print(',', end=' ')
 print(')')
+'''
+#import sys; sys.exit()
 
-import sys; sys.exit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 """
 Notes:
@@ -205,7 +243,7 @@ class JIT:
 
 		arg_names = getvalue(ast)[0][1:]
 		body = getvalue(ast)[1:]
-		var_num = itertools.count()
+		counter = itertools.count()
 
 		print(':: Transpiling            ::')
 		print(ast, '\n\n')
@@ -216,12 +254,7 @@ class JIT:
 
 		# Push Scope
 		#emit(f'    PyObject * push_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "push-scope");')
-
-		emit(f'    PyObject * ARGS_query = PyTuple_New(2);')
-		emit(f'    PyTuple_SET_ITEM(ARGS_query, 0, Py_BuildValue("s", "push-scope"));')
-		emit(f'    PyTuple_SET_ITEM(ARGS_query, 1, PyObject_Call(scope, PyTuple_New(0), NULL));')
-		emit(f'    PyObject * push_scope = PyObject_Call(query, ARGS_query, NULL);')
-		emit(f'    PyObject_Call(push_scope, PyTuple_New(0), NULL);')
+		emit_call('push-scope', [], counter)
 
 		emit('')
 
@@ -236,41 +269,35 @@ class JIT:
 
 		emit('')
 
-		sym_tab = emit_lookup('get-symbol-table', var_num)
-		r = emit_call('print', [sym_tab], var_num)
+		sym_tab = emit_lookup('get-symbol-table', counter)
+		r = emit_call('print', [sym_tab], counter)
 
 		emit('')
 
-		# Function body
-		is_statement = lambda x: isinstance(x, dict) and len(x) == 1
-		for statement in body:
-			if is_statement(statement):
-				emit(f'    // {statement}')
-			else:
-				raise CraftException('SyntaxError', {}, {})
-
-			# Load global "print"
-			func_name = getkey(statement)
-			arguments = getvalue(statement)
-
-			# Emit the deepest argument first and assign it to a variable!
+		def emit_args(arguments, counter):
 			bound_arg_names = []
 			for argument in reversed(arguments):
-				# Primitives first
-				aname = f'var{next(var_num)}'
+				aname = f'var{next(counter)}'
 
 				# Argument lookup
 				#if isinstance(argument, str) and argument.startswith('$') and argument[1:] in arg_names:
 				#	emit(f'    PyObject * {aname} = {argument[1:]};')
+				# vvv = emit_lookup(...)
+				# bound_arg_names.append(vvv)
+				# continue
+
 				# Name lookup
 				if isinstance(argument, str) and argument.startswith('$'):
 					lookup = argument[1:]
 
 					# Second lookup
-					if lookup.startswith('$'):
-						emit(f'    PyObject * {aname} = Py_BuildValue("s", "{lookup}");')
+					if argument.startswith('$$'):
+						emit(f'    PyObject * {aname} = Py_BuildValue("s", "{argument[1:]}");')
 					else:
-						emit(f'    PyObject * {aname} = query_symbol_table(SYMBOL_TABLE, SCOPE, "{argument[1:]}");')
+						#emit(f'    PyObject * {aname} = query_symbol_table(SYMBOL_TABLE, SCOPE, "{lookup}");')
+						bound_arg_names.append(emit_lookup(argument[1:], counter))
+						continue
+
 				# Boolean Literal
 				elif isinstance(argument, bool):
 					emit(f'    PyObject * {aname} = {"Py_True" if argument else "Py_False"};')
@@ -289,8 +316,18 @@ class JIT:
 
 				bound_arg_names.append(aname)
 
-			func_var = f'var{next(var_num)}'
-			func_var_args = f'CALL_{func_var}_args{next(var_num)}'
+			return bound_arg_names
+
+		def emit_func(statement, counter):
+			# Load global "print"
+			func_name = getkey(statement)
+			arguments = getvalue(statement)
+
+			# Emit the deepest argument first and assign it to a variable!
+			bound_arg_names = emit_args(arguments, counter)
+
+			func_var = f'var{next(counter)}'
+			func_var_args = f'CALL_{func_var}_args{next(counter)}'
 			emit(f'    PyObject * {func_var} = query_symbol_table(SYMBOL_TABLE, SCOPE, "{func_name}");')
 			emit(f'    PyObject * {func_var_args} = PyTuple_New({len(arguments)});')
 			for index, aname in enumerate(bound_arg_names):
@@ -299,11 +336,39 @@ class JIT:
 			emit(f'    PyObject_Call({func_var}, {func_var_args}, NULL);')
 			emit()
 
+		# Function body
+		is_statement = lambda x: isinstance(x, dict) and len(x) == 1
+		for statement in body:
+			if is_statement(statement):
+				emit(f'    // {statement}')
+			else:
+				raise CraftException('SyntaxError', {}, {})
+
+			'''
+			# Load global "print"
+			func_name = getkey(statement)
+			arguments = getvalue(statement)
+
+			# Emit the deepest argument first and assign it to a variable!
+			bound_arg_names = emit_args(arguments, counter)
+
+			func_var = f'var{next(counter)}'
+			func_var_args = f'CALL_{func_var}_args{next(counter)}'
+			emit(f'    PyObject * {func_var} = query_symbol_table(SYMBOL_TABLE, SCOPE, "{func_name}");')
+			emit(f'    PyObject * {func_var_args} = PyTuple_New({len(arguments)});')
+			for index, aname in enumerate(bound_arg_names):
+				emit(f'    PyTuple_SET_ITEM({func_var_args}, {len(arguments) - 1 - index}, {aname});')
+
+			emit(f'    PyObject_Call({func_var}, {func_var_args}, NULL);')
+			emit()
+			'''
+			emit_func(statement, counter)
+
 		# Pop Scope
 		#emit(f'    PyObject * pop_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "pop-scope");')
 		#emit(f'    PyObject_Call(pop_scope, PyTuple_New(0), NULL);')
 
-		emit_call('pop-scope', [], var_num)
+		emit_call('pop-scope', [], counter)
 
 		# Return type?
 
@@ -373,16 +438,21 @@ def: [
 	[hello person]
 	print: ["Hello World!"]
 	print: [$person]
-	print: [314]
+	:>print: [314]
 	print: [3.14]
 	print: [True]
 	print: [False]
-	print: [1 2 3 4 5]
+	print: [1 2 3 4 5]<:
 	::print: [$$person]
 ]
 '''
 jit = JIT()
 func = craft_parse(hello)
+
+jit.transpile(func)
+
+#sys.exit(0)
+
 __code__ = jit.compile_function(func)
 
 
@@ -407,6 +477,7 @@ print('Running...\n')
 print('\n\n\n------------------------\n\n\n')
 CALL(__code__, ['Pebaz'])
 print('\nDone.')
+
 
 if False:
 	hello2 = craft_parse('''

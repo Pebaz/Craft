@@ -14,9 +14,11 @@ PyObject * craft_main(
     PyObject * IS_DEBUG
 )
 {
+    // Stop Python from interpreting anything else while we use this thread
     PyGILState_STATE gstate = PyGILState_Ensure();
 
+    // Define convenience variables for lookups/etc.
     PyObject * scope0 = PyList_GetItem(SYMBOL_TABLE, 0);
-	PyObject * query = PyDict_GetItemString(scope0, "query-symbol-table");
-	PyObject * scope = PyDict_GetItemString(scope0, "get-scope");
+    PyObject * query = PyDict_GetItemString(scope0, "query-symbol-table");
+    PyObject * scope = PyDict_GetItemString(scope0, "get-scope");
     
