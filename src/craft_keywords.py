@@ -954,8 +954,15 @@ def craft_format(*args):
     return args[0].format(*args[1:])
 
 
+
+def getL(*args):
+	args = get_args(args)
+	print(args[0])
+	return args[0]
+
 __craft__ = {
     # Built-Ins
+	'getL' : getL,
 	'get-scope'             : craft_get_scope,
 	'get-symbol-table'      : craft_get_symbol_table,
 	'get-return-points'     : craft_get_return_points,

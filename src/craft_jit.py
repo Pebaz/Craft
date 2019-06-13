@@ -245,7 +245,8 @@ class JIT:
 
 		def emit_args(arguments, counter):
 			bound_arg_names = []
-			for argument in reversed(arguments):
+			#for argument in reversed(arguments):
+			for argument in arguments:
 				aname = f'var{next(counter)}'
 
 				# Argument lookup
@@ -257,7 +258,7 @@ class JIT:
 
 				# Name lookup
 				if isinstance(argument, str) and argument.startswith('$'):
-					lookup = argument[1:]
+					#lookup = argument[1:]
 
 					# Second lookup
 					if argument.startswith('$$'):
@@ -288,13 +289,14 @@ class JIT:
 					list_arg_names = emit_args(argument, counter)
 					emit(f'    PyObject * {aname} = PyList_New({len(argument)});')
 					for i, list_arg_name in enumerate(list_arg_names):
-						emit(f'    PyList_SetItem({aname}, {len(list_arg_names) - 1 - i}, {list_arg_name});')
+						#emit(f'    PyList_SetItem({aname}, {len(list_arg_names) - 1 - i}, {list_arg_name});')
+						emit(f'    PyList_SetItem({aname}, {i}, {list_arg_name});')
 
 				# Function call
 				elif isinstance(argument, dict):
 					#raise Exception('Need to do a depth-first search of the things.')
 					ret = emit_func(argument, counter)
-					emit(f'PyObject * {aname} = {ret};')
+					emit(f'    PyObject * {aname} = {ret};')
 
 				bound_arg_names.append(aname)
 
@@ -328,7 +330,6 @@ class JIT:
 			)
 			emit_template('call.j2', data)
 			return ret_name
-
 
 		def emit_template(template, data):
 			emit(j2do(template, data, include=[JIT.PATH_PREFIX]))	
@@ -443,12 +444,16 @@ class JIT:
 hello = '''
 def: [
 	[hello person]
+	print: [[getL:[A] 1 getL:[B] 2 getL:[C] 3]]
+	:>
 	print: ["Hello World!"]
 	print: [$person]
 	print: [[a b c]]
 	set: [name Protodip]
 	print: [[list of words +: [2 4]]]
 	print: [$name]
+	print: [[getL:[A] 1 getL:[B] 2 getL:[C] 3]]
+	<:
 	:>
 	print: [
 		+: [2 4]
