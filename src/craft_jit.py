@@ -288,15 +288,13 @@ class JIT:
 			return bound_arg_names
 
 		def emit_func(statement, counter):
-			# Load global "print"
 			func_name = getkey(statement)
 			arguments = getvalue(statement)
-
-			# Emit the deepest argument first and assign it to a variable!
 			bound_arg_names = emit_args(arguments, counter)
-
 			func_var = f'var{next(counter)}'
 			func_var_args = f'CALL_{func_var}_args{next(counter)}'
+
+			'''
 			emit(f'    PyObject * {func_var} = query_symbol_table(SYMBOL_TABLE, SCOPE, "{func_name}");')
 			emit(f'    PyObject * {func_var_args} = PyTuple_New({len(arguments)});')
 			for index, aname in enumerate(bound_arg_names):
@@ -304,6 +302,17 @@ class JIT:
 
 			emit(f'    PyObject_Call({func_var}, {func_var_args}, NULL);')
 			emit()
+			'''
+
+			data = dict(
+				func_name = func_name,
+				arguments = arguments,
+				bound_arg_names = bound_arg_names,
+				func_var = func_var,
+				func_var_args = func_var_args
+			)
+			emit_template('call.j2', data)
+
 
 		def emit_template(template, data):
 			emit(j2do(template, data, include=[JIT.PATH_PREFIX]))	
@@ -318,7 +327,7 @@ class JIT:
 
 		emit('#include <stdio.h>')
 		#emit(self.__load_template('header.c'))
-		emit_template("header.j2", {})
+		emit_template('header.j2', {})
 
 		# Push Scope
 		#emit(f'    PyObject * push_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "push-scope");')

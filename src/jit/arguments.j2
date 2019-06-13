@@ -2,8 +2,8 @@
     // Now bind values to current function scope
     PyObject * set = query_symbol_table(SYMBOL_TABLE, SCOPE, "set");
     PyObject * ARGS_set = PyTuple_New(2);
-{% for arg in arg_names %}
+{%- for arg in arg_names %}
     PyTuple_SET_ITEM(ARGS_set, 0, Py_BuildValue("s", "{{ arg }}"));
     PyTuple_SET_ITEM(ARGS_set, 1, PyList_GetItem(ARGS, {{ loop.index - 1 }}));
     PyObject_Call(set, ARGS_set, NULL);
-{% endfor %}
+{%- endfor -%}
