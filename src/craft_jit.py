@@ -270,18 +270,29 @@ class JIT:
 				# Boolean Literal
 				elif isinstance(argument, bool):
 					emit(f'    PyObject * {aname} = {"Py_True" if argument else "Py_False"};')
+
 				# String Literal
 				elif isinstance(argument, str):
 					emit(f'    PyObject * {aname} = Py_BuildValue("s", "{argument}");')
+
 				# Integer Literal
 				elif isinstance(argument, int):
 					emit(f'    PyObject * {aname} = Py_BuildValue("i", {argument});')
+
 				# Float Literal
 				elif isinstance(argument, float):
 					emit(f'    PyObject * {aname} = Py_BuildValue("f", {argument});')
+
 				# List literal
 				elif isinstance(argument, list):
-					raise Exception('Need to recursively evaluate things in list.')
+					list_arg_names = emit_args(argument, counter)
+					emit(f'    PyObject * {aname} = PyList_New({len(argument)});')
+					for i, list_arg_name in enumerate(list_arg_names):
+						emit(f'    PyList_SetItem({aname}, {len(list_arg_names) - 1 - i}, {list_arg_name});')
+
+				# Function call
+				elif isinstance(argument, dict):
+					raise Exception('Need to do a depth-first search of the things.')
 
 				bound_arg_names.append(aname)
 
@@ -428,26 +439,23 @@ hello = '''
 def: [
 	[hello person]
 	print: ["Hello World!"]
-	:: This crashes sometimes...
-	:: I think it has to do with the length of the string...
+	print: [$person]
+	print: [[a b c]]
+	::print: [[list of words +: [2 4]]]
+	:>
+	print: [
+		+: [2 4]
+	]
+	<:
 
-	:: UPDATE: For some reason, it works in PowerShell as well as never fails here...
-	:: print: ["Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!Hello World!"]
-	
-	print: [$person]
-]
-'''
-hello = '''
-def: [
-	[hello person]
-	print: ["Hello World!"]
-	print: [$person]
-	:>print: [314]
+	:>
+	print: [314]
 	print: [3.14]
 	print: [True]
 	print: [False]
-	print: [1 2 3 4 5]<:
-	::print: [$$person]
+	print: [1 2 3 4 5]
+	print: [$$person]
+	<:
 ]
 '''
 jit = JIT()
@@ -476,11 +484,10 @@ def CALL(func, args):
 	except SystemError as e:
 		traceback.print_exc()
 
-print('Running...\n')
-
-print('\n\n\n------------------------\n\n\n')
+print('Running...')
+print('\n------------------------')
 CALL(__code__, ['Pebaz!'])
-print('\nDone.')
+print('------------------------\nDone.')
 
 
 if False:

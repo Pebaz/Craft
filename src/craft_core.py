@@ -275,7 +275,9 @@ def craft_call(*args):
 	arg_names, func_definition = query_symbol_table(func_name, SCOPE)
 
 	# NEED TO ADD (None, None) to craft_def!
-	#arg_names, func_definition, __jit__, __jcode__ = query_symbol_table(
+	# Need to also add a counter for how many times a function has been called
+	# So that JIT can compile funcs in the hotpath!
+	#arg_names, func_definition, __jit__, __jcode__, times_been_called = query_symbol_table(
 	# 	func_name, SCOPE)
 
 	"""

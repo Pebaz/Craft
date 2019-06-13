@@ -8,11 +8,12 @@ def __walk(obj):
 	if hasattr(obj, '__len__') and len(obj) > 1 and obj[1] == ':':
 		# Return a mapping of it and process it's arguments also
 		return { obj[0] : [__walk(i) for i in obj[2]] }
+
 	# It's a normal value
 	else:
 		# Make it be a Python object, not ParseResults
 		if isinstance(obj, pyp.ParseResults):
-			return obj.asList()
+			return [__walk(i) for i in obj.asList()]
 		return obj
 
 
@@ -107,7 +108,7 @@ def craft_parse(text):
 
 	List << pyp.Group(
 		LBRACKET +
-		pyp.ZeroOrMore(Comment | Value | List) +
+		pyp.ZeroOrMore(Comment | Function | List | Value) +
 		RBRACKET
 	)
 
