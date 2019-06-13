@@ -954,7 +954,11 @@ def craft_format(*args):
     return args[0].format(*args[1:])
 
 
+def jit(func):
+	print(f'Need to remove {func.__name__}() from builtins!')
+	return func
 
+@jit
 def getL(*args):
 	args = get_args(args)
 	print(args[0])
