@@ -312,7 +312,9 @@ class JIT:
 			func_name = getkey(statement)
 			arguments = getvalue(statement)
 			bound_arg_names = emit_args(arguments, counter)
-			func_var = f'var{next(counter)}'
+
+			#func_var = f'var{next(counter)}'
+			func_var = emit_lookup(func_name, counter)
 			func_var_args = f'CALL_{func_var}_args{next(counter)}'
 			ret_name = f'var{next(counter)}'
 
@@ -327,10 +329,10 @@ class JIT:
 			'''
 
 			data = dict(
+				func_var = func_var,
 				func_name = func_name,
 				arguments = arguments,
 				bound_arg_names = bound_arg_names,
-				func_var = func_var,
 				func_var_args = func_var_args,
 				ret_name = ret_name
 			)
@@ -354,7 +356,8 @@ class JIT:
 
 		# Push Scope
 		#emit(f'    PyObject * push_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "push-scope");')
-		emit_call('push-scope', [], counter)
+		#emit_call('push-scope', [], counter)
+		emit_func({'push-scope' : []}, counter)
 
 		emit('')
 
@@ -376,8 +379,8 @@ class JIT:
 
 		emit('')
 
-		sym_tab = emit_lookup('get-symbol-table', counter)
-		r = emit_call('print', [sym_tab], counter)
+		#sym_tab = emit_lookup('get-symbol-table', counter)
+		#r = emit_call('print', [sym_tab], counter)
 
 		emit('')
 
@@ -394,11 +397,11 @@ class JIT:
 		# Pop Scope
 		#emit(f'    PyObject * pop_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "pop-scope");')
 		#emit(f'    PyObject_Call(pop_scope, PyTuple_New(0), NULL);')
-
-		emit_call('pop-scope', [], counter)
+		#emit_call('pop-scope', [], counter)
+		emit_func({'pop-scope' : []}, counter)
 
 		# Return type?
-
+		# Catch FunctionReturnException... :(
 		emit(self.__load_template('footer.c'))
 		print('-=' * 20)
 		return '\n'.join(source)
@@ -450,7 +453,17 @@ class JIT:
 hello = '''
 def: [
 	[hello person]
-	print: [[getL:[A] 1 getL:[B] 2 getL:[C] 3]]
+	print: [[
+		getL:[z]
+		getL:[y]
+		getL:[x]
+	]]
+	print: [[
+		getL:[A]
+		getL:[B]
+		getL:[C]
+	]]
+	::print: [[getL:[A] 1 getL:[B] 2 getL:[C] 3]]
 	:>
 	print: ["Hello World!"]
 	print: [$person]
@@ -459,6 +472,8 @@ def: [
 	print: [[list of words +: [2 4]]]
 	print: [$name]
 	print: [[getL:[A] 1 getL:[B] 2 getL:[C] 3]]
+	print: [3 2 1]
+
 	<:
 	:>
 	print: [
