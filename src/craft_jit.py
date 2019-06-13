@@ -84,6 +84,7 @@ Notes:
 import ctypes, pathlib, itertools, traceback, time
 from pytcc import TCC
 
+from j2do               import j2do
 from craft_core 		import *
 from craft_parser 		import *
 from craft_exceptions 	import *
@@ -209,6 +210,7 @@ class JIT:
 
 	def transpile(self, ast):
 		source = []
+
 		def emit(text=''):
 			print(text)
 			source.append(text)
@@ -240,39 +242,6 @@ class JIT:
 			emit(f'    PyTuple_SET_ITEM({ARGS_query}, 1, PyObject_Call(scope, PyTuple_New(0), NULL));')
 			emit(f'    PyObject * {lookup} = PyObject_Call(query, {ARGS_query}, NULL);')
 			return lookup
-
-		arg_names = getvalue(ast)[0][1:]
-		body = getvalue(ast)[1:]
-		counter = itertools.count()
-
-		print(':: Transpiling            ::')
-		print(ast, '\n\n')
-		print('=-' * 20)
-
-		emit('#include <stdio.h>')
-		emit(self.__load_template('header.c'))
-
-		# Push Scope
-		#emit(f'    PyObject * push_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "push-scope");')
-		emit_call('push-scope', [], counter)
-
-		emit('')
-
-		# Now Bind all arguments to current (function) scope
-		emit('    // Now bind values to current function scope')
-		emit(f'    PyObject * set = query_symbol_table(SYMBOL_TABLE, SCOPE, "set");')
-		emit(f'    PyObject * ARGS_set = PyTuple_New(2);')
-		for i, arg in enumerate(arg_names):
-			emit(f'    PyTuple_SET_ITEM(ARGS_set, 0, Py_BuildValue("s", "{arg}"));')
-			emit(f'    PyTuple_SET_ITEM(ARGS_set, 1, PyList_GetItem(ARGS, {i}));')
-			emit(f'    PyObject_Call(set, ARGS_set, NULL);')
-
-		emit('')
-
-		sym_tab = emit_lookup('get-symbol-table', counter)
-		r = emit_call('print', [sym_tab], counter)
-
-		emit('')
 
 		def emit_args(arguments, counter):
 			bound_arg_names = []
@@ -336,6 +305,50 @@ class JIT:
 			emit(f'    PyObject_Call({func_var}, {func_var_args}, NULL);')
 			emit()
 
+		def emit_template(template, data):
+			emit(j2do(template, data, include=[JIT.PATH_PREFIX]))	
+
+		arg_names = getvalue(ast)[0][1:]
+		body = getvalue(ast)[1:]
+		counter = itertools.count()
+
+		print(':: Transpiling            ::')
+		print(ast, '\n\n')
+		print('=-' * 20)
+
+		emit('#include <stdio.h>')
+		#emit(self.__load_template('header.c'))
+		emit_template("header.j2", {})
+
+		# Push Scope
+		#emit(f'    PyObject * push_scope = query_symbol_table(SYMBOL_TABLE, SCOPE, "push-scope");')
+		emit_call('push-scope', [], counter)
+
+		emit('')
+
+		# Now Bind all arguments to current (function) scope
+		'''
+		emit('    // Now bind values to current function scope')
+		emit(f'    PyObject * set = query_symbol_table(SYMBOL_TABLE, SCOPE, "set");')
+		emit(f'    PyObject * ARGS_set = PyTuple_New(2);')
+		for i, arg in enumerate(arg_names):
+			emit(f'    PyTuple_SET_ITEM(ARGS_set, 0, Py_BuildValue("s", "{arg}"));')
+			emit(f'    PyTuple_SET_ITEM(ARGS_set, 1, PyList_GetItem(ARGS, {i}));')
+			emit(f'    PyObject_Call(set, ARGS_set, NULL);')
+		'''
+		emit(j2do(
+			"arguments.j2",
+			dict(arg_names=arg_names),
+			include=[JIT.PATH_PREFIX]
+		))
+
+		emit('')
+
+		sym_tab = emit_lookup('get-symbol-table', counter)
+		r = emit_call('print', [sym_tab], counter)
+
+		emit('')
+
 		# Function body
 		is_statement = lambda x: isinstance(x, dict) and len(x) == 1
 		for statement in body:
@@ -344,24 +357,6 @@ class JIT:
 			else:
 				raise CraftException('SyntaxError', {}, {})
 
-			'''
-			# Load global "print"
-			func_name = getkey(statement)
-			arguments = getvalue(statement)
-
-			# Emit the deepest argument first and assign it to a variable!
-			bound_arg_names = emit_args(arguments, counter)
-
-			func_var = f'var{next(counter)}'
-			func_var_args = f'CALL_{func_var}_args{next(counter)}'
-			emit(f'    PyObject * {func_var} = query_symbol_table(SYMBOL_TABLE, SCOPE, "{func_name}");')
-			emit(f'    PyObject * {func_var_args} = PyTuple_New({len(arguments)});')
-			for index, aname in enumerate(bound_arg_names):
-				emit(f'    PyTuple_SET_ITEM({func_var_args}, {len(arguments) - 1 - index}, {aname});')
-
-			emit(f'    PyObject_Call({func_var}, {func_var_args}, NULL);')
-			emit()
-			'''
 			emit_func(statement, counter)
 
 		# Pop Scope
@@ -449,7 +444,7 @@ def: [
 jit = JIT()
 func = craft_parse(hello)
 
-jit.transpile(func)
+#jit.transpile(func)
 
 #sys.exit(0)
 
@@ -475,7 +470,7 @@ def CALL(func, args):
 print('Running...\n')
 
 print('\n\n\n------------------------\n\n\n')
-CALL(__code__, ['Pebaz'])
+CALL(__code__, ['Pebaz!'])
 print('\nDone.')
 
 
