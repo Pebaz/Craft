@@ -958,6 +958,28 @@ def jit(func):
 	print(f'Need to remove {func.__name__}() from builtins!')
 	return func
 
+
+def Function:
+	def __init__(self, func):
+		self.func = func
+		self.call_count = 0
+		self.__jit__ = None
+	
+	def __call__(self, *args, **kwargs):
+		self.call_count += 1
+
+		if self.__jit__:
+			return self.__jit__(*args, **kwargs)
+
+		if self.call_count > 3:
+			self.__jit()  # In background?
+
+		return self.func(*args, **kwargs)
+
+	def __jit(self):
+		print(self.func.__name__)
+
+
 @jit
 def getL(*args):
 	args = get_args(args)
