@@ -1,5 +1,4 @@
-    
-    // Now bind values to current function scope
+// ARGUMENTS
     PyObject * set = query_symbol_table(SYMBOL_TABLE, SCOPE, "set");
     PyObject * ARGS_set = PyTuple_New(2);
 {%- for arg in arg_names %}

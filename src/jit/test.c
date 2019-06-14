@@ -1,38 +1,76 @@
 
+// #define PY_SSIZE_T_CLEAN
+// #include "Python.h"
+// #include <stdio.h>
+// #include "jit/craft_common.c"
+
+
+// #define PYO PyObject *
+
+
+#include <stdio.h>
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
-#include <stdio.h>
 #include "jit/craft_common.c"
 
 
-#define PYO PyObject *
-
-
-/*PyObject * query_symbol_table(PyObject * SYMBOL_TABLE, PyObject * SCOPE, char * symbol)
+PyObject * craft_main(
+    PyObject * ARGS,
+    PyObject * SYMBOL_TABLE,
+    PyObject * SCOPE,
+    PyObject * RETURN_POINTS,
+    PyObject * EXCEPTIONS,
+    PyObject * TRACEBACK,
+    PyObject * CRAFT_PATH,
+    PyObject * IS_DEBUG
+)
 {
-	PyGILState_STATE gstate = PyGILState_Ensure();
-	long scope = PyLong_AsLong(SCOPE);
-	if (scope == -1) { return Py_False; }
+    // Stop Python from interpreting anything else while we use this thread
+    PyGILState_STATE gstate = PyGILState_Ensure();
 
-	for (long i = scope; i > -1; i--)
-	{
-		//printf("Scope index: %lu\n", scope);
-		PyObject * table = PyList_GetItem(SYMBOL_TABLE, i);
-		//printf("&table: 0x%lX\n", table);
-		
-		if (PyDict_Contains(table, Py_BuildValue("s", symbol)))
-		{
-			return PyDict_GetItemString(table, symbol);
-		}
-	}
+    // Define convenience variables for lookups/etc.
+    PyObject * scope0 = PyList_GetItem(SYMBOL_TABLE, 0);
+    PyObject * query = PyDict_GetItemString(scope0, "query-symbol-table");
+    PyObject * scope = PyDict_GetItemString(scope0, "get-scope");
+// LOOKUP push-scope
+    PyObject * ARGS_query0 = PyTuple_New(2);
+    PyTuple_SET_ITEM(ARGS_query0, 0, Py_BuildValue("s", "push-scope"));
+    PyTuple_SET_ITEM(ARGS_query0, 1, PyObject_Call(scope, PyTuple_New(0), NULL));
+    PyObject * var1 = PyObject_Call(query, ARGS_query0, NULL);
+// CALL
+    PyObject * CALL_var1_args2 = PyTuple_New(0);
+    PyObject * var3 = PyObject_Call(var1, CALL_var1_args2, NULL);
 
-	PyGILState_Release(gstate);
-	char err_msg[128];
-	snprintf(err_msg, sizeof(err_msg), "\"%s\" not found.", symbol);
-	PyErr_SetString(PyExc_RuntimeError, err_msg);
-	return Py_None;
-}*/
+// ARGUMENTS
+    PyObject * set = query_symbol_table(SYMBOL_TABLE, SCOPE, "set");
+    PyObject * ARGS_set = PyTuple_New(2);
+    PyTuple_SET_ITEM(ARGS_set, 0, Py_BuildValue("s", "person"));
+    PyTuple_SET_ITEM(ARGS_set, 1, PyList_GetItem(ARGS, 0));
+    PyObject_Call(set, ARGS_set, NULL);
 
+// BODY
+
+// {'print': ['hi']}
+    PyObject * var4 = Py_BuildValue("s", "hi");
+// LOOKUP print
+    PyObject * ARGS_query5 = PyTuple_New(2);
+    PyTuple_SET_ITEM(ARGS_query5, 0, Py_BuildValue("s", "print"));
+    PyTuple_SET_ITEM(ARGS_query5, 1, PyObject_Call(scope, PyTuple_New(0), NULL));
+    PyObject * var6 = PyObject_Call(query, ARGS_query5, NULL);
+// CALL
+    PyObject * CALL_var6_args7 = PyTuple_New(1);
+    PyTuple_SET_ITEM(CALL_var6_args7, 0, var4);
+    PyObject * var8 = PyObject_Call(var6, CALL_var6_args7, NULL);
+
+
+
+    PyGILState_Release(gstate);
+    //return Py_None;
+    return NULL;
+}
+
+
+/*
 
 PyObject * craft_main(
 	PyObject * SYMBOL_TABLE,
@@ -69,7 +107,7 @@ PyObject * craft_main(
 	return Py_None;
 }
 
-
+*/
 
 
 

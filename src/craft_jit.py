@@ -248,6 +248,7 @@ class JIT:
 			bound_arg_names = emit_args(arguments, counter)
 
 			#func_var = f'var{next(counter)}'
+			emit(f'// LOOKUP {func_name}')
 			func_var = emit_lookup(func_name, counter)
 			func_var_args = f'CALL_{func_var}_args{next(counter)}'
 			ret_name = f'var{next(counter)}'
@@ -311,18 +312,17 @@ class JIT:
 			include=[JIT.PATH_PREFIX]
 		))
 
-		emit('')
+		emit('\n// BODY')
 
-		#sym_tab = emit_lookup('get-symbol-table', counter)
+		sym_tab = emit_lookup('get-symbol-table', counter)
 		#r = emit_call('print', [sym_tab], counter)
-
-		emit('')
+		r = emit_func({'print':[sym_tab]}, counter)
 
 		# Function body
 		is_statement = lambda x: isinstance(x, dict) and len(x) == 1
 		for statement in body:
 			if is_statement(statement):
-				emit(f'    // {statement}')
+				emit(f'\n// {statement}')
 			else:
 				raise CraftException('SyntaxError', {}, {})
 
@@ -390,42 +390,8 @@ class JIT:
 hello = '''
 def: [
 	[hello person]
-	print: [[
-		getL:[z]
-		getL:[y]
-		getL:[x]
-	]]
-	print: [[
-		getL:[A]
-		getL:[B]
-		getL:[C]
-	]]
-	::print: [[getL:[A] 1 getL:[B] 2 getL:[C] 3]]
-	:>
-	print: ["Hello World!"]
-	print: [$person]
-	print: [[a b c]]
-	set: [name Protodip]
-	print: [[list of words +: [2 4]]]
-	print: [$name]
-	print: [[getL:[A] 1 getL:[B] 2 getL:[C] 3]]
-	print: [3 2 1]
-
-	<:
-	:>
-	print: [
-		+: [2 4]
-	]
-	<:
-
-	:>
-	print: [314]
-	print: [3.14]
-	print: [True]
-	print: [False]
-	print: [1 2 3 4 5]
-	print: [$$person]
-	<:
+	print:[hi]
+	raise:[Exception]
 ]
 '''
 jit = JIT()

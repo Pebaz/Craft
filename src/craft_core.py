@@ -21,6 +21,7 @@ def is_identifier(string):
 	Identifier = pyp.Word(
 		pyp.alphas + '_', bodyChars=pyp.alphanums + '_-.'
 	)
+
 	try:
 		Identifier.parseString(string)
 		return True

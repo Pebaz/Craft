@@ -1,6 +1,6 @@
-    {# PyObject * {{ func_var }} = query_symbol_table(SYMBOL_TABLE, SCOPE, "{{ func_name }}"); #}
+// CALL
     PyObject * {{ func_var_args }} = PyTuple_New({{ arguments|length }});
-{%- for aname in bound_arg_names %}
+{%- for aname in bound_arg_names -%}
     {# PyTuple_SET_ITEM({{ func_var_args }}, {{ arguments|length - 1 - (loop.index - 1) }}, {{ aname }}); #}
     PyTuple_SET_ITEM({{ func_var_args }}, {{ (loop.index - 1) }}, {{ aname }});
 {%- endfor %}

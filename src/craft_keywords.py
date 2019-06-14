@@ -967,6 +967,8 @@ def getL(*args):
 __craft__ = {
     # Built-Ins
 	'getL' : getL,
+	'push-return-point'     : push_return_point,
+	'pop-return-point'      : pop_return_point,
 	'get-scope'             : craft_get_scope,
 	'get-symbol-table'      : craft_get_symbol_table,
 	'get-return-points'     : craft_get_return_points,
