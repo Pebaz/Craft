@@ -959,7 +959,7 @@ def jit(func):
 	return func
 
 
-def Function:
+class Function:
 	def __init__(self, func):
 		self.func = func
 		self.call_count = 0
