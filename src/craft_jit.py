@@ -14,7 +14,8 @@ Notes:
 """
 
 import ctypes, pathlib, itertools, traceback, time
-from pytcc import TCC
+#from pytcc import TCC
+from pytcc import TCCState as TCC
 
 from j2do               import j2do
 from craft_core 		import *
@@ -272,6 +273,7 @@ class JIT:
 				ret_name = ret_name
 			)
 			emit_template('call.j2', data)
+			emit_template('error_check.j2', {})
 			return ret_name
 
 		def emit_template(template, data):
@@ -344,9 +346,10 @@ class JIT:
 		return '\n'.join(source)
 
 	def compile(self, code):
-		import pytcc
-		comp = pytcc.TCC()
-		comp.preprocessor_symbols["DEBUG"] = "1"
+		#import pytcc
+		from pytcc import TCCState as TCC
+		comp = TCC()
+		#comp.preprocessor_symbols["DEBUG"] = "1"
 		comp.add_include_path('C:/Python37/include')
 		comp.add_library_path('C:/Python37')
 		comp.add_library('python37')
@@ -386,7 +389,9 @@ class JIT:
 	def compile_function(self, func):
 		return self.compile(self.transpile(func))
 
-
+# https://stackoverflow.com/questions/20232965/how-do-i-properly-use-pythons-c-api-and-exceptions
+# https://www.programiz.com/python-programming/exception-handling
+# https://docs.python.org/3/c-api/exceptions.html
 hello = '''
 def: [
 	[hello person]
