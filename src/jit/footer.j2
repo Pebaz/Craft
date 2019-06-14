@@ -2,14 +2,6 @@
 
 	//PyErr_SetString(PyExc_NameError, "Craft Error!\n");
 
-	if (PyErr_Occurred())
-	{
-		printf("Uh oh!\n");
-		PyErr_Clear();
-	} else {
-		printf("All good\n");
-	}
-
     PyGILState_Release(gstate);
     return Py_None;
     //return NULL;

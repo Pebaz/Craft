@@ -986,9 +986,21 @@ def getL(*args):
 	print(args[0])
 	return args[0]
 
+
+class Result:
+	def __init__(self, value, err=False):
+		self.value = value
+		self.err = err
+
+@jit
+def get_result(*args):
+	args = get_args(args)
+	return Result(args[0], args[1])
+
 __craft__ = {
     # Built-Ins
 	'getL' : getL,
+	'get-result'            : get_result,
 	'push-return-point'     : push_return_point,
 	'pop-return-point'      : pop_return_point,
 	'get-scope'             : craft_get_scope,

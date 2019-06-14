@@ -427,9 +427,9 @@ def CALL(func, args):
 
 print('Running...')
 print('\n------------------------')
-CALL(__code__, ['Pebaz!'])
+ret = CALL(__code__, ['Pebaz!'])
 print('------------------------\nDone.')
-
+print(f'Return Value: {ret}')
 
 if False:
 	hello2 = craft_parse('''
@@ -454,3 +454,10 @@ if False:
 	# CONFUSED(pebaz): If you double click the craft_jit.py it works.
 	# If you run it from the command line, it doesn't.
 
+
+
+
+# Make sure to use craft_jit.py like craft_keywords
+__craft__ = {
+	
+}

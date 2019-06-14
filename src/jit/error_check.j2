@@ -2,7 +2,27 @@
 if (PyErr_Occurred())
 {
 	printf("Uh oh!\n");
+	//PyErr_Print();
 	PyErr_Clear();
+	//PyErr_SetString(PyExc_NameError, "Craft Error!\n");
+	//return 0;
+
+
+    PyObject * ARGS_result = PyTuple_New(1);
+    PyTuple_SET_ITEM(ARGS_result, 0, Py_BuildValue("s", "Craft Error!"));
+	PyTuple_SET_ITEM(ARGS_result, 1, Py_True);
+    PyObject * RET_result = PyObject_Call(get_result, ARGS_result, NULL);
+	printf("here\n");
+	if (RET_result != NULL)
+	{
+		PyGILState_Release(gstate);
+		return RET_result;
+	} else {
+		PyGILState_Release(gstate);
+		return Py_None;
+	}
+
+	
 } else {
-	printf("All good\n");
+	//printf("All good\n");
 }
