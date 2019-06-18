@@ -393,7 +393,7 @@ def: [
 	print:[hi]
 	::raise:[Exception]
 	::/: [0 0]
-	return: [3]
+	return: ["Hello World!"]
 ]
 '''
 jit = JIT()
@@ -435,7 +435,7 @@ print('Running...')
 print('\n------------------------')
 ret = CALL(__code__, ['Pebaz!'])
 print('------------------------\nDone.')
-print(f'Return Value: {ret}')
+print(f'Return Value: {repr(ret)}')
 
 
 if False:
