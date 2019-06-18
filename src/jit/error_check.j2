@@ -1,119 +1,53 @@
 
-// TODO(pebaz): Change this to a function call so it's:
-/*
-Result * result123 = craft_crashed();
-if (result123.is_error) { return result123.error; }
-else { return result123.value; }
-*/
-if (PyErr_Occurred())
-{
-	//PyErr_Print();
+    // TODO(pebaz): Change this to a function call so it's:
+    /*
+    Result * result123 = craft_crashed();
+    if (result123.is_error) { return result123.error; }
+    else { return result123.value; }
+    */
+    if (PyErr_Occurred())
+    {
+        //PyErr_Print();
 
-	//PyObject * ERROR_TYPE = PyErr_Occurred();
-	PyObject * ERROR_TYPE, * ERROR, * traceback;
-	PyErr_Fetch(&ERROR_TYPE, &ERROR, &traceback);
+        //PyObject * ERROR_TYPE = PyErr_Occurred();
+        PyObject * ERROR_TYPE, * ERROR, * traceback;
+        PyErr_Fetch(&ERROR_TYPE, &ERROR, &traceback);
 
-	printf("Uh oh!\n");
-	
-	PyErr_Clear();
+        printf("Uh oh!\n");
+        
+        PyErr_Clear();
 
-	PyObject * RETURN_VALUE = Py_None;
-	PyObject * RETURN_ERROR = Py_None;
-
-
-	// Check and see if it's a return/break/etc. exception or normal error
-	if (PyObject_IsInstance(PyObject_Type(ERROR_TYPE), PyObject_Type(CraftFunctionReturnException)))
-	{
-		printf("CraftFunctionReturnException\n");
-		RETURN_VALUE = PyObject_GetAttrString(ERROR, "return_value");
-	}
-
-	// Real Exception. This makes sure an Exception object is returned.
-	else
-	{
-		PyObject * py_dict = PyDict_New();
-		PyObject * py_list = PyList_New(1);
-		PyList_SetItem(py_list, 0, ERROR);
-		PyDict_SetItemString(py_dict, "args", py_list);
-		RETURN_ERROR = PyErr_NewException("builtins.Exception", NULL, py_dict);
-	}
-
-	// Py_BuildValue("(O, O)", RETURN_VALUE, RETURN_ERROR);
-	PyObject * ARGS_result = PyTuple_New(2);
-    PyTuple_SET_ITEM(ARGS_result, 0, RETURN_VALUE);
-	PyTuple_SET_ITEM(ARGS_result, 1, RETURN_ERROR);
-    PyObject * RET_result = PyObject_Call(get_result, ARGS_result, NULL);
-
-	PyGILState_Release(gstate);
-	return RET_result;
+        PyObject * RETURN_VALUE = Py_None;
+        PyObject * RETURN_ERROR = Py_None;
 
 
+        // Check and see if it's a return/break/etc. exception or normal error
+        if (PyObject_IsInstance(PyObject_Type(ERROR_TYPE), PyObject_Type(CraftFunctionReturnException)))
+        {
+            printf("CraftFunctionReturnException\n");
+            RETURN_VALUE = PyObject_GetAttrString(ERROR, "return_value");
+        }
 
+        // Real Exception. This makes sure an Exception object is returned.
+        else
+        {
+            PyObject * py_dict = PyDict_New();
+            PyObject * py_list = PyList_New(1);
+            PyList_SetItem(py_list, 0, ERROR);
+            PyDict_SetItemString(py_dict, "args", py_list);
+            RETURN_ERROR = PyErr_NewException("builtins.Exception", NULL, py_dict);
+        }
 
+        // Py_BuildValue("(O, O)", RETURN_VALUE, RETURN_ERROR);
+        // PyObject * ARGS_result = PyTuple_New(2);
+        // PyTuple_SET_ITEM(ARGS_result, 0, RETURN_VALUE);
+        // PyTuple_SET_ITEM(ARGS_result, 1, RETURN_ERROR);
+        // PyObject * RET_result = PyObject_Call(get_result, ARGS_result, NULL);
+        PyObject * RET_result = PyObject_Call(get_result, Py_BuildValue("(O, O)", RETURN_VALUE, RETURN_ERROR), NULL);
 
-
-
-
-
-
-
-
-
-
-
-
-
-	// // Create a Python Result object to return
-	// // RET_result = get_result('Craft Error!', True)
-    // PyObject * ARGS_result = PyTuple_New(2);
-    // PyTuple_SET_ITEM(ARGS_result, 0, Py_BuildValue("s", "Craft Error!"));
-	// PyTuple_SET_ITEM(ARGS_result, 1, Py_True);
-    // PyObject * RET_result = PyObject_Call(get_result, ARGS_result, NULL);
-
-	// if (RET_result != NULL)
-	// {
-	// 	// Check and see if it's a return/break/etc. exception or normal error
-	// 	if (PyObject_IsInstance(PyObject_Type(ERROR_TYPE), PyObject_Type(CraftFunctionReturnException)))
-	// 	{
-	// 		printf("CraftFunctionReturnException\n");
-	// 		PyObject * return_value = PyObject_GetAttrString(ERROR, "return_value");
-	// 		if (PyObject_SetAttrString(RET_result, "value", return_value) != 0)
-	// 		{
-	// 			PyErr_Print(); PyErr_Clear(); RET_result = Py_None;
-	// 		}
-	// 	}
-
-	// 	// Real Exception. This makes sure an Exception object is returned.
-	// 	else
-	// 	{
-	// 		PyObject * py_dict = PyDict_New();
-	// 		PyObject * py_list = PyList_New(1);
-	// 		PyList_SetItem(py_list, 0, ERROR);
-	// 		PyDict_SetItemString(py_dict, "args", py_list);
-	// 		PyObject * CRAFT_ERROR = PyErr_NewException("builtins.Exception", NULL, py_dict);
-
-	// 		// Update the Result's err with the new Exception instance
-	// 		if (PyObject_SetAttrString(RET_result, "err", CRAFT_ERROR) != 0)
-	// 		{
-	// 			PyErr_Print(); PyErr_Clear(); RET_result = Py_None;
-	// 		}
-	// 	}
-
-	// 	/* Return Result(
-	// 		<value if return value>,
-	// 		<error if there was one>
-	// 	)*/
-
-	// 	// Return the Error Result
-	// 	PyGILState_Release(gstate);
-	// 	return RET_result;
-	// }
-	
-	// else
-	// {
-	// 	PyErr_Print(); PyGILState_Release(gstate); return Py_None;
-	// }
-	
-} else {
-	//printf("All good\n");
-}
+        PyGILState_Release(gstate);
+        return RET_result;
+        
+    } else {
+        //printf("All good\n");
+    }
