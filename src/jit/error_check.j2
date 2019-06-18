@@ -23,16 +23,28 @@ if (PyErr_Occurred())
 		// Check and see if it's a return/break/etc. exception or normal error
 		// ...
 
-		if (PyObject_IsInstance(PyObject_Type(ERROR), PyObject_Type(Py_BuildValue("s", "TYPE"))))
+		// Problem(pebaz):  This function can return a bare string.
+		// Solution(pebaz): Always return an Exception instance.
+		// Possible(pebaz): Throw a new error with that string and then get it's instance
+
+		//if (PyObject_IsInstance(PyObject_Type(ERROR), PyObject_Type(ERROR_TYPE)))
+		if (PyObject_IsInstance(PyObject_Type(ERROR), PyObject_Type(Py_BuildValue("s", "s"))))
 		{
-			printf("IT'S A STRING\n");
+			printf("IT'S AN OBJECT?\n");
 			//ERROR = PyErr_NewException()
 		}
 
-		if (PyObject_SetAttrString(RET_result, "err", ERROR) != 0)
+		PyObject * py_dict = PyDict_New();
+		PyObject * py_list = PyList_New(1);
+		PyList_SetItem(py_list, 0, ERROR);
+		PyDict_SetItemString(py_dict, "args", py_list);
+		PyObject * CRAFT_ERROR = PyErr_NewException("builtins.Exception", NULL, py_dict);
+
+		if (PyObject_SetAttrString(RET_result, "err", CRAFT_ERROR) != 0)
 		{
 			PyErr_Print(); PyErr_Clear(); RET_result = Py_None;
 		}
+
 		PyGILState_Release(gstate);
 		return RET_result;
 	}
