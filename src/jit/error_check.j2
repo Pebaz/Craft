@@ -1,6 +1,7 @@
 
 if (PyErr_Occurred())
 {
+	PyObject * ERROR_TYPE = PyErr_Occurred();
 	PyObject * type, * ERROR, * traceback;
 	PyErr_Fetch(&type, &ERROR, &traceback);
 
@@ -17,17 +18,20 @@ if (PyErr_Occurred())
 	PyTuple_SET_ITEM(ARGS_result, 1, Py_True);
     PyObject * RET_result = PyObject_Call(get_result, ARGS_result, NULL);
 
-	printf("here\n");
 	if (RET_result != NULL)
 	{
 		// Check and see if it's a return/break/etc. exception or normal error
 		// ...
 
+		if (PyObject_IsInstance(PyObject_Type(ERROR), PyObject_Type(Py_BuildValue("s", "TYPE"))))
+		{
+			printf("IT'S A STRING\n");
+			//ERROR = PyErr_NewException()
+		}
+
 		if (PyObject_SetAttrString(RET_result, "err", ERROR) != 0)
 		{
-			PyErr_Print();
-			PyErr_Clear();
-			RET_result = Py_None;
+			PyErr_Print(); PyErr_Clear(); RET_result = Py_None;
 		}
 		PyGILState_Release(gstate);
 		return RET_result;

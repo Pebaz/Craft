@@ -391,7 +391,8 @@ hello = '''
 def: [
 	[hello person]
 	print:[hi]
-	raise:[Exception]
+	::raise:[Exception]
+	/: [0 0]
 ]
 '''
 jit = JIT()
@@ -418,14 +419,15 @@ def CALL(func, args):
 			DEBUG
 		)
 
+		if not ret.err:
+			return ret.value
+		else:
+			register_pyexception(ret.err)
+			craft_raise(type(ret.err).__name__)
+
 	except SystemError as e:
 		traceback.print_exc()
 
-	if not ret.err:
-		return ret.value
-	else:
-		register_pyexception(ret.err)
-		craft_raise(type(ret.err).__name__)
 		
 
 print('Running...')
