@@ -392,7 +392,8 @@ def: [
 	[hello person]
 	print:[hi]
 	::raise:[Exception]
-	/: [0 0]
+	::/: [0 0]
+	return: [3]
 ]
 '''
 jit = JIT()
