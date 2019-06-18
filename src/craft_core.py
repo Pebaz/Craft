@@ -621,6 +621,8 @@ def setup_sym_tab():
 
 	import craft_operators
 	import craft_keywords
+	import craft_exceptions
 	SYMBOL_TABLE.append(dict())
 	SYMBOL_TABLE[0].update(craft_operators.__craft__)
 	SYMBOL_TABLE[0].update(craft_keywords.__craft__)
+	SYMBOL_TABLE[0].update(craft_exceptions.__craft__)

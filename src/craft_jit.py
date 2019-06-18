@@ -24,13 +24,8 @@ from craft_exceptions 	import *
 from craft_cli 			import *
 from craft_interpreter 	import *
 
-# Needed to import __craft__ dicts for built-in symbol table entries
-import craft_operators
-import craft_keywords
 
-SYMBOL_TABLE.append(dict())
-SYMBOL_TABLE[0].update(craft_operators.__craft__)
-SYMBOL_TABLE[0].update(craft_keywords.__craft__)
+setup_sym_tab()
 
 # Lambda to get the system current time millis
 ctm = lambda: int(round(time.time() * 1000))
@@ -429,7 +424,10 @@ print('Running...')
 print('\n------------------------')
 ret = CALL(__code__, ['Pebaz!'])
 print('------------------------\nDone.')
-print(f'Return Value: {ret}')
+if not ret.err:
+	print(f'Return Value: {ret}')
+else:
+	print(f'Error: {ret.err}')
 
 if False:
 	hello2 = craft_parse('''

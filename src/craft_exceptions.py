@@ -34,3 +34,12 @@ class CraftLoopBreakException(Exception):
 class CraftLoopContinueException(Exception):
 	"""
 	"""
+
+
+__craft__ = {
+	'CraftException' 				: CraftException,
+	'CraftInternalException' 		: CraftInternalException,
+	'CraftFunctionReturnException' 	: CraftFunctionReturnException,
+	'CraftLoopBreakException' 		: CraftLoopBreakException,
+	'CraftLoopContinueException' 	: CraftLoopContinueException
+}

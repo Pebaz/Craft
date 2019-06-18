@@ -2,26 +2,36 @@
 if (PyErr_Occurred())
 {
 	printf("Uh oh!\n");
-	//PyErr_Print();
+	// NOTE(pebaz): Use this to view error: PyErr_Print();
+	PyErr_Print();
 	PyErr_Clear();
 	//PyErr_SetString(PyExc_NameError, "Craft Error!\n");
 	//return 0;
 
-
-    PyObject * ARGS_result = PyTuple_New(1);
+	// Create a Python Result object to return
+    PyObject * ARGS_result = PyTuple_New(2);
     PyTuple_SET_ITEM(ARGS_result, 0, Py_BuildValue("s", "Craft Error!"));
 	PyTuple_SET_ITEM(ARGS_result, 1, Py_True);
     PyObject * RET_result = PyObject_Call(get_result, ARGS_result, NULL);
+
 	printf("here\n");
 	if (RET_result != NULL)
 	{
+		if (PyObject_SetAttrString(RET_result, "err", Py_BuildValue("s", "Craft Error!")) != 0)
+		{
+			PyErr_Print();
+			PyErr_Clear();
+			RET_result = Py_None;
+		}
 		PyGILState_Release(gstate);
 		return RET_result;
-	} else {
+	}
+	
+	else {
+		PyErr_Print();
 		PyGILState_Release(gstate);
 		return Py_None;
 	}
-
 	
 } else {
 	//printf("All good\n");
