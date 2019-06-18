@@ -407,7 +407,7 @@ __code__ = jit.compile_function(func)
 def CALL(func, args):
 	global SYMBOL_TABLE, SCOPE, RETURN_POINTS, EXCEPTIONS, TRACEBACK, CRAFT_PATH, DEBUG
 	try:
-		return func(
+		ret = func(
 			args,
 			SYMBOL_TABLE,
 			SCOPE,
@@ -417,17 +417,23 @@ def CALL(func, args):
 			CRAFT_PATH,
 			DEBUG
 		)
+
 	except SystemError as e:
 		traceback.print_exc()
+
+	if not ret.err:
+		return ret.value
+	else:
+		register_pyexception(ret.err)
+		craft_raise(type(ret.err).__name__)
+		
 
 print('Running...')
 print('\n------------------------')
 ret = CALL(__code__, ['Pebaz!'])
 print('------------------------\nDone.')
-if not ret.err:
-	print(f'Return Value: {ret}')
-else:
-	print(f'Error: {ret.err}')
+print(f'Return Value: {ret}')
+
 
 if False:
 	hello2 = craft_parse('''

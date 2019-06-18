@@ -1,6 +1,9 @@
 
 if (PyErr_Occurred())
 {
+	PyObject * type, * ERROR, * traceback;
+	PyErr_Fetch(&type, &ERROR, &traceback);
+
 	printf("Uh oh!\n");
 	// NOTE(pebaz): Use this to view error: PyErr_Print();
 	PyErr_Print();
@@ -17,7 +20,10 @@ if (PyErr_Occurred())
 	printf("here\n");
 	if (RET_result != NULL)
 	{
-		if (PyObject_SetAttrString(RET_result, "err", Py_BuildValue("s", "Craft Error!")) != 0)
+		// Check and see if it's a return/break/etc. exception or normal error
+		// ...
+
+		if (PyObject_SetAttrString(RET_result, "err", ERROR) != 0)
 		{
 			PyErr_Print();
 			PyErr_Clear();

@@ -22,3 +22,10 @@ PyObject * craft_main(
     PyObject * query = PyDict_GetItemString(scope0, "query-symbol-table");
     PyObject * scope = PyDict_GetItemString(scope0, "get-scope");
 	PyObject * get_result = PyDict_GetItemString(scope0, "get-result");
+	
+	// Exceptions
+	PyObject * CraftException 				= PyDict_GetItemString(scope0, "CraftException");
+	PyObject * CraftInternalException 		= PyDict_GetItemString(scope0, "CraftInternalException");
+	PyObject * CraftFunctionReturnException = PyDict_GetItemString(scope0, "CraftFunctionReturnException");
+	PyObject * CraftLoopBreakException 		= PyDict_GetItemString(scope0, "CraftLoopBreakException");
+	PyObject * CraftLoopContinueException 	= PyDict_GetItemString(scope0, "CraftLoopContinueException");
