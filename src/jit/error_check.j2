@@ -12,9 +12,6 @@
         //PyObject * ERROR_TYPE = PyErr_Occurred();
         PyObject * ERROR_TYPE, * ERROR, * traceback;
         PyErr_Fetch(&ERROR_TYPE, &ERROR, &traceback);
-
-        printf("Uh oh!\n");
-        
         PyErr_Clear();
 
         PyObject * RETURN_VALUE = Py_None;
@@ -25,7 +22,7 @@
         //if (PyObject_IsInstance(PyObject_Type(ERROR_TYPE), PyObject_Type(CraftFunctionReturnException)))
 		if (PyErr_GivenExceptionMatches(ERROR_TYPE, CraftFunctionReturnException))
         {
-            printf("CraftFunctionReturnException\n");
+            //printf("CraftFunctionReturnException\n");
             RETURN_VALUE = PyObject_GetAttrString(ERROR, "return_value");
         }
 
@@ -44,7 +41,7 @@
         // PyTuple_SET_ITEM(ARGS_result, 0, RETURN_VALUE);
         // PyTuple_SET_ITEM(ARGS_result, 1, RETURN_ERROR);
         // PyObject * RET_result = PyObject_Call(get_result, ARGS_result, NULL);
-		printf("0x123\n");
+
 		if (RETURN_VALUE == NULL)
 		{
 			printf("It's NULL\n");

@@ -474,6 +474,8 @@ def craft_if(*args):
 	if len(args) > 3 or len(args) < 2:
 		raise Exception(f'Malformed if statement at:\n{args}')
 
+	print(args)
+
 	# Testing condition
 	c = args[0]
 

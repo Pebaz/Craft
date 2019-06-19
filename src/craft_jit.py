@@ -397,21 +397,21 @@ def: [
 ]
 '''
 hello = '''
-def:
-[
+def: [
 	[fibo x]
 	print: ["Within fibo() now"]
 
-	if:
-	[
-		<= : [$x 1]  :: This is crashing since you can't compare string and int
-		print: [format: ["Returning {}" $x]]
-		return: [$x]
+	if: [
+		<=: [$x 1] then: [
+			return: [$x]
+		]
 	]
 
-	return:
-	[
-		+ : [fibo: [- : [$x 1]] fibo: [- : [$x 2]]]
+	return: [
+		+: [
+			fibo: [-: [$x 1]]
+			fibo: [-: [$x 2]]
+		]
 	]
 ]
 '''
@@ -423,6 +423,7 @@ func = craft_parse(hello)
 #sys.exit(0)
 
 __code__ = jit.compile_function(func)
+craft_set(getvalue(func)[0][0], __code__)
 
 
 def CALL(func, args):
@@ -452,7 +453,7 @@ def CALL(func, args):
 
 print('Running...')
 print('\n------------------------')
-ret = CALL(__code__, ['Pebaz!'])
+ret = CALL(__code__, [10])
 print('------------------------\nDone.')
 print(f'Return Value: {repr(ret)}')
 

@@ -12,7 +12,10 @@ Program:
 		if:
 		[
 			<= : [$x 1] :: Testing comment syntax!
-			return: [$x]
+			then:
+			[
+				return: [$x]
+			]
 		]
 
 		return:
