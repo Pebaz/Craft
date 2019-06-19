@@ -396,6 +396,25 @@ def: [
 	return: ["Hello World!"]
 ]
 '''
+hello = '''
+def:
+[
+	[fibo x]
+	print: ["Within fibo() now"]
+
+	if:
+	[
+		<= : [$x 1]  :: This is crashing since you can't compare string and int
+		print: [format: ["Returning {}" $x]]
+		return: [$x]
+	]
+
+	return:
+	[
+		+ : [fibo: [- : [$x 1]] fibo: [- : [$x 2]]]
+	]
+]
+'''
 jit = JIT()
 func = craft_parse(hello)
 
