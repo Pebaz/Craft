@@ -311,9 +311,8 @@ class JIT:
 
 		emit('\n// BODY')
 
-		sym_tab = emit_lookup('get-symbol-table', counter)
-		#r = emit_call('print', [sym_tab], counter)
-		r = emit_func({'print':[sym_tab]}, counter)
+		#sym_tab = emit_lookup('get-symbol-table', counter)
+		#r = emit_func({'print':[sym_tab]}, counter)
 
 		# Function body
 		is_statement = lambda x: isinstance(x, dict) and len(x) == 1
@@ -410,15 +409,16 @@ def: [
 hello = '''
 def: [
 	[hello person]
+	:>if: [True then: [
+		print: [$person]
+	]]<:
 	print: [$person]
 ]
 '''
 jit = JIT()
 func = craft_parse(hello)
 
-#jit.transpile(func)
-
-#sys.exit(0)
+#jit.transpile(func); sys.exit(0)
 
 __code__ = jit.compile_function(func)
 craft_set(getvalue(func)[0][0], __code__)
