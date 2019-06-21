@@ -1,5 +1,6 @@
 import sys, pprint, traceback
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 import yaml, os
 import pyparsing as pyp
 from craft_core import *
@@ -960,6 +961,29 @@ def craft_format(*args):
 def jit(func):
 	print(f'Need to remove {func.__name__}() from builtins!')
 	return func
+
+
+
+
+class Blubber:
+    def __init__(self, func):
+        self.func = func
+        self.pool = ThreadPoolExecutor(max_workers=1)
+        self.__jit__ = self.pool.submit(self.compile, self.func)
+    
+    def __del__(self):
+        self.pool.shutdown()
+
+    def __call__(self, *args, **kwargs):
+        if self.__jit__.done():
+            self.func = self.__jit__.result()
+        self.func(*args, **kwargs)
+
+    def compile(self, func):
+        import time; time.sleep(10)
+        def wrap(x):
+            print('WRAPPER')
+        return wrap
 
 
 class Function:

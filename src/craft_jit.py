@@ -126,6 +126,28 @@ def: [
 '''
 
 
+class Function:
+	def __init__(self, code, branches):
+		self.code = code
+		self.branches = branches
+
+	def __call__(self, *args, **kwargs):
+		global SYMBOL_TABLE, SCOPE, RETURN_POINTS, EXCEPTIONS, TRACEBACK, CRAFT_PATH, DEBUG
+		try:
+			ret = self.code(args, SYMBOL_TABLE, SCOPE, RETURN_POINTS,
+				EXCEPTIONS, TRACEBACK, CRAFT_PATH, DEBUG, self.branches
+			)
+
+			if not ret.err:
+				return ret.value
+			else:
+				register_pyexception(ret.err)
+				craft_raise(type(ret.err).__name__)
+
+		except SystemError as e:
+			traceback.print_exc()
+
+
 class JIT:
 	PATH_PREFIX = pathlib.Path() / 'jit'
 	
