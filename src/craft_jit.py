@@ -232,6 +232,6 @@ def CALL(func, args, branches):
 
 print('Running...')
 print('\n------------------------')
-ret = CALL(__code__, [10], [])
+ret = CALL(__code__, [10], [dict(print=['This was run using the interpreter!'])])
 print('------------------------\nDone.')
 print(f'Return Value: {repr(ret)}')
