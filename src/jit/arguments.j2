@@ -1,5 +1,6 @@
 // ARGUMENTS
-    PyObject * set = query_symbol_table(SYMBOL_TABLE, SCOPE, "set");
+    PyObject * ARGS_query_set = Py_BuildValue("(O, O)", Py_BuildValue("s", "set"), PyObject_Call(scope, PyTuple_New(0), NULL));
+    PyObject * set = PyObject_Call(query, ARGS_query_set, NULL);
     PyObject * ARGS_set = PyTuple_New(2);
 {%- for arg in arg_names %}
     PyTuple_SET_ITEM(ARGS_set, 0, Py_BuildValue("s", "{{ arg }}"));

@@ -182,12 +182,6 @@ class JIT:
 			ctypes.py_object,  # Return type
 			ctypes.py_object,  # ARGS
 			ctypes.py_object,  # SYMBOL_TABLE
-			ctypes.py_object,  # SCOPE
-			ctypes.py_object,  # RETURN_POINTS
-			ctypes.py_object,  # EXCEPTIONS
-			ctypes.py_object,  # TRACEBACK
-			ctypes.py_object,  # CRAFT_PATH
-			ctypes.py_object,  # DEBUG
 		)
 
 		print('Getting Symbol...')
@@ -212,17 +206,18 @@ def: [
 jit = JIT()
 func = craft_parse(hello)
 
-__code__ = jit.compile_function(func)
+c_code = jit.transpile(func)
+#with open('output.c', 'w') as file:
+#	file.write(c_code)
+__code__ = jit.compile(c_code)
 craft_set(getvalue(func)[0][0], __code__)
 
 
 def CALL(func, args):
-	global SYMBOL_TABLE, SCOPE, RETURN_POINTS, EXCEPTIONS, TRACEBACK, CRAFT_PATH, DEBUG
+	global SYMBOL_TABLE
+
 	try:
-		ret = func(
-			args, SYMBOL_TABLE, SCOPE, RETURN_POINTS, EXCEPTIONS, TRACEBACK,
-			CRAFT_PATH, DEBUG
-		)
+		ret = func(args, SYMBOL_TABLE)
 
 		if not ret.err:
 			return ret.value
