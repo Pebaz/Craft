@@ -29,7 +29,6 @@ PyObject * craft_main(
 
 	PyObject * __print = PyDict_GetItemString(scope0, "print");
 	PyObject * stuff = PyList_GetItem(BRANCHES, 0);
-	printf("Here\n");
 	PyObject_Call(program, Py_BuildValue("(O)", stuff), NULL);
 	if (PyErr_Occurred())
     {

@@ -9,9 +9,24 @@ from craft_interpreter 	import *
 setup_sym_tab()
 
 
-class UserFunction:
-	def __init__(self, func: dict):
+class Function:
+	def __init__(self, func: dict, branches: list):
 		self.func = func
+		self.branches = branches
+
+	def __call__(self, *args):
+		global SYMBOL_TABLE
+		try:
+			ret = self.func(list(args), SYMBOL_TABLE, self.branches)
+
+			if not ret.err:
+				return ret.value
+			else:
+				register_pyexception(ret.err)
+				craft_raise(type(ret.err).__name__)
+
+		except SystemError as e:
+			traceback.print_exc()
 
 
 class JIT:
@@ -19,6 +34,7 @@ class JIT:
 
 	def __init__(self):
 		self.source = []
+		self.branches = [dict(print=['This was run using the interpreter!'])]
 	
 	def get_source(self):
 		return '\n'.join(self.source)
@@ -188,7 +204,8 @@ class JIT:
 		print('Getting Symbol...')
 		a = comp.get_symbol('craft_main')
 		print('FuncProto...')
-		return func_proto(a)
+		#return func_proto(a)
+		return Function(func_proto(a), self.branches)
 
 	def compile_function(self, func):
 		return self.compile(self.transpile(func))
@@ -211,7 +228,7 @@ c_code = jit.transpile(func)
 #with open('output.c', 'w') as file:
 #	file.write(c_code)
 __code__ = jit.compile(c_code)
-craft_set(getvalue(func)[0][0], __code__)
+craft_set(getvalue(func)[0][0], __code__.func)
 
 
 def CALL(func, args, branches):
@@ -232,6 +249,7 @@ def CALL(func, args, branches):
 
 print('Running...')
 print('\n------------------------')
-ret = CALL(__code__, [10], [dict(print=['This was run using the interpreter!'])])
+#ret = CALL(__code__, [10], [dict(print=['This was run using the interpreter!'])])
+ret = __code__('Pebaz')
 print('------------------------\nDone.')
 print(f'Return Value: {repr(ret)}')
