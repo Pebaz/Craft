@@ -387,15 +387,7 @@ class JIT:
 # https://stackoverflow.com/questions/20232965/how-do-i-properly-use-pythons-c-api-and-exceptions
 # https://www.programiz.com/python-programming/exception-handling
 # https://docs.python.org/3/c-api/exceptions.html
-hello = '''
-def: [
-	[hello person]
-	print:[hi]
-	::raise:[Exception]
-	::/: [0 0]
-	return: ["Hello World!"]
-]
-'''
+
 hello = '''
 def: [
 	[fibo x]
@@ -413,6 +405,12 @@ def: [
 			fibo: [-: [$x 2]]
 		]
 	]
+]
+'''
+hello = '''
+def: [
+	[hello person]
+	print: [$person]
 ]
 '''
 jit = JIT()
