@@ -1,9 +1,9 @@
 
-	// Return Result<None> if no return function is called
-	PyObject * RET_result = PyObject_Call(get_result, Py_BuildValue("(O, O)", Py_None, Py_None), NULL);
+    // Return Result<None> if no return function is called
+    PyObject * RET_result = PyObject_Call(get_result, Py_BuildValue("(O, O)", Py_None, Py_None), NULL);
     PyGILState_Release(gstate);
     //return Py_None;
-	return RET_result;
+    return RET_result;
 }
 
 int main(int argc, char** argv) { }
