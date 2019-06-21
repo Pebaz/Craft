@@ -27,6 +27,7 @@ PyObject * craft_main(
     PyObject * CraftLoopContinueException 	= PyDict_GetItemString(scope0, "CraftLoopContinueException");
 
 
+	//printf("Here\n");
 	PyObject * __print = PyDict_GetItemString(scope0, "print");
 	PyObject * stuff = PyList_GetItem(BRANCHES, 0);
 	PyObject_Call(program, Py_BuildValue("(O)", stuff), NULL);

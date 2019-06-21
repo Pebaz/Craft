@@ -34,7 +34,7 @@ class JIT:
 
 	def __init__(self):
 		self.source = []
-		self.branches = [dict(print=['This was run using the interpreter!'])]
+		self.branches = []#dict(print=['This was run using the interpreter!'])]
 	
 	def get_source(self):
 		return '\n'.join(self.source)
@@ -132,9 +132,6 @@ class JIT:
 		self.emit(j2do(template, data, include=[JIT.PATH_PREFIX]))	
 
 	def transpile(self, ast):
-		source = []
-
-		
 		arg_names = getvalue(ast)[0][1:]
 		body = getvalue(ast)[1:]
 		counter = itertools.count()
@@ -168,7 +165,11 @@ class JIT:
 			else:
 				raise CraftException('SyntaxError', {}, {})
 
-			self.emit_func(statement, counter)
+
+			if getkey(statement) not in ['if']:
+				self.emit_func(statement, counter)
+			else:
+				self.branches.append(statement)
 
 		# Pop Scope
 		self.emit_func({'pop-scope' : []}, counter)
@@ -216,6 +217,13 @@ hello = '''
 def: [
 	[hello person]
 	print: [$person]
+	if: [True then: [
+		print: ['It was True!']
+
+		:: Make sure to not use Program: [] cause it catches errors :(
+
+		print: [$person]
+	]]
 	return: [45]
 ]
 '''
@@ -231,25 +239,8 @@ __code__ = jit.compile(c_code)
 craft_set(getvalue(func)[0][0], __code__.func)
 
 
-def CALL(func, args, branches):
-	global SYMBOL_TABLE
-
-	try:
-		ret = func(args, SYMBOL_TABLE, branches)
-
-		if not ret.err:
-			return ret.value
-		else:
-			register_pyexception(ret.err)
-			craft_raise(type(ret.err).__name__)
-
-	except SystemError as e:
-		traceback.print_exc()
-
-
 print('Running...')
 print('\n------------------------')
-#ret = CALL(__code__, [10], [dict(print=['This was run using the interpreter!'])])
 ret = __code__('Pebaz')
 print('------------------------\nDone.')
 print(f'Return Value: {repr(ret)}')
