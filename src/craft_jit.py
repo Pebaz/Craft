@@ -182,6 +182,7 @@ class JIT:
 			ctypes.py_object,  # Return type
 			ctypes.py_object,  # ARGS
 			ctypes.py_object,  # SYMBOL_TABLE
+			ctypes.py_object,  # BRANCHES
 		)
 
 		print('Getting Symbol...')
@@ -213,11 +214,11 @@ __code__ = jit.compile(c_code)
 craft_set(getvalue(func)[0][0], __code__)
 
 
-def CALL(func, args):
+def CALL(func, args, branches):
 	global SYMBOL_TABLE
 
 	try:
-		ret = func(args, SYMBOL_TABLE)
+		ret = func(args, SYMBOL_TABLE, branches)
 
 		if not ret.err:
 			return ret.value
@@ -231,6 +232,6 @@ def CALL(func, args):
 
 print('Running...')
 print('\n------------------------')
-ret = CALL(__code__, [10])
+ret = CALL(__code__, [10], [])
 print('------------------------\nDone.')
 print(f'Return Value: {repr(ret)}')
