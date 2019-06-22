@@ -1,4 +1,5 @@
 import ctypes, pathlib, itertools, traceback, time
+from pytcc import TCC
 from j2do               import j2do
 from craft_core 		import *
 from craft_parser 		import *
@@ -169,6 +170,7 @@ class JIT:
 			if getkey(statement) not in ['if']:
 				self.emit_func(statement, counter)
 			else:
+				self.emit_template('branch.j2', {'index' : len(self.branches)})
 				self.branches.append(statement)
 
 		# Pop Scope
@@ -179,7 +181,6 @@ class JIT:
 		return '\n'.join(self.source)
 
 	def compile(self, code):
-		from pytcc import TCCState as TCC
 		comp = TCC()
 		comp.add_include_path('C:/Python37/include')
 		comp.add_library_path('C:/Python37')

@@ -1024,9 +1024,26 @@ def get_result(*args):
 	args = get_args(args)
 	return Result(args[0], args[1])
 
+
+def craft_eval(*args):
+	"""
+	Evaluate a given chunk of code, without introducing a new scope and without
+	capturing errors. Propogates errors up so that they can be caught
+	elsewhere.
+
+	Primary use case of this function is via the Jit compiler. Code branches
+	are evaluated using this function and errors need to be caught by the one
+	who called this function, not this function itself.
+
+	It is important to note that this function can access names within the
+	scope that called it.
+	"""
+	get_args(args)
+
 __craft__ = {
 	# Built-Ins
 	'getL' : getL,
+	'eval'                  : craft_eval,
 	'get-result'            : get_result,
 	'push-return-point'     : push_return_point,
 	'pop-return-point'      : pop_return_point,

@@ -16,6 +16,7 @@ PyObject * craft_main(
     PyObject * scope0 = PyList_GetItem(SYMBOL_TABLE, 0);
     PyObject * query = PyDict_GetItemString(scope0, "query-symbol-table");
 	PyObject * program = PyDict_GetItemString(scope0, "Program");
+    PyObject * eval = PyDict_GetItemString(scope0, "eval");
     PyObject * scope = PyDict_GetItemString(scope0, "get-scope");
     PyObject * get_result = PyDict_GetItemString(scope0, "get-result");
     
@@ -28,11 +29,12 @@ PyObject * craft_main(
 
 
 	//printf("Here\n");
+    /*
 	PyObject * __print = PyDict_GetItemString(scope0, "print");
 	PyObject * stuff = PyList_GetItem(BRANCHES, 0);
-	PyObject_Call(program, Py_BuildValue("(O)", stuff), NULL);
+	PyObject_Call(eval, Py_BuildValue("(O)", stuff), NULL);
 	if (PyErr_Occurred())
     {
         PyErr_Print();
 	}
-
+    */

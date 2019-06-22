@@ -20,7 +20,7 @@
    This could be easily used like so:
 	```python
 	statements = [...]
-	render(jint(4))
+	render(jit(4))
 	```
 
 
