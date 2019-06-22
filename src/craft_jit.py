@@ -18,7 +18,11 @@ class Function:
 	def __call__(self, *args):
 		global SYMBOL_TABLE
 		try:
-			ret = self.func(list(args), SYMBOL_TABLE, self.branches)
+			ret = self.func(
+				list(args),
+				SYMBOL_TABLE,
+				self.branches  # Access violation writing this value
+			)
 
 			if not ret.err:
 				return ret.value
@@ -50,7 +54,7 @@ class JIT:
 			return file.read()
 
 	def emit(self, text=''):
-		print(text)
+		#print(text)
 		self.source.append(text)
 
 	def emit_lookup(self, name, counter):
@@ -217,10 +221,10 @@ class JIT:
 		)
 
 		print('Getting Symbol...')
-		a = comp.get_symbol('craft_main')
+		craft_main = comp.get_symbol('craft_main')
 		print('FuncProto...')
 		#return func_proto(a)
-		return Function(func_proto(a), self.branches)
+		return Function(func_proto(craft_main), self.branches)
 
 	def compile_function(self, func):
 		return self.compile(self.transpile(func))
@@ -252,21 +256,22 @@ hello = '''
 def: [
 	[fibo x]
 
-	print:[]  :: If you remove this line, it works...ish
-
 	if: [<=: [$x 1] then:[
 		print: [format:["  Within If: {}" $x]]
 		print:[format:["    Going to return: {}" $x]]
 		return: [$x]
 	]]
 
-	print: [format:["In fibo() {}" $x]]
-	print: [format:[" Calling fibo({})" -:[$x 1]]]
-	print: [format:[" Calling fibo({})" -:[$x 2]]]
+	::print: [format:["In fibo() {}" $x]]
+	set: [neg1 -:[$x 1]]
+	set: [neg2 -:[$x 2]]
+
+	::print: [format:[" Calling fibo({})" -:[$x 1]]]
+	::print: [format:[" Calling fibo({})" -:[$x 2]]]
 
 	set: [ret +: [
-		fibo: [-: [$x 1]]
-		fibo: [-: [$x 2]]
+		fibo: [$neg1]
+		fibo: [$neg2]
 	]]
 
 	print:[format:["Going to return: {}" $ret]]
