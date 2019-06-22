@@ -20,7 +20,7 @@
         // Check and see if it's a return/break/etc. exception or normal error
         if (PyErr_GivenExceptionMatches(ERROR_TYPE, CraftFunctionReturnException))
         {
-            //printf("CraftFunctionReturnException\n");
+            printf("    CraftFunctionReturnException\n");
             RETURN_VALUE = PyObject_GetAttrString(ERROR, "return_value");
         }
         

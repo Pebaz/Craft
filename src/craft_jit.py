@@ -252,17 +252,26 @@ hello = '''
 def: [
 	[fibo x]
 
-	if: [
-		<=: [$x 1]
-		return: [$x]
-	]
+	print:[]  :: If you remove this line, it works...ish
 
-	return: [
-		+: [
-			fibo: [-: [$x 1]]
-			fibo: [-: [$x 2]]
-		]
-	]
+	if: [<=: [$x 1] then:[
+		print: [format:["  Within If: {}" $x]]
+		print:[format:["    Going to return: {}" $x]]
+		return: [$x]
+	]]
+
+	print: [format:["In fibo() {}" $x]]
+	print: [format:[" Calling fibo({})" -:[$x 1]]]
+	print: [format:[" Calling fibo({})" -:[$x 2]]]
+
+	set: [ret +: [
+		fibo: [-: [$x 1]]
+		fibo: [-: [$x 2]]
+	]]
+
+	print:[format:["Going to return: {}" $ret]]
+
+	return: [$ret]
 ]
 '''
 # endregion
@@ -282,3 +291,8 @@ print('\n------------------------')
 ret = __code__(10)
 print('------------------------\nDone.')
 print(f'Return Value: {repr(ret)}')
+def fibo(x):
+	if x <= 1:
+		return x
+	return fibo(x - 1) + fibo(x - 2)
+print(f'Expected Value: {fibo(10)}')
