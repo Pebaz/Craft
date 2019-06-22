@@ -39,6 +39,7 @@ class JIT:
 		self.branch_functions = [
 			'if', 'then',
 			'try', 'catch', 'finally',
+			'for',
 		]
 	
 	def get_source(self):
@@ -178,7 +179,6 @@ class JIT:
 			else:
 				raise CraftException('SyntaxError', {}, {})
 
-
 			# Make sure to interpret branching code
 			if getkey(statement) not in self.branch_functions:
 				self.emit_func(statement, counter)
@@ -230,15 +230,39 @@ class JIT:
 hello = '''
 def: [
 	[hello person]
+	
 	print: [$person]
+
 	if: [True then: [
 		print: ['It was True!']
-
-		:: Make sure to not use Program: [] cause it catches errors :(
-
 		print: [$person]
 	]]
-	return: [45]
+
+	print: [BackOut]
+
+	for: [
+		[i 10]
+		print: [$i]
+	]
+
+	return: [neg: [45]]
+]
+'''
+hello = '''
+def: [
+	[fibo x]
+
+	if: [
+		<=: [$x 1]
+		return: [$x]
+	]
+
+	return: [
+		+: [
+			fibo: [-: [$x 1]]
+			fibo: [-: [$x 2]]
+		]
+	]
 ]
 '''
 # endregion
@@ -255,6 +279,6 @@ craft_set(getvalue(func)[0][0], __code__.func)
 
 print('Running...')
 print('\n------------------------')
-ret = __code__('Pebaz')
+ret = __code__(10)
 print('------------------------\nDone.')
 print(f'Return Value: {repr(ret)}')

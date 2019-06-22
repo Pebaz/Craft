@@ -17,15 +17,13 @@
         PyObject * RETURN_VALUE = Py_None;
         PyObject * RETURN_ERROR = Py_None;
 
-
         // Check and see if it's a return/break/etc. exception or normal error
-        //if (PyObject_IsInstance(PyObject_Type(ERROR_TYPE), PyObject_Type(CraftFunctionReturnException)))
         if (PyErr_GivenExceptionMatches(ERROR_TYPE, CraftFunctionReturnException))
         {
             //printf("CraftFunctionReturnException\n");
             RETURN_VALUE = PyObject_GetAttrString(ERROR, "return_value");
         }
-
+        
         // Real Exception. This makes sure an Exception object is returned.
         else
         {
@@ -36,21 +34,9 @@
             RETURN_ERROR = PyErr_NewException("builtins.Exception", NULL, py_dict);
         }
 
-        // Py_BuildValue("(O, O)", RETURN_VALUE, RETURN_ERROR);
-        // PyObject * ARGS_result = PyTuple_New(2);
-        // PyTuple_SET_ITEM(ARGS_result, 0, RETURN_VALUE);
-        // PyTuple_SET_ITEM(ARGS_result, 1, RETURN_ERROR);
-        // PyObject * RET_result = PyObject_Call(get_result, ARGS_result, NULL);
-
-        if (RETURN_VALUE == NULL)
-        {
-            printf("It's NULL\n");
-        }
         PyObject * RET_result = PyObject_Call(get_result, Py_BuildValue("(O, O)", RETURN_VALUE, RETURN_ERROR), NULL);
 
         PyGILState_Release(gstate);
         return RET_result;
         
-    } else {
-        //printf("All good\n");
     }

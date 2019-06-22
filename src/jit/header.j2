@@ -26,15 +26,3 @@ PyObject * craft_main(
     PyObject * CraftFunctionReturnException = PyDict_GetItemString(scope0, "CraftFunctionReturnException");
     PyObject * CraftLoopBreakException 		= PyDict_GetItemString(scope0, "CraftLoopBreakException");
     PyObject * CraftLoopContinueException 	= PyDict_GetItemString(scope0, "CraftLoopContinueException");
-
-
-	//printf("Here\n");
-    /*
-	PyObject * __print = PyDict_GetItemString(scope0, "print");
-	PyObject * stuff = PyList_GetItem(BRANCHES, 0);
-	PyObject_Call(eval, Py_BuildValue("(O)", stuff), NULL);
-	if (PyErr_Occurred())
-    {
-        PyErr_Print();
-	}
-    */
