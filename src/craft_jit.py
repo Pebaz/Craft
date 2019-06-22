@@ -35,7 +35,11 @@ class JIT:
 
 	def __init__(self):
 		self.source = []
-		self.branches = []#dict(print=['This was run using the interpreter!'])]
+		self.branches = []
+		self.branch_functions = [
+			'if', 'then',
+			'try', 'catch', 'finally',
+		]
 	
 	def get_source(self):
 		return '\n'.join(self.source)
@@ -100,8 +104,16 @@ class JIT:
 
 			# Function call
 			elif isinstance(argument, dict):
-				bound_arg_names.append(self.emit_func(argument, counter))
-				continue
+
+				if getkey(argument) not in self.branch_functions:
+					bound_arg_names.append(self.emit_func(argument, counter))
+					continue
+				else:
+					self.emit_template('branch.j2', {'index' : len(self.branches)})
+					self.branches.append(argument)
+
+				#bound_arg_names.append(self.emit_func(argument, counter))
+				#continue
 
 			bound_arg_names.append(aname)
 
@@ -167,7 +179,8 @@ class JIT:
 				raise CraftException('SyntaxError', {}, {})
 
 
-			if getkey(statement) not in ['if']:
+			# Make sure to interpret branching code
+			if getkey(statement) not in self.branch_functions:
 				self.emit_func(statement, counter)
 			else:
 				self.emit_template('branch.j2', {'index' : len(self.branches)})
