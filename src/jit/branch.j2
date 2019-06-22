@@ -1,5 +1,3 @@
+// BRANCH[{{ index }}]
     PyObject_Call(eval, Py_BuildValue("(O)", PyList_GetItem(BRANCHES, {{ index }})), NULL);
-    if (PyErr_Occurred())
-    {
-        PyErr_Print();
-    }
+    {% include 'error_check.j2' %}

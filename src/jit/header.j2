@@ -6,7 +6,7 @@
 PyObject * craft_main(
     PyObject * ARGS,
     PyObject * SYMBOL_TABLE,
-	PyObject * BRANCHES
+    PyObject * BRANCHES
 )
 {
     // Stop Python from interpreting anything else while we use this thread
@@ -15,7 +15,7 @@ PyObject * craft_main(
     // Define convenience variables for lookups/etc.
     PyObject * scope0 = PyList_GetItem(SYMBOL_TABLE, 0);
     PyObject * query = PyDict_GetItemString(scope0, "query-symbol-table");
-	PyObject * program = PyDict_GetItemString(scope0, "Program");
+    PyObject * program = PyDict_GetItemString(scope0, "Program");
     PyObject * eval = PyDict_GetItemString(scope0, "eval");
     PyObject * scope = PyDict_GetItemString(scope0, "get-scope");
     PyObject * get_result = PyDict_GetItemString(scope0, "get-result");
