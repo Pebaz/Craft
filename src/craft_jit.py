@@ -54,13 +54,12 @@ class JIT:
 			return file.read()
 
 	def emit(self, text=''):
-		#print(text)
+		print(text)
 		self.source.append(text)
 
 	def emit_lookup(self, name, counter):
 		lookup = f'var{next(counter)}'
 		self.emit_template('lookup.j2', dict(lookup=lookup, name=name))
-		self.emit_template('error_check.j2', {})
 		return lookup
 
 	def emit_args(self, arguments, counter):
@@ -140,7 +139,7 @@ class JIT:
 			ret_name = ret_name
 		)
 		self.emit_template('call.j2', data)
-		self.emit_template('error_check.j2', {})
+		#self.emit_template('error_check.j2', {})
 		return ret_name
 
 	def emit_template(self, template, data):
