@@ -64,6 +64,7 @@ class JIT:
 		self.emit(f'    PyTuple_SET_ITEM({ARGS_query}, 0, Py_BuildValue("s", "{name}"));')
 		self.emit(f'    PyTuple_SET_ITEM({ARGS_query}, 1, PyObject_Call(scope, PyTuple_New(0), NULL));')
 		self.emit(f'    PyObject * {lookup} = PyObject_Call(query, {ARGS_query}, NULL);')
+		self.emit_template('error_check.j2', {})
 		return lookup
 
 	def emit_args(self, arguments, counter):
@@ -254,29 +255,14 @@ def: [
 '''
 hello = '''
 def: [
-	[fibo x]
-
-	if: [<=: [$x 1] then:[
-		print: [format:["  Within If: {}" $x]]
-		print:[format:["    Going to return: {}" $x]]
-		return: [$x]
-	]]
-
-	::print: [format:["In fibo() {}" $x]]
-	set: [neg1 -:[$x 1]]
-	set: [neg2 -:[$x 2]]
-
-	::print: [format:[" Calling fibo({})" -:[$x 1]]]
-	::print: [format:[" Calling fibo({})" -:[$x 2]]]
-
-	set: [ret +: [
-		fibo: [$neg1]
-		fibo: [$neg2]
-	]]
-
-	print:[format:["Going to return: {}" $ret]]
-
-	return: [$ret]
+	[fibo n]
+	set: [a 0]
+	set: [b 1]
+	for: [[i $n]
+		set: [a $b]
+		set: [b +: [$a $b]]
+	]
+	return: [$a]
 ]
 '''
 # endregion
@@ -285,8 +271,8 @@ jit = JIT()
 func = craft_parse(hello)
 
 c_code = jit.transpile(func)
-#with open('output.c', 'w') as file:
-#	file.write(c_code)
+with open('output.c', 'w') as file:
+	file.write(c_code)
 __code__ = jit.compile(c_code)
 craft_set(getvalue(func)[0][0], __code__)
 
