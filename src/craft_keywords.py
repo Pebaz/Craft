@@ -1038,9 +1038,15 @@ def craft_eval(*args):
 	"""
 	get_args(args)
 
+
+def craft_type(*args):
+	return type(get_args(args)[0]).__name__
+
+
 __craft__ = {
 	# Built-Ins
 	'getL' : getL,
+	'type'                  : craft_type,
 	'eval'                  : craft_eval,
 	'get-result'            : get_result,
 	'push-return-point'     : push_return_point,
