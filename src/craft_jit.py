@@ -58,12 +58,7 @@ class JIT:
 		self.source.append(text)
 
 	def emit_lookup(self, name, counter):
-		#ARGS_query = f'ARGS_query{next(counter)}'
 		lookup = f'var{next(counter)}'
-		#self.emit(f'    PyObject * {ARGS_query} = PyTuple_New(2);')
-		#self.emit(f'    PyTuple_SET_ITEM({ARGS_query}, 0, Py_BuildValue("s", "{name}"));')
-		#self.emit(f'    PyTuple_SET_ITEM({ARGS_query}, 1, PyObject_Call(scope, PyTuple_New(0), NULL));')
-		#self.emit(f'    PyObject * {lookup} = PyObject_Call(query, {ARGS_query}, NULL);')
 		self.emit_template('lookup.j2', dict(lookup=lookup, name=name))
 		self.emit_template('error_check.j2', {})
 		return lookup
