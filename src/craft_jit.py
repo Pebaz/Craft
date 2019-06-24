@@ -27,8 +27,13 @@ class Function:
 			if not ret.err:
 				return ret.value
 			else:
-				register_pyexception(ret.err)
-				craft_raise(type(ret.err).__name__)
+				global TRACEBACK
+				try:
+					register_pyexception(ret.err)
+					craft_raise(type(ret.err).__name__)
+				except Exception as e:
+					TRACEBACK.show_trace(e)
+					raise e
 
 		except SystemError as e:
 			traceback.print_exc()
@@ -43,6 +48,7 @@ class JIT:
 		self.source = []
 		self.branches = []
 		self.branch_functions = [] + BRANCH_FUNCTIONS
+		print(SYMBOL_TABLE)
 	
 	def get_source(self):
 		return '\n'.join(self.source)
@@ -244,9 +250,9 @@ def: [
 	[hello person]
 	print: [$person]
 
-	if: [True then: [
-		print: ['It was True!']
-	]]
+	def: [[hi] print: [hi]]
+
+	hi: []
 
 	print: [BackOut]
 ]
@@ -257,8 +263,9 @@ jit = JIT()
 func = craft_parse(hello)
 
 c_code = jit.transpile(func)
-with open('output.c', 'w') as file:
-	file.write(c_code)
+# TODO(pebaz): Make option to be verbose (print out) and write to file
+#with open('output.c', 'w') as file:
+#	file.write(c_code)
 __code__ = jit.compile(c_code)
 craft_set(getvalue(func)[0][0], __code__)
 

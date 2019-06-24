@@ -60,27 +60,36 @@ PyObject * craft_main(
     PyObject * var7 = PyObject_Call(var5, CALL_var5_args6, NULL);
     if (PyErr_Occurred()) goto craft_error;
 
-// {'if': [True, {'then': [{'print': ['It was True!']}]}]}
+// {'def': [['hi'], {'print': ['hi']}]}
 // BRANCH[0]
     PyObject_Call(eval, Py_BuildValue("(O)", PyList_GetItem(BRANCHES, 0)), NULL);
     if (PyErr_Occurred()) goto craft_error;
 
-// {'print': ['BackOut']}
-    PyObject * var8 = Py_BuildValue("s", "BackOut");
-// LOOKUP print
-    PyObject * var9 = PyObject_Call(query, Py_BuildValue("(O, O)", Py_BuildValue("s", "print"), PyObject_Call(scope, PyTuple_New(0), NULL)), NULL);
+// {'hi': []}
+// LOOKUP hi
+    PyObject * var8 = PyObject_Call(query, Py_BuildValue("(O, O)", Py_BuildValue("s", "hi"), PyObject_Call(scope, PyTuple_New(0), NULL)), NULL);
     if (PyErr_Occurred()) goto craft_error;
 // CALL
-    PyObject * CALL_var9_args10 = PyTuple_New(1);
-    PyTuple_SET_ITEM(CALL_var9_args10, 0, var8);
-    PyObject * var11 = PyObject_Call(var9, CALL_var9_args10, NULL);
+    PyObject * CALL_var8_args9 = PyTuple_New(0);
+    PyObject * var10 = PyObject_Call(var8, CALL_var8_args9, NULL);
+    if (PyErr_Occurred()) goto craft_error;
+
+// {'print': ['BackOut']}
+    PyObject * var11 = Py_BuildValue("s", "BackOut");
+// LOOKUP print
+    PyObject * var12 = PyObject_Call(query, Py_BuildValue("(O, O)", Py_BuildValue("s", "print"), PyObject_Call(scope, PyTuple_New(0), NULL)), NULL);
+    if (PyErr_Occurred()) goto craft_error;
+// CALL
+    PyObject * CALL_var12_args13 = PyTuple_New(1);
+    PyTuple_SET_ITEM(CALL_var12_args13, 0, var11);
+    PyObject * var14 = PyObject_Call(var12, CALL_var12_args13, NULL);
     if (PyErr_Occurred()) goto craft_error;
 // LOOKUP pop-scope
-    PyObject * var12 = PyObject_Call(query, Py_BuildValue("(O, O)", Py_BuildValue("s", "pop-scope"), PyObject_Call(scope, PyTuple_New(0), NULL)), NULL);
+    PyObject * var15 = PyObject_Call(query, Py_BuildValue("(O, O)", Py_BuildValue("s", "pop-scope"), PyObject_Call(scope, PyTuple_New(0), NULL)), NULL);
     if (PyErr_Occurred()) goto craft_error;
 // CALL
-    PyObject * CALL_var12_args13 = PyTuple_New(0);
-    PyObject * var14 = PyObject_Call(var12, CALL_var12_args13, NULL);
+    PyObject * CALL_var15_args16 = PyTuple_New(0);
+    PyObject * var17 = PyObject_Call(var15, CALL_var15_args16, NULL);
     if (PyErr_Occurred()) goto craft_error;
 
     // Return Result<None> if no return function is called
