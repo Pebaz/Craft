@@ -1,6 +1,13 @@
 Program:
 [
 	set: [count 3]
+
+	print: [$count]
+
+	exit: []
+
+
+
 	for: [
 		[i $count]
 		print: [$i]

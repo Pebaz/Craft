@@ -271,8 +271,8 @@ jit = JIT()
 func = craft_parse(hello)
 
 c_code = jit.transpile(func)
-with open('output.c', 'w') as file:
-	file.write(c_code)
+#with open('output.c', 'w') as file:
+#	file.write(c_code)
 __code__ = jit.compile(c_code)
 craft_set(getvalue(func)[0][0], __code__)
 

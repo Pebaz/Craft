@@ -361,7 +361,25 @@ def craft_set(name, value):
 	value = get_arg_value(value)
 	keys = name.split('.')
 	var_name = keys[-1]
+	scope = SCOPE + 0
 
+	# Look for an existing value to override
+	while scope > 0:
+		if len(keys) > 1:
+			try:
+				if var_name in dict_recursive_get(SYMBOL_TABLE[scope], keys[:-1])[var_name]:
+					dict_recursive_get(SYMBOL_TABLE[scope], keys[:-1])[var_name] = value
+					return
+			except:
+				pass
+		else:
+			print('got here successfully')
+			if var_name in SYMBOL_TABLE[scope]:
+				SYMBOL_TABLE[scope][var_name] = value
+				return
+		scope -= 1
+
+	# If it doesn't exist, just set a new one
 	if len(keys) > 1:
 		dict_recursive_get(SYMBOL_TABLE[SCOPE], keys[:-1])[var_name] = value
 	else:

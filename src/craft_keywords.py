@@ -742,10 +742,10 @@ def craft_program(*args):
 	# NOTE(Pebaz): To show a Python internal error, simply call: get_args(args)
 	# TODO(Pebaz): Make it so that a command line switch can show the traceback
 
-	try:
-		get_args(args)
-	except Exception as e:
-		TRACEBACK.show_trace(e)
+	#try:
+	get_args(args)
+	#except Exception as e:
+	#	TRACEBACK.show_trace(e)
 
 
 def craft_byval(*args):
