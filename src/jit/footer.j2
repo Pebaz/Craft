@@ -4,11 +4,8 @@
     PyGILState_Release(gstate);
     //return Py_None;
     return RET_result;
-
-
-
-
-
+	
+	// ------------------------------------------------------------------------
 	// Error Label
 	craft_error:
 	//PyErr_Print();
@@ -21,7 +18,7 @@
 	// Check and see if it's a return/break/etc. exception or normal error
 	if (PyErr_GivenExceptionMatches(ERROR_TYPE, CraftFunctionReturnException))
 	{
-		printf("    CraftFunctionReturnException\n");
+		//printf("    CraftFunctionReturnException\n");
 		RETURN_VALUE = PyObject_GetAttrString(ERROR, "return_value");
 	}
 	

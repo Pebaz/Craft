@@ -2,12 +2,6 @@ Program:
 [
 	set: [count 3]
 
-	print: [$count]
-
-	exit: []
-
-
-
 	for: [
 		[i $count]
 		print: [$i]
@@ -18,8 +12,9 @@ Program:
 		set: [a 0]
 		set: [b 1]
 		for: [[i $n]
-			set: [a $b]
+			set: [tmp $b]
 			set: [b +: [$a $b]]
+			set: [a $tmp]
 		]
 		return: [$a]
 	]

@@ -256,11 +256,13 @@ def: [
 hello = '''
 def: [
 	[fibo n]
+	print: [format: ["In fibo({})" $n]]
 	set: [a 0]
 	set: [b 1]
 	for: [[i $n]
-		set: [a $b]
+		set: [tmp $b]
 		set: [b +: [$a $b]]
+		set: [a $tmp]
 	]
 	return: [$a]
 ]

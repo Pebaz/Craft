@@ -373,7 +373,6 @@ def craft_set(name, value):
 			except:
 				pass
 		else:
-			print('got here successfully')
 			if var_name in SYMBOL_TABLE[scope]:
 				SYMBOL_TABLE[scope][var_name] = value
 				return
