@@ -135,6 +135,28 @@ def test_for_scoping():
 	)
 
 
+def test_for_lookup():
+	"""
+	Test and see if the for loop counter is destroyed when out of scope.
+	"""
+	
+	run_test_program(
+		"""
+		set: [count 3]
+		for:
+		[
+			[i $count]
+			print: [$i]
+		]
+		""",
+		"""
+		0
+		1
+		2
+		"""
+	)
+
+
 if __name__ == '__main__':
 	for test in dir():
 		if test.startswith('test_'):

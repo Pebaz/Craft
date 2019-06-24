@@ -1,0 +1,21 @@
+Program:
+[
+	set: [count 3]
+	for: [
+		[i $count]
+		print: [$i]
+	]
+
+	def: [
+		[fibo n]
+		set: [a 0]
+		set: [b 1]
+		for: [[i $n]
+			set: [a $b]
+			set: [b +: [$a $b]]
+		]
+		return: [$a]
+	]
+
+	print: [fibo: [10]]
+]

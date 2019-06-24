@@ -426,7 +426,7 @@ def craft_for(*args):
 	Returns:
 	  <Description of Return Value>
 	"""
-	control = args[0]
+	control = get_args(args[0])
 
 	var, start, stop, step = [None] * 4
 
