@@ -12,7 +12,7 @@ pp = pprint.PrettyPrinter(width=1)
 #            S T A N D A R D   L I B R A R Y   F U N C T I O N S
 # -----------------------------------------------------------------------------
 
-
+@branch()
 def craft_try(*args):
 	"""
 	<Short Description>
@@ -81,6 +81,7 @@ def craft_try(*args):
 			get_args(finale)
 
 
+@branch()
 def craft_catch(*args):
 	"""
 	<Short Description>
@@ -99,6 +100,7 @@ def craft_catch(*args):
 	craft_pop_scope()
 
 
+@branch()
 def craft_finally(*args):
 	"""
 	<Short Description>
@@ -131,7 +133,7 @@ def craft_exception(*args):
 	register_exception(*get_args(args))
 
 
-
+@branch()
 def craft_switch(*args):
 	"""
 	<Short Description>
@@ -170,6 +172,7 @@ def craft_switch(*args):
 		get_arg_value(default)
 
 
+@branch()
 def craft_case(*args):
 	"""
 	Ignores the first argument since it is a value to use with `switch`.
@@ -177,6 +180,7 @@ def craft_case(*args):
 	get_args(args[1:])
 
 
+@branch()
 def craft_default(*args):
 	"""
 	Run the code therein since there is no match condition
@@ -214,6 +218,7 @@ def craft_continue(*args):
 	raise CraftLoopContinueException()
 
 
+@branch()
 def craft_while(*args):
 	"""
 	<Short Description>
@@ -243,18 +248,19 @@ def craft_while(*args):
 	cull_scopes(pop_return_point())
 
 
+@branch()
 def craft_until(*args):
 	"""
-<Short Description>
+	<Short Description>
 
-<Long Description>
+	<Long Description>
 
-Args:
-  <Argument List>
+	Args:
+	<Argument List>
 
-Returns:
-  <Description of Return Value>
-"""
+	Returns:
+	<Description of Return Value>
+	"""
 	condition = args[0]
 
 	push_return_point()
@@ -383,6 +389,7 @@ def craft_not(*args):
 	return not get_arg_value(args[0])
 
 
+@branch()
 def craft_foreach(*args):
 	"""
 	<Short Description>
@@ -414,6 +421,7 @@ def craft_foreach(*args):
 	cull_scopes(pop_return_point())
 
 
+@branch()
 def craft_for(*args):
 	"""
 	<Short Description>
@@ -460,6 +468,7 @@ def craft_for(*args):
 	cull_scopes(pnt)
 
 
+@branch()
 def craft_if(*args):
 	"""
 	<Short Description>
@@ -491,6 +500,7 @@ def craft_if(*args):
 		craft_pop_scope()
 
 
+@branch()
 def craft_unless(*args):
 	"""
 	<Short Description>
@@ -522,6 +532,7 @@ def craft_unless(*args):
 		craft_pop_scope()
 
 
+@branch()
 def craft_then(*args):
 	"""
 	<Short Description>
@@ -537,6 +548,7 @@ def craft_then(*args):
 	args = get_args(args)
 
 
+@branch()
 def craft_else(*args):
 	"""
 	<Short Description>
@@ -643,6 +655,7 @@ def craft_prin(*args):
 	print(*get_args(args), end='')
 
 
+@branch()
 def craft_def(*args):
 	"""
 	Bind function name to variable in current scope. This will allow it to be

@@ -38,13 +38,11 @@ class JIT:
 	PATH_PREFIX = pathlib.Path() / 'jit'
 
 	def __init__(self):
+		global BRANCH_FUNCTIONS
+
 		self.source = []
 		self.branches = []
-		self.branch_functions = [
-			'if', 'then',
-			'try', 'catch', 'finally',
-			'for',
-		]
+		self.branch_functions = [] + BRANCH_FUNCTIONS
 	
 	def get_source(self):
 		return '\n'.join(self.source)
@@ -54,7 +52,7 @@ class JIT:
 			return file.read()
 
 	def emit(self, text=''):
-		print(text)
+		#print(text)
 		self.source.append(text)
 
 	def emit_lookup(self, name, counter):
@@ -229,27 +227,6 @@ class JIT:
 # region
 hello = '''
 def: [
-	[hello person]
-	
-	print: [$person]
-
-	if: [True then: [
-		print: ['It was True!']
-		print: [$person]
-	]]
-
-	print: [BackOut]
-
-	for: [
-		[i 10]
-		print: [$i]
-	]
-
-	return: [neg: [45]]
-]
-'''
-hello = '''
-def: [
 	[fibo n]
 	print: [format: ["In fibo({})" $n]]
 	set: [a 0]
@@ -262,14 +239,26 @@ def: [
 	return: [$a]
 ]
 '''
+hello = '''
+def: [
+	[hello person]
+	print: [$person]
+
+	if: [True then: [
+		print: ['It was True!']
+	]]
+
+	print: [BackOut]
+]
+'''
 # endregion
 
 jit = JIT()
 func = craft_parse(hello)
 
 c_code = jit.transpile(func)
-#with open('output.c', 'w') as file:
-#	file.write(c_code)
+with open('output.c', 'w') as file:
+	file.write(c_code)
 __code__ = jit.compile(c_code)
 craft_set(getvalue(func)[0][0], __code__)
 
@@ -279,8 +268,8 @@ print('\n------------------------')
 ret = __code__(10)
 print('------------------------\nDone.')
 print(f'Return Value: {repr(ret)}')
-def fibo(x):
-	if x <= 1:
-		return x
-	return fibo(x - 1) + fibo(x - 2)
-print(f'Expected Value: {fibo(10)}')
+# def fibo(x):
+# 	if x <= 1:
+# 		return x
+# 	return fibo(x - 1) + fibo(x - 2)
+# print(f'Expected Value: {fibo(10)}')
