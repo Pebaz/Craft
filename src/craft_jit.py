@@ -44,11 +44,9 @@ class JIT:
 
 	def __init__(self):
 		global BRANCH_FUNCTIONS
-
 		self.source = []
 		self.branches = []
 		self.branch_functions = [] + BRANCH_FUNCTIONS
-		print(SYMBOL_TABLE)
 	
 	def get_source(self):
 		return '\n'.join(self.source)
@@ -248,6 +246,7 @@ def: [
 hello = '''
 def: [
 	[hello person]
+	prin: ["Hello "]
 	print: [$person]
 
 	def: [[hi] print: [hi]]
