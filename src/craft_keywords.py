@@ -666,8 +666,8 @@ def craft_def(*args):
     func_args = declaration[1:]
     func_definition = args[1:]
 
-    # TODO(pebaz): craft_set(func_name, Function([func_args, func_definition]))
-    craft_set(func_name, [func_args, func_definition])
+    #craft_set(func_name, [func_args, func_definition])
+    craft_set(func_name, Function([func_args, func_definition]))
 
 
 def craft_return(*args):
@@ -757,10 +757,13 @@ def craft_program(*args):
     # NOTE(Pebaz): To show a Python internal error, simply call: get_args(args)
     # TODO(Pebaz): Make it so that a command line switch can show the traceback
 
-    try:
+    if False:
+        try:
+            get_args(args)
+        except Exception as e:
+            TRACEBACK.show_trace(e)
+    else:
         get_args(args)
-    except Exception as e:
-        TRACEBACK.show_trace(e)
 
 
 def craft_byval(*args):

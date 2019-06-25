@@ -1,6 +1,7 @@
 
 import sys, os, os.path, traceback, imp
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import yaml
 import pyparsing as pyp
@@ -582,7 +583,7 @@ class Function(list):
     def __init__(self, *args):
         list.__init__(self, *args)
         self.pool = ThreadPoolExecutor(max_workers=1)
-        self.__jit__ = self.pool.submit(self.compile, self.func)
+        self.__jit__ = self.pool.submit(lambda func: lambda x: 'JITTED', self)
         self.__code__ = None
         self.saved_hash = hash(self)
 
@@ -604,10 +605,14 @@ class Function(list):
         # Whether done or already done, update the callable and call it
         else:
             self.__code__ = self.__jit__.result()
-            return self.__code__(args)
+            #return self.__code__(args)
+            return craft_exec(self, args)
 
     def __hash__(self):
-        return hash(tuple(self))
+        """
+        The string representation of the function body is fine for hashing.
+        """
+        return hash(str(self))
 
 
 class Trace:
