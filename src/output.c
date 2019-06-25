@@ -10,11 +10,11 @@ PyObject * craft_main(
     PyObject * BRANCHES
 )
 {
-	// Function return values (see header.j2 and footer.j2)
-	PyObject * RET_result, * ERROR_TYPE, * ERROR, * traceback;
-
     // Stop Python from interpreting anything else while we use this thread
     PyGILState_STATE gstate = PyGILState_Ensure();
+
+	// Function return values (see header.j2 and footer.j2)
+	PyObject * RET_result, * ERROR_TYPE, * ERROR, * traceback;
 
     // Define convenience variables for lookups/etc.
     PyObject * scope0 = PyList_GetItem(SYMBOL_TABLE, 0);

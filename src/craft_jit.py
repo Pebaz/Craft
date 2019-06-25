@@ -21,7 +21,7 @@ class Function:
 			ret = self.func(
 				list(args),
 				SYMBOL_TABLE,
-				self.branches  # Access violation writing this value
+				self.branches
 			)
 
 			if not ret.err:
@@ -210,7 +210,7 @@ class JIT:
 			comp.relocate()
 		except:
 			traceback.print_exc()
-			return lambda ARGS, x, y, z, p, d, q, s: print('<Your func here>')
+			return lambda args, symtab, branches: print('<Your func here>')
 
 		print('Prototyping...')
 		func_proto = ctypes.CFUNCTYPE(
@@ -252,6 +252,7 @@ def: [
 
 	def: [[hi] print: [hi]]
 
+	print: [hi]
 	hi: []
 
 	print: [BackOut]
@@ -268,7 +269,7 @@ c_code = jit.transpile(func)
 #	file.write(c_code)
 __code__ = jit.compile(c_code)
 craft_set(getvalue(func)[0][0], __code__)
-
+#import ipdb; ipdb.set_trace()
 
 print('Running...')
 print('\n------------------------')
