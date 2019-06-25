@@ -265,32 +265,20 @@ def cull_scopes(return_point):
         craft_pop_scope()
 
 
-def craft_call(*args):
+def craft_exec(*args):
     """
-    """
-    global SCOPE
+    Call a function definition.
 
+    A function definition is defined as:
+    [[arg-name1 arg-name2] [body body body]]
+    """
     args = get_args(args)
-    func_name = args[0]
-    func_args = args[1:]
-    arg_names, func_definition = query_symbol_table(func_name, SCOPE)
-
-    # NEED TO ADD (None, None) to craft_def!
-    # Need to also add a counter for how many times a function has been called
-    # So that JIT can compile funcs in the hotpath!
-    #arg_names, func_definition, __jit__, __jcode__, times_been_called = query_symbol_table(
-    # 	func_name, SCOPE)
-
-    """
-    if not __jit__:
-        '''jit in background'''
-    else:
-        '''ret = __jcode__(func_args)'''
-    """
+    func_def, func_args = args
+    arg_names, func_definition = func_def
 
     if len(arg_names) != len(func_args):
         err = f'Argument count mismatch for function: '
-        err += f'{func_name}. Expected {len(arg_names)}, got {len(func_args)}.'
+        err += f'Expected {len(arg_names)}, got {len(func_args)}.'
         raise Exception(err)
 
     # Scope index to return to after call is done
@@ -324,15 +312,6 @@ def craft_call(*args):
 
         # A real error has occurred :(
         except Exception as e:
-
-            # TODO(Pebaz): Remove this and raise new exception for
-            # handle_expression() to handle.
-            # raise CraftException("SOMETHING TERRIBLE HAS HAPPENED", e)
-            # -----> traceback.print_exc()
-            # -----> break
-
-            # TODO(Pebaz): Exit early and raise a new CraftException now.
-            # It will be caught by handle_expression.
             raise e from e
 
 
@@ -345,6 +324,33 @@ def craft_call(*args):
 
     # Return the value returned from the function (if any)
     return return_value
+
+
+def craft_call(*args):
+    """
+    """
+    global SCOPE
+
+    args = get_args(args)
+    func_name = args[0]
+    func_args = args[1:]
+    arg_names, func_definition = query_symbol_table(func_name, SCOPE)
+
+    # NEED TO ADD (None, None) to craft_def!
+    # Need to also add a counter for how many times a function has been called
+    # So that JIT can compile funcs in the hotpath!
+    #arg_names, func_definition, __jit__, __jcode__, times_been_called = query_symbol_table(
+    # 	func_name, SCOPE)
+
+    """
+    if not __jit__:
+        '''jit in background'''
+    else:
+        '''ret = __jcode__(func_args)'''
+    """
+
+    return craft_exec([arg_names, func_definition], func_args)
+
 
 def craft_set(name, value):
     """
