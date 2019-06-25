@@ -251,9 +251,7 @@ def: [
 	print: [$person]
 
 	def: [[hi] print: [hi]]
-
-	print: [hi]
-	::hi: []
+	hi: []
 
 	print: [BackOut]
 ]
