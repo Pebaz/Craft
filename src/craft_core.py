@@ -573,6 +573,43 @@ def craft_raise(error_code, *args):
 # -----------------------------------------------------------------------------
 
 
+class Function(list):
+    """
+    Since `craft_def()` defines functions as lists in SYMBOL_TABLE, it need to
+    keep compatibility with this. However, it also need to JIT compile the body
+    of the function asynchronously.
+    """
+    def __init__(self, *args):
+        list.__init__(self, *args)
+        self.pool = ThreadPoolExecutor(max_workers=1)
+        self.__jit__ = self.pool.submit(self.compile, self.func)
+        self.__code__ = None
+        self.saved_hash = hash(self)
+
+    def __call__(self, *args):
+        """
+        Since calling a user-defined function will always call a callable, it
+        need to only call the JIT compiled function if the hash hasn't changed.
+        If it has, just `craft_exec(self, args)` which should do the trick.
+        """
+        
+        # If the hash changed, we need to recompile
+        if hash(self) != self.saved_hash:
+            self.__code__ = self.__jit__.submit(COMPILE_FUNC, ARGS)
+
+        # Call the JIT func if it is done compiling, else interpret self
+        if self.__jit__.running():
+            return craft_exec(self, args)
+
+        # Whether done or already done, update the callable and call it
+        else:
+            self.__code__ = self.__jit__.result()
+            return self.__code__(args)
+
+    def __hash__(self):
+        return hash(tuple(self))
+
+
 class Trace:
     def __init__(self, history=100):
         self.traceback = list()
