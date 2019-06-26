@@ -1,21 +1,26 @@
-import ctypes, pathlib, itertools, traceback, time
-from pytcc import TCC
-from j2do               import j2do
-from craft_core 		import *
-from craft_parser 		import *
-from craft_exceptions 	import *
-from craft_cli 			import *
-from craft_interpreter 	import *
+"""
+JIT compilation capability for Craft.
 
-setup_sym_tab()
+Can JIT compile any user-defined Craft function. For debugging or curiosity,
+can 
+"""
+
+import ctypes, pathlib, itertools, traceback  # Utilities
+from pytcc import TCC  # C compiler as library
+from j2do import j2do  # C code snippets
+from craft_core import *  # craft_raise, BRANCH_FUNCTIONS, SYMBOL_TABLE
 
 
-class Function:
+class JITFunction:
+	""""""
+
 	def __init__(self, func: dict, branches: list):
+		""""""
 		self.func = func
 		self.branches = branches
 
 	def __call__(self, *args):
+		""""""
 		global SYMBOL_TABLE
 		try:
 			ret = self.func(
@@ -40,31 +45,47 @@ class Function:
 
 
 class JIT:
+	""""""
 	PATH_PREFIX = pathlib.Path() / 'jit'
 
-	def __init__(self):
+	def __init__(self, emit_stdout=False, emit_file=None):
+		""""""
 		global BRANCH_FUNCTIONS
 		self.source = []
 		self.branches = []
 		self.branch_functions = [] + BRANCH_FUNCTIONS
+		self.emit_stdout = emit_stdout
+		self.emit_file = emit_file
 	
 	def get_source(self):
+		""""""
 		return '\n'.join(self.source)
 
 	def __load_template(self, filename):
+		""""""
 		with open(str(JIT.PATH_PREFIX / filename)) as file:
 			return file.read()
 
 	def emit(self, text=''):
-		#print(text)
+		""""""
+		# Output to stdout if desired
+		if self.emit_stdout:
+			print(text)
+
+		# `self.transpile()` already opened the output file (if any)
+		if self.emit_file:
+			self.emit_file.write(text)
+
 		self.source.append(text)
 
 	def emit_lookup(self, name, counter):
+		""""""
 		lookup = f'var{next(counter)}'
 		self.emit_template('lookup.j2', dict(lookup=lookup, name=name))
 		return lookup
 
 	def emit_args(self, arguments, counter):
+		""""""
 		bound_arg_names = []
 		for argument in arguments:
 			aname = f'var{next(counter)}'
@@ -123,6 +144,7 @@ class JIT:
 		return bound_arg_names
 
 	def emit_func(self, statement, counter):
+		""""""
 		func_name = getkey(statement)
 		arguments = getvalue(statement)
 		bound_arg_names = self.emit_args(arguments, counter)
@@ -145,9 +167,14 @@ class JIT:
 		return ret_name
 
 	def emit_template(self, template, data):
+		""""""
 		self.emit(j2do(template, data, include=[JIT.PATH_PREFIX]))	
 
 	def transpile(self, ast):
+		""""""
+		# Open output file if set
+		self.emit_file = open(self.emit_file, 'w') if self.emit_file else None
+
 		arg_names = getvalue(ast)[0][1:]
 		body = getvalue(ast)[1:]
 		counter = itertools.count()
@@ -192,10 +219,14 @@ class JIT:
 		self.emit_func({'pop-scope' : []}, counter)
 		self.emit_template('footer.j2', {})
 
+		# Close output file if set
+		self.emit_file = self.emit_file.close() if self.emit_file else None
+
 		print('-=' * 20)
 		return '\n'.join(self.source)
 
 	def compile(self, code):
+		""""""
 		comp = TCC()
 		comp.add_include_path('C:/Python36/include')
 		comp.add_library_path('C:/Python36')
@@ -222,59 +253,60 @@ class JIT:
 		craft_main = comp.get_symbol('craft_main')
 		print('FuncProto...')
 		#return func_proto(a)
-		return Function(func_proto(craft_main), self.branches)
+		return JITFunction(func_proto(craft_main), self.branches)
 
 	def compile_function(self, func):
+		""""""
 		return self.compile(self.transpile(func))
 
 
-# region
-hello = '''
-def: [
-	[fibo n]
-	print: [format: ["In fibo({})" $n]]
-	set: [a 0]
-	set: [b 1]
-	for: [[i $n]
-		set: [tmp $b]
-		set: [b +: [$a $b]]
-		set: [a $tmp]
+
+
+
+if __name__ == '__main__':
+	
+	from craft_parser 		import *
+	#from craft_exceptions 	import *
+	#from craft_cli 			import *
+	#from craft_interpreter 	import *
+	# region
+	fibo = '''
+	def: [
+		[fibo n]
+		print: [format: ["In fibo({})" $n]]
+		set: [a 0]
+		set: [b 1]
+		for: [[i $n]
+			set: [tmp $b]
+			set: [b +: [$a $b]]
+			set: [a $tmp]
+		]
+		return: [$a]
 	]
-	return: [$a]
-]
-'''
-hello = '''
-def: [
-	[hello person]
-	prin: ["Hello "]
-	print: [$person]
+	'''
+	hello = '''
+	def: [
+		[hello person]
+		prin: ["Hello "]
+		print: [$person]
 
-	def: [[hi] print: [hi]]
-	hi: []
+		def: [[hi] print: [hi]]
+		hi: []
 
-	print: [BackOut]
-]
-'''
-# endregion
+		print: [BackOut]
+	]
+	'''
+	# endregion
 
-jit = JIT()
-func = craft_parse(hello)
-
-c_code = jit.transpile(func)
-# TODO(pebaz): Make option to be verbose (print out) and write to file
-#with open('output.c', 'w') as file:
-#	file.write(c_code)
-__code__ = jit.compile(c_code)
-craft_set(getvalue(func)[0][0], __code__)
-#import ipdb; ipdb.set_trace()
-
-print('Running...')
-print('\n------------------------')
-ret = __code__(10)
-print('------------------------\nDone.')
-print(f'Return Value: {repr(ret)}')
-# def fibo(x):
-# 	if x <= 1:
-# 		return x
-# 	return fibo(x - 1) + fibo(x - 2)
-# print(f'Expected Value: {fibo(10)}')
+	for i in range(2):
+		jit = JIT()
+		func = craft_parse(hello)
+		c_code = jit.transpile(func)
+		__code__ = jit.compile(c_code)
+		setup_sym_tab()
+		craft_set(getvalue(func)[0][0], __code__)
+		print('Running...')
+		print('\n------------------------')
+		ret = __code__(10)
+		print('------------------------\nDone.')
+		print(f'Return Value: {repr(ret)}')
