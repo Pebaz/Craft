@@ -15,9 +15,9 @@ from craft_core import *  # craft_raise, BRANCH_FUNCTIONS, SYMBOL_TABLE
 class JITFunction:
 	""""""
 
-	def __init__(self, name, func, branches):
+	def __init__(self, func, branches: list):
 		""""""
-		self.name = name
+		self.name = 'NAME'
 		self.func = func
 		self.branches = branches
 
@@ -49,7 +49,7 @@ class JITFunction:
 			traceback.print_exc()
 
 
-class JITTranspiler:
+class JITCompiler:
 	""""""
 	PATH_PREFIX = pathlib.Path() / 'jit'
 
@@ -66,13 +66,9 @@ class JITTranspiler:
 		""""""
 		return '\n'.join(self.source)
 
-	def get_branches(self):
-		""""""
-		return self.branches
-
 	def __load_template(self, filename):
 		""""""
-		with open(str(JITTranspiler.PATH_PREFIX / filename)) as file:
+		with open(str(JITCompiler.PATH_PREFIX / filename)) as file:
 			return file.read()
 
 	def emit(self, text=''):
@@ -177,16 +173,10 @@ class JITTranspiler:
 
 	def emit_template(self, template, data):
 		""""""
-		self.emit(j2do(template, data, include=[JITTranspiler.PATH_PREFIX]))	
+		self.emit(j2do(template, data, include=[JITCompiler.PATH_PREFIX]))	
 
 	def transpile(self, ast):
 		""""""
-		if self.source:
-			raise Exception(
-				'Already transpiled using this instance. '
-				'Create a new one to transpile another function.'
-			)
-
 		# Open output file if set
 		self.emit_file = open(self.emit_file, 'w') if self.emit_file else None
 
@@ -211,7 +201,7 @@ class JITTranspiler:
 		self.emit(j2do(
 			"arguments.j2",
 			dict(arg_names=arg_names),
-			include=[JITTranspiler.PATH_PREFIX]
+			include=[JITCompiler.PATH_PREFIX]
 		))
 
 		self.emit('\n// BODY')
@@ -239,26 +229,76 @@ class JITTranspiler:
 		self.emit_file = self.emit_file.close() if self.emit_file else None
 
 		#print('-=' * 20)
-		#return '\n'.join(self.source)
+		return '\n'.join(self.source), self.branches
 
-		# NEED TO CALL `self.get_source()` in order to get source!
+	def compile(self, code):
+		""""""
+		comp = TCC()
+		comp.add_include_path('C:/Python36/include')
+		comp.add_library_path('C:/Python36')
+		comp.add_library('python3')
+
+		try:
+			#print('Compiling...')
+			comp.compile_string(code)
+			#print('Relocating...')
+			comp.relocate()
+		except:
+			traceback.print_exc()
+			return lambda args, symtab, branches: print('<Your func here>')
+
+		#print('Prototyping...')
+		func_proto = ctypes.CFUNCTYPE(
+			ctypes.py_object,  # Return type
+			ctypes.py_object,  # ARGS
+			ctypes.py_object,  # SYMBOL_TABLE
+			ctypes.py_object,  # BRANCHES
+		)
+
+		#print('Getting Symbol...', end='')
+		craft_main = comp.get_symbol('craft_main')
+		#print(craft_main)
+		#print('FuncProto...', end='')
+		proto = func_proto(craft_main)
+		#print(proto)
+		return JITFunction(proto, self.branches)
+
+	def compile_function(self, func):
+		""""""
+		#return self.compile(self.transpile(func))
+		source = self.transpile(func)
+		jitted = self.compile(source)
+		print(f'JIT Compilation Finished: {jitted}')
+		return jitted
 
 
-class JITCompiler:
+
+class JIT:
 	"""
-	Compile C code and return a Python-compatible callable.
+	Allows many compilation jobs to run at the same time concurrently.
 	"""
 
-	def __setup_compiler(self):
+	def __init__(self):
+		""""""
+		self.pool = ThreadPoolExecutor(max_workers=multiprocessing.cpu_count())
+		self.comp = self.setup_compiler()
+
+	def setup_compiler(self):
 		comp = TCC()
 		comp.add_include_path('C:/Python36/include')
 		comp.add_library_path('C:/Python36')
 		comp.add_library('python3')
 		return comp
 
-	def compile(self, func_name, source, branches):
+	def compile(self, function):
 		""""""
-		comp = self.__setup_compiler()
+		transpiler = JITCompiler()
+		source, branches = transpiler.transpile(function)
+		return self.pool.submit(self.compile_source, source, branches)
+
+	def compile_source(self, source, branches):
+		""""""
+		comp = self.setup_compiler()
 		ret = None
 		try:
 			comp.compile_string(source)
@@ -270,38 +310,14 @@ class JITCompiler:
 				ctypes.py_object,  # BRANCHES
 			)
 			craft_main = comp.get_symbol('craft_main')
-			proto = func_proto(craft_main)
-			ret = JITFunction(func_name, proto, branches)
+			ret = JITFunction(func_proto(craft_main), branches)
 		except:
 			traceback.print_exc()
 		finally:
-			del comp  # Either way, delete the compiler instance
+			del comp
 			return ret
 
 
-class JIT:
-	"""
-	Allows many compilation jobs to run at the same time concurrently.
-	"""
-
-	def __init__(self):
-		""""""
-		self.pool = ThreadPoolExecutor(max_workers=multiprocessing.cpu_count())
-
-	def compile(self, function):
-		"""
-		The `function` is a Dictionary containing a valid Craft function.
-		"""
-		return self.pool.submit(self.__compile, function)
-
-	def __compile(self, function):
-		""""""
-		name = getkey(function)
-		trans = JITTranspiler()
-		comp = JITCompiler()
-		trans.transpile(function)
-		func = comp.compile(name, trans.get_source(), trans.get_branches())
-		return func
 
 
 if __name__ == '__main__':
@@ -339,36 +355,24 @@ if __name__ == '__main__':
 	'''
 	# endregion
 
-	b = JITTranspiler()
-	b.transpile(craft_parse(fibo))
-	a = JITCompiler()
-	func = a.compile('hi', b.get_source(), b.get_branches())
-	print('Done')
-	if func:
-		func(10)
-	exit()
 
-	import time
-
-	jitter = JIT()
-
-	func = jitter.compile(craft_parse(fibo))
-	while func.running():
-		time.sleep(0.3)
-	print('done')
-	func = func.result()
-	import ipdb; ipdb.set_trace()
-	print(func(10))
-	exit()
+	# a = JITCompiler(emit_stdout=True)
+	# a.compile_function(craft_parse(hello))
+	# print('Done.')
+	# exit()
 
 
 	from random import choice
+	jitter = JIT()
 	status = [
 		jitter.compile(craft_parse(choice([fibo, hello])))
 		for i in range(10)
 	]
+	print('All tasks submitted')
 	for future in as_completed(status):
-		print(future.result())
+		res = future.result()
+		print(res)
+		res(10)
 	'''
 	for future in status:
 		print(future.result())
