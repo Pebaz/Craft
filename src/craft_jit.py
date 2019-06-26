@@ -234,9 +234,9 @@ class JITCompiler:
 	def compile(self, code):
 		""""""
 		comp = TCC()
-		comp.add_include_path('C:/Python37/include')
-		comp.add_library_path('C:/Python37')
-		comp.add_library('python37')
+		comp.add_include_path('C:/Python36/include')
+		comp.add_library_path('C:/Python36')
+		comp.add_library('python3')
 
 		try:
 			#print('Compiling...')
@@ -285,9 +285,9 @@ class JIT:
 
 	def setup_compiler(self):
 		comp = TCC()
-		comp.add_include_path('C:/Python37/include')
-		comp.add_library_path('C:/Python37')
-		comp.add_library('python37')
+		comp.add_include_path('C:/Python36/include')
+		comp.add_library_path('C:/Python36')
+		comp.add_library('python3')
 		return comp
 
 	def compile(self, function):
@@ -355,6 +355,11 @@ if __name__ == '__main__':
 	'''
 	# endregion
 
+
+	# a = JITCompiler(emit_stdout=True)
+	# a.compile_function(craft_parse(hello))
+	# print('Done.')
+	# exit()
 
 
 	from random import choice
