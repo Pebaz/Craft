@@ -5,7 +5,8 @@ Can JIT compile any user-defined Craft function. For debugging or curiosity,
 can 
 """
 
-import ctypes, pathlib, itertools, traceback  # Utilities
+import ctypes, pathlib, itertools, traceback, multiprocessing  # Utilities
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pytcc import TCC  # C compiler as library
 from j2do import j2do  # C code snippets
 from craft_core import *  # craft_raise, BRANCH_FUNCTIONS, SYMBOL_TABLE
@@ -44,7 +45,7 @@ class JITFunction:
 			traceback.print_exc()
 
 
-class JIT:
+class JITCompiler:
 	""""""
 	PATH_PREFIX = pathlib.Path() / 'jit'
 
@@ -63,7 +64,7 @@ class JIT:
 
 	def __load_template(self, filename):
 		""""""
-		with open(str(JIT.PATH_PREFIX / filename)) as file:
+		with open(str(JITCompiler.PATH_PREFIX / filename)) as file:
 			return file.read()
 
 	def emit(self, text=''):
@@ -168,7 +169,7 @@ class JIT:
 
 	def emit_template(self, template, data):
 		""""""
-		self.emit(j2do(template, data, include=[JIT.PATH_PREFIX]))	
+		self.emit(j2do(template, data, include=[JITCompiler.PATH_PREFIX]))	
 
 	def transpile(self, ast):
 		""""""
@@ -179,9 +180,10 @@ class JIT:
 		body = getvalue(ast)[1:]
 		counter = itertools.count()
 
-		print(':: Transpiling            ::')
-		print(ast, '\n\n')
-		print('=-' * 20)
+		#print(':: Transpiling            ::')
+		#print(ast, '\n\n')
+		print(f':: Transpiling {getvalue(ast)[0][0]}')
+		#print('=-' * 20)
 
 		self.emit('#include <stdio.h>')
 		self.emit_template('header.j2', {})
@@ -195,7 +197,7 @@ class JIT:
 		self.emit(j2do(
 			"arguments.j2",
 			dict(arg_names=arg_names),
-			include=[JIT.PATH_PREFIX]
+			include=[JITCompiler.PATH_PREFIX]
 		))
 
 		self.emit('\n// BODY')
@@ -222,8 +224,8 @@ class JIT:
 		# Close output file if set
 		self.emit_file = self.emit_file.close() if self.emit_file else None
 
-		print('-=' * 20)
-		return '\n'.join(self.source)
+		#print('-=' * 20)
+		return '\n'.join(self.source), self.branches
 
 	def compile(self, code):
 		""""""
@@ -233,15 +235,15 @@ class JIT:
 		comp.add_library('python37')
 
 		try:
-			print('Compiling...')
+			#print('Compiling...')
 			comp.compile_string(code)
-			print('Relocating...')
+			#print('Relocating...')
 			comp.relocate()
 		except:
 			traceback.print_exc()
 			return lambda args, symtab, branches: print('<Your func here>')
 
-		print('Prototyping...')
+		#print('Prototyping...')
 		func_proto = ctypes.CFUNCTYPE(
 			ctypes.py_object,  # Return type
 			ctypes.py_object,  # ARGS
@@ -249,16 +251,67 @@ class JIT:
 			ctypes.py_object,  # BRANCHES
 		)
 
-		print('Getting Symbol...')
+		#print('Getting Symbol...', end='')
 		craft_main = comp.get_symbol('craft_main')
-		print('FuncProto...')
-		#return func_proto(a)
-		return JITFunction(func_proto(craft_main), self.branches)
+		#print(craft_main)
+		#print('FuncProto...', end='')
+		proto = func_proto(craft_main)
+		#print(proto)
+		return JITFunction(proto, self.branches)
 
 	def compile_function(self, func):
 		""""""
-		return self.compile(self.transpile(func))
+		#return self.compile(self.transpile(func))
+		source = self.transpile(func)
+		jitted = self.compile(source)
+		print(f'JIT Compilation Finished: {jitted}')
+		return jitted
 
+
+
+class JIT:
+	"""
+	Allows many compilation jobs to run at the same time concurrently.
+	"""
+
+	def __init__(self):
+		""""""
+		self.pool = ThreadPoolExecutor(max_workers=multiprocessing.cpu_count())
+		self.comp = self.setup_compiler()
+
+	def setup_compiler(self):
+		comp = TCC()
+		comp.add_include_path('C:/Python37/include')
+		comp.add_library_path('C:/Python37')
+		comp.add_library('python37')
+		return comp
+
+	def compile(self, function):
+		""""""
+		transpiler = JITCompiler()
+		source, branches = transpiler.transpile(function)
+		return self.pool.submit(self.compile_source, source, branches)
+
+	def compile_source(self, source, branches):
+		""""""
+		comp = self.setup_compiler()
+		ret = None
+		try:
+			comp.compile_string(source)
+			comp.relocate()
+			func_proto = ctypes.CFUNCTYPE(
+				ctypes.py_object,  # Return type
+				ctypes.py_object,  # ARGS
+				ctypes.py_object,  # SYMBOL_TABLE
+				ctypes.py_object,  # BRANCHES
+			)
+			craft_main = comp.get_symbol('craft_main')
+			ret = JITFunction(func_proto(craft_main), branches)
+		except:
+			traceback.print_exc()
+		finally:
+			del comp
+			return ret
 
 
 
@@ -298,17 +351,33 @@ if __name__ == '__main__':
 	'''
 	# endregion
 
-	jit = JIT()
-	func = craft_parse(hello)
 
-	c_code = jit.transpile(func)
-	# TODO(pebaz): Make option to be verbose (print out) and write to file
-	#with open('output.c', 'w') as file:
-	#	file.write(c_code)
-	__code__ = jit.compile(c_code)
+
+	jitter = JIT()
+	status = jitter.compile(craft_parse(fibo)), jitter.compile(craft_parse(hello))
+	print(status[0].result(), status[1].result())
+	exit()
+
+
+
+
+
+	jit = JITCompiler()
+	func = craft_parse(hello)
+	#c_code = jit.transpile(func)
+	#__code__ = jit.compile(c_code)
+	__code__ = jit.compile_function(func)
 	setup_sym_tab()
 	craft_set(getvalue(func)[0][0], __code__)
-	#import ipdb; ipdb.set_trace()
+
+	print(__code__(10))
+
+	__code__ = jit.compile_function(func)
+
+	print(__code__(11))
+
+	exit()
+
 
 	print('Running...')
 	print('\n------------------------')
