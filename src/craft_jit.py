@@ -15,10 +15,14 @@ from craft_core import *  # craft_raise, BRANCH_FUNCTIONS, SYMBOL_TABLE
 class JITFunction:
 	""""""
 
-	def __init__(self, func: dict, branches: list):
+	def __init__(self, func, branches: list):
 		""""""
+		self.name = 'NAME'
 		self.func = func
 		self.branches = branches
+
+	def __repr__(self):
+		return f'<JITFunction {self.name}>'
 
 	def __call__(self, *args):
 		""""""
@@ -353,9 +357,18 @@ if __name__ == '__main__':
 
 
 
+	from random import choice
 	jitter = JIT()
-	status = jitter.compile(craft_parse(fibo)), jitter.compile(craft_parse(hello))
-	print(status[0].result(), status[1].result())
+	status = [
+		jitter.compile(craft_parse(choice([fibo, hello])))
+		for i in range(10)
+	]
+	for future in as_completed(status):
+		print(future.result())
+	'''
+	for future in status:
+		print(future.result())
+	'''
 	exit()
 
 
