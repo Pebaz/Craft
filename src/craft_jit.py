@@ -197,9 +197,9 @@ class JIT:
 
 	def compile(self, code):
 		comp = TCC()
-		comp.add_include_path('C:/Python37/include')
-		comp.add_library_path('C:/Python37')
-		comp.add_library('python37')
+		comp.add_include_path('C:/Python36/include')
+		comp.add_library_path('C:/Python36')
+		comp.add_library('python36')
 
 		try:
 			print('Compiling...')
