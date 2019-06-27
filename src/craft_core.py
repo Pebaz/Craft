@@ -693,8 +693,8 @@ CRAFT_PATH = [os.getcwd(), 'stdlib']
 DEBUG = False
 BRANCH_FUNCTIONS = []
 
-from craft_jit import JIT
-JIT_COMPILER = JIT()
+import craft_jit
+JIT_COMPILER = craft_jit.JIT()
 
 
 def branch(name=None):

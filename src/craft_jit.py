@@ -93,7 +93,7 @@ class JITCompiler:
 
 class JITTranspiler:
 	""""""
-	PATH_PREFIX = pathlib.Path() / 'jit'
+	PATH_PREFIX = pathlib.Path() / 'src/jit'
 
 	def __init__(self, emit_stdout=False, emit_file=None):
 		""""""
