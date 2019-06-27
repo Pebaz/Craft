@@ -501,9 +501,8 @@ class JIT:
 		compiler = JITCompiler()
 		#print('Compiling')
 		proto = compiler.compile(source)
-		#del compiler
+		del compiler
 		#print('Returning JITFunction')
-		print(dir(proto))
 		return JITFunction(proto, branches)
 
 
