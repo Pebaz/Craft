@@ -291,6 +291,7 @@ class JIT:
 		self.branch_functions = [] + BRANCH_FUNCTIONS
 		self.emit_stdout = emit_stdout
 		self.emit_file = emit_file
+		self.compiler = JITCompiler()
 	
 	def get_source(self):
 		""""""
@@ -516,10 +517,10 @@ class JIT:
 		symbol_name = transpiler.get_symbol_name()
 		del transpiler
 		#print('Beginning to compile!')
-		compiler = JITCompiler()
+		#compiler = JITCompiler()
 		#print('Compiling')
-		proto = compiler.compile(source, symbol_name)
-		del compiler
+		proto = self.compiler.compile(source, symbol_name)
+		#del compiler
 		#print('Returning JITFunction')
 		return JITFunction(proto, branches)
 
@@ -588,7 +589,9 @@ if __name__ == '__main__':
 		print('------------------------\nDone.')
 		print(f'Return Value: {repr(ret)}')
 
+
 	print('\n\n\n\n\n\n\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+	exit()
 	from multiprocessing.pool import ThreadPool
 
 	pool = ThreadPool(processes=1)
