@@ -5,8 +5,8 @@ Can JIT compile any user-defined Craft function. For debugging or curiosity,
 can 
 """
 
-import ctypes, pathlib, itertools, traceback, sys, uuid  # Utilities
-from pytcc import TCC  # C compiler as library
+import ctypes, pathlib, itertools, traceback, sys  # Utilities
+from pytcc import TCCState as TCC  # C compiler as library
 from j2do import j2do  # C code snippets
 from craft_core import *  # craft_raise, BRANCH_FUNCTIONS, SYMBOL_TABLE
 
@@ -14,14 +14,13 @@ from craft_core import *  # craft_raise, BRANCH_FUNCTIONS, SYMBOL_TABLE
 class JITFunction:
 	""""""
 
-	def __init__(self, func: dict, branches: list, name: str):
+	def __init__(self, func: dict, branches: list):
 		""""""
 		self.func = func
 		self.branches = branches
-		self.name = name
 
 	def __repr__(self):
-		return f'<{self.__class__.__name__} {self.name}:[]>'
+		return f'<{self.__class__.__name__} the_name:[]>'
 
 	def __call__(self, *args):
 		""""""
@@ -52,37 +51,37 @@ class JITCompiler:
 	"""
 	"""
 	def __init__(self):
-		python_dir = pathlib.Path(sys.exec_prefix)
-		self.comp = TCC()
-		self.comp.add_include_path(str(python_dir / 'include'))
-		self.comp.add_library_path(str(python_dir))
-		self.comp.add_library('python3')
-		#self.comp.compile_string('int main(int argc, char** argv) { }')
-		self.first_pass = True
+		self.code_buffer = None
 
-	def compile(self, code, symbol_name):
+	def compile(self, code):
 		""""""
+		python_dir = pathlib.Path(sys.exec_prefix)
+		comp = TCC()
+		comp.add_include_path(str(python_dir / 'include'))
+		comp.add_library_path(str(python_dir))
+		comp.add_library('python3')
 		ret = None
-		print('Compiling...', id(self))
-		if self.first_pass:
-			code += '\nint main(int argc, char** argv) { }\n'
-			self.first_pass = False
-		self.comp.compile_string(code)
-		#print('Relocating...')
-		self.comp.relocate()
-		#print('Prototyping...')
-		func_proto = ctypes.CFUNCTYPE(
-			ctypes.py_object,  # Return type
-			ctypes.py_object,  # ARGS
-			ctypes.py_object,  # SYMBOL_TABLE
-			ctypes.py_object,  # BRANCHES
-		)
-		#print('Getting Symbol...')
-		craft_main = self.comp.get_symbol(symbol_name)
-		if not craft_main:
-			raise Exception(f'JITError: {symbol_name} failed to compile.')
-		ret = func_proto(craft_main)
-		return ret
+		try:
+			print('Compiling...', id(self))
+			comp.compile_string(code)
+			#print('Relocating...')
+			#comp.relocate()
+			self.code_buffer = comp.get_bytes()
+			#print('Prototyping...')
+			func_proto = ctypes.CFUNCTYPE(
+				ctypes.py_object,  # Return type
+				ctypes.py_object,  # ARGS
+				ctypes.py_object,  # SYMBOL_TABLE
+				ctypes.py_object,  # BRANCHES
+			)
+			#print('Getting Symbol...')
+			craft_main = comp.get_symbol('craft_main')
+			ret = func_proto(craft_main)
+		except:
+			traceback.print_exc()
+		finally:
+			del comp
+			return ret
 
 
 
@@ -98,21 +97,10 @@ class JITTranspiler:
 		self.branch_functions = [] + BRANCH_FUNCTIONS
 		self.emit_stdout = emit_stdout
 		self.emit_file = emit_file
-		self.symbol_name = None
-		self.func_name = None
 	
 	def get_source(self):
 		""""""
 		return '\n'.join(self.source)
-
-	def get_branches(self):
-		return self.branches.copy()
-
-	def get_symbol_name(self):
-		return self.symbol_name
-
-	def get_func_name(self):
-		return self.func_name
 
 	def __load_template(self, filename):
 		""""""
@@ -236,14 +224,8 @@ class JITTranspiler:
 		#print(ast, '\n\n')
 		#print('=-' * 20)
 
-		# Generate unique function symbol (TCC keeps previously compiled funcs)
-		self.symbol_name = f'craft_main_{str(uuid.uuid1()).replace("-", "")}'
-
-		# Store function name for later
-		self.func_name = getvalue(ast)[0][0]
-
-		#self.emit('#include <stdio.h>')
-		self.emit_template('header.j2', dict(symbol_name=self.symbol_name))
+		self.emit('#include <stdio.h>')
+		self.emit_template('header.j2', {})
 
 		# Push Scope
 		self.emit_func({'push-scope' : []}, counter)
@@ -300,7 +282,6 @@ class JIT:
 		self.branch_functions = [] + BRANCH_FUNCTIONS
 		self.emit_stdout = emit_stdout
 		self.emit_file = emit_file
-		self.compiler = JITCompiler()
 	
 	def get_source(self):
 		""""""
@@ -519,20 +500,17 @@ class JIT:
 		#return self.compile(self.transpile(ast))
 		#return self.compile(*self.transpile(ast))
 
-		transpiler = JITTranspiler(emit_file='output.c')
-		transpiler.transpile(ast)
-		source = transpiler.get_source()
-		branches = transpiler.get_branches()
-		symbol_name = transpiler.get_symbol_name()
-		func_name = transpiler.get_func_name() 
+		transpiler = JITTranspiler()
+		source = transpiler.transpile(ast)
+		branches = transpiler.branches.copy()
 		del transpiler
 		#print('Beginning to compile!')
-		#compiler = JITCompiler()
+		compiler = JITCompiler()
 		#print('Compiling')
-		proto = self.compiler.compile(source, symbol_name)
-		#del compiler
+		proto = compiler.compile(source)
+		del compiler
 		#print('Returning JITFunction')
-		return JITFunction(proto, branches, func_name)
+		return JITFunction(proto, branches)
 
 
 
@@ -599,15 +577,12 @@ if __name__ == '__main__':
 		print('------------------------\nDone.')
 		print(f'Return Value: {repr(ret)}')
 
-
 	print('\n\n\n\n\n\n\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-	exit()
 	from multiprocessing.pool import ThreadPool
 
 	pool = ThreadPool(processes=1)
 
-	#results = [pool.apply_async(tmp_func, (func,)) for i in range(4)]
-	results = [pool.apply_async(jit.compile_function, (func,)) for i in range(4)]
+	results = [pool.apply_async(tmp_func, (func,)) for i in range(4)]
 	values = []
 	# for i in results:
 	# 	ret = i.get()
