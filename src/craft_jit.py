@@ -5,21 +5,26 @@ Can JIT compile any user-defined Craft function. For debugging or curiosity,
 can 
 """
 
-import ctypes, pathlib, itertools, traceback, multiprocessing  # Utilities
+import ctypes, pathlib, itertools, traceback, sys  # Utilities
+from multiprocessing.pool import ThreadPool
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from pytcc import TCC  # C compiler as library
+from pytcc import TCCState as TCC  # C compiler as library
 from j2do import j2do  # C code snippets
 from craft_core import *  # craft_raise, BRANCH_FUNCTIONS, SYMBOL_TABLE
-
+from craft_parser 		import *
 
 class JITFunction:
 	""""""
 
-	def __init__(self, name, func, branches):
+	def __init__(self, name, func: dict, branches: list, buffer):
 		""""""
-		self.name = name
 		self.func = func
 		self.branches = branches
+		self.code_buffer = buffer
+		self.name = name
+
+	def __repr__(self):
+		return f'<{self.__class__.__name__} {self.name}:[]>'
 
 	def __repr__(self):
 		return f'<JITFunction {self.name}>'
@@ -47,6 +52,43 @@ class JITFunction:
 
 		except SystemError as e:
 			traceback.print_exc()
+
+
+class JITCompiler:
+	"""
+	"""
+	def __init__(self):
+		self.code_buffer = None
+
+	def compile(self, code):
+		""""""
+		python_dir = pathlib.Path(sys.exec_prefix)
+		comp = TCC()
+		comp.add_include_path(str(python_dir / 'include'))
+		comp.add_library_path(str(python_dir))
+		comp.add_library('python3')
+		ret = None
+		try:
+			print('Compiling...', id(self))
+			comp.compile_string(code)
+			#print('Relocating...')
+			#comp.relocate()
+			self.code_buffer = comp.get_bytes()
+			#print('Prototyping...')
+			func_proto = ctypes.CFUNCTYPE(
+				ctypes.py_object,  # Return type
+				ctypes.py_object,  # ARGS
+				ctypes.py_object,  # SYMBOL_TABLE
+				ctypes.py_object,  # BRANCHES
+			)
+			#print('Getting Symbol...')
+			craft_main = comp.get_symbol('craft_main')
+			ret = func_proto(craft_main)
+		except:
+			traceback.print_exc()
+		finally:
+			del comp
+			return ret, self.code_buffer
 
 
 class JITTranspiler:
@@ -181,12 +223,6 @@ class JITTranspiler:
 
 	def transpile(self, ast):
 		""""""
-		if self.source:
-			raise Exception(
-				'Already transpiled using this instance. '
-				'Create a new one to transpile another function.'
-			)
-
 		# Open output file if set
 		self.emit_file = open(self.emit_file, 'w') if self.emit_file else None
 
@@ -196,7 +232,6 @@ class JITTranspiler:
 
 		#print(':: Transpiling            ::')
 		#print(ast, '\n\n')
-		print(f':: Transpiling {getvalue(ast)[0][0]}')
 		#print('=-' * 20)
 
 		self.emit('#include <stdio.h>')
@@ -239,44 +274,7 @@ class JITTranspiler:
 		self.emit_file = self.emit_file.close() if self.emit_file else None
 
 		#print('-=' * 20)
-		#return '\n'.join(self.source)
-
-		# NEED TO CALL `self.get_source()` in order to get source!
-
-
-class JITCompiler:
-	"""
-	Compile C code and return a Python-compatible callable.
-	"""
-
-	def __setup_compiler(self):
-		comp = TCC()
-		comp.add_include_path('C:/Python36/include')
-		comp.add_library_path('C:/Python36')
-		comp.add_library('python3')
-		return comp
-
-	def compile(self, func_name, source, branches):
-		""""""
-		comp = self.__setup_compiler()
-		ret = None
-		try:
-			comp.compile_string(source)
-			comp.relocate()
-			func_proto = ctypes.CFUNCTYPE(
-				ctypes.py_object,  # Return type
-				ctypes.py_object,  # ARGS
-				ctypes.py_object,  # SYMBOL_TABLE
-				ctypes.py_object,  # BRANCHES
-			)
-			craft_main = comp.get_symbol('craft_main')
-			proto = func_proto(craft_main)
-			ret = JITFunction(func_name, proto, branches)
-		except:
-			traceback.print_exc()
-		finally:
-			del comp  # Either way, delete the compiler instance
-			return ret
+		return '\n'.join(self.source)
 
 
 class JIT:
@@ -286,30 +284,35 @@ class JIT:
 
 	def __init__(self):
 		""""""
-		self.pool = ThreadPoolExecutor(max_workers=multiprocessing.cpu_count())
+		#self.pool = ThreadPoolExecutor(max_workers=multiprocessing.cpu_count())
+		self.pool = ThreadPool(processes=1)
 
 	def compile(self, function):
 		"""
 		The `function` is a Dictionary containing a valid Craft function.
 		"""
-		return self.pool.submit(self.__compile, function)
+		#return self.pool.submit(self.__compile, function)
+		return self.pool.apply_async(self.__compile, (function,))
 
-	def __compile(self, function):
+	def __compile(self, ast):
 		""""""
-		name = getkey(function)
-		trans = JITTranspiler()
-		comp = JITCompiler()
-		trans.transpile(function)
-		func = comp.compile(name, trans.get_source(), trans.get_branches())
-		return func
+		name = getvalue(ast)[0][0]
+		transpiler = JITTranspiler()
+		source = transpiler.transpile(ast)
+		branches = transpiler.branches.copy()
+		compiler = JITCompiler()
+		proto, buffer = compiler.compile(source)
+		del compiler
+		return JITFunction(name, proto, branches, buffer)
+		
+
+
+
 
 
 if __name__ == '__main__':
-	
-	from craft_parser 		import *
-	#from craft_exceptions 	import *
-	#from craft_cli 			import *
-	#from craft_interpreter 	import *
+
+
 	# region
 	fibo = '''
 	def: [
@@ -339,70 +342,78 @@ if __name__ == '__main__':
 	'''
 	# endregion
 
-	b = JITTranspiler()
-	b.transpile(craft_parse(fibo))
-	a = JITCompiler()
-	func = a.compile('hi', b.get_source(), b.get_branches())
-	print('Done')
-	if func:
-		func(10)
+
+		
+
+	# Test Setup
+	def tmp_func(ast):
+		jit = JIT()
+		b = jit.compile_function(ast)
+		del jit
+		return b
+
+	setup_sym_tab()
+	jit = JIT()
+	func = craft_parse(fibo)
+
+	a = jit.compile(func)
+	b = jit.compile(func)
+	print(a.get()(10))
+	print(b.get()(10))
+
 	exit()
+
+	for i in range(4):
+		
+		#c_code = jit.transpile(func)
+		#__code__ = jit.compile(c_code)
+		__code__ = jit.compile_function(func)
+		craft_set(getvalue(func)[0][0], __code__)
+		print('Running...')
+		print('\n------------------------')
+		ret = __code__(10)
+		print('------------------------\nDone.')
+		print(f'Return Value: {repr(ret)}')
+		assert(ret == 55)
+
+	print('\n\n\n\n\n\n\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+	exit()
+
+	pool = ThreadPool(processes=1)
+
+	results = [pool.apply_async(tmp_func, (func,)) for i in range(2)]
+	values = []
+	# for i in results:
+	# 	ret = i.get()
+	# 	print(ret)
+	# 	res = ret(10)
+	# 	values.append(res)
+	# 	print(res)
 
 	import time
-
-	jitter = JIT()
-
-	func = jitter.compile(craft_parse(fibo))
-	while func.running():
-		time.sleep(0.3)
-	print('done')
-	func = func.result()
-	import ipdb; ipdb.set_trace()
-	print(func(10))
-	exit()
-
-
-	from random import choice
-	status = [
-		jitter.compile(craft_parse(choice([fibo, hello])))
-		for i in range(10)
-	]
-	for future in as_completed(status):
-		print(future.result())
-	'''
-	for future in status:
-		print(future.result())
-	'''
-	exit()
+	while results:
+		for i in range(len(results)):
+			thread = results[i]
+			if thread.ready():
+				values.append(thread.get())
+				results.pop(i)
+				break
+		print('.', end='')
+		time.sleep(0.1)
+	print()
 
 
+	print('DONE!!!')
+	print(values)
+	#values = [i(10) for i in values]
+	tmp = []
+	for i in values:
+		try:
+			tmp.append(i(10))
+		except OSError:
+			tmp.append(-1)
+	values = tmp
+	print(values)
+	print(f'All values == 55: {all([i == 55 for i in values])}')
 
 
-
-	jit = JITCompiler()
-	func = craft_parse(hello)
-	#c_code = jit.transpile(func)
-	#__code__ = jit.compile(c_code)
-	__code__ = jit.compile_function(func)
-	setup_sym_tab()
-	craft_set(getvalue(func)[0][0], __code__)
-
-	print(__code__(10))
-
-	__code__ = jit.compile_function(func)
-
-	print(__code__(11))
-
-	exit()
-
-
-	print('Running...')
-	print('\n------------------------')
-	ret = __code__(10)
-	print('------------------------\nDone.')
-	print(f'Return Value: {repr(ret)}')
-	# def fibo(x):
-	# 	if x <= 1:
-	# 		return x
-	# 	return fibo(x - 1) + fibo(x - 2)
-	# print(f'Expected Value: {fibo(10)}')
