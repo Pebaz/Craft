@@ -5,7 +5,7 @@ Can JIT compile any user-defined Craft function. For debugging or curiosity,
 can 
 """
 
-import ctypes, pathlib, itertools, traceback, sys  # Utilities
+import ctypes, pathlib, itertools, traceback, sys, uuid  # Utilities
 from pytcc import TCC  # C compiler as library
 from j2do import j2do  # C code snippets
 from craft_core import *  # craft_raise, BRANCH_FUNCTIONS, SYMBOL_TABLE
@@ -51,7 +51,7 @@ class JITCompiler:
 	"""
 	"""
 
-	def compile(self, code):
+	def compile(self, code, symbol_name):
 		""""""
 		python_dir = pathlib.Path(sys.exec_prefix)
 		comp = TCC()
@@ -72,7 +72,9 @@ class JITCompiler:
 				ctypes.py_object,  # BRANCHES
 			)
 			#print('Getting Symbol...')
-			craft_main = comp.get_symbol('craft_main')
+			craft_main = comp.get_symbol(symbol_name)
+			if not craft_main:
+				raise Exception(f'JITError: {symbol_name} failed to compile.')
 			ret = func_proto(craft_main)
 		except:
 			traceback.print_exc()
@@ -94,10 +96,17 @@ class JITTranspiler:
 		self.branch_functions = [] + BRANCH_FUNCTIONS
 		self.emit_stdout = emit_stdout
 		self.emit_file = emit_file
+		self.symbol_name = None
 	
 	def get_source(self):
 		""""""
 		return '\n'.join(self.source)
+
+	def get_branches(self):
+		return self.branches.copy()
+
+	def get_symbol_name(self):
+		return self.symbol_name
 
 	def __load_template(self, filename):
 		""""""
@@ -221,8 +230,11 @@ class JITTranspiler:
 		#print(ast, '\n\n')
 		#print('=-' * 20)
 
+		# Generate unique function symbol (TCC keeps previously compiled funcs)
+		self.symbol_name = f'craft_main_{str(uuid.uuid1()).replace("-", "")}'
+
 		self.emit('#include <stdio.h>')
-		self.emit_template('header.j2', {})
+		self.emit_template('header.j2', dict(symbol_name=self.symbol_name))
 
 		# Push Scope
 		self.emit_func({'push-scope' : []}, counter)
@@ -498,13 +510,15 @@ class JIT:
 		#return self.compile(*self.transpile(ast))
 
 		transpiler = JITTranspiler()
-		source = transpiler.transpile(ast)
-		branches = transpiler.branches.copy()
+		transpiler.transpile(ast)
+		source = transpiler.get_source()
+		branches = transpiler.get_branches()
+		symbol_name = transpiler.get_symbol_name()
 		del transpiler
 		#print('Beginning to compile!')
 		compiler = JITCompiler()
 		#print('Compiling')
-		proto = compiler.compile(source)
+		proto = compiler.compile(source, symbol_name)
 		del compiler
 		#print('Returning JITFunction')
 		return JITFunction(proto, branches)
