@@ -44,8 +44,6 @@ class JITFunction:
 			traceback.print_exc()
 
 
-
-
 class JITCompiler:
 	"""
 	"""
@@ -75,7 +73,7 @@ class JITCompiler:
 		except:
 			traceback.print_exc()
 		finally:
-			# del comp
+			del comp
 			return ret
 
 
@@ -487,19 +485,32 @@ class JIT:
 		compiler = JITCompiler()
 		proto = compiler.compile(code)
 		del compiler
-		return JITFunction(proto, the_branches)  # .copy() ??
+		return JITFunction(proto, the_branches)
 
 
-	def compile_function(self, func):
+	def compile_function(self, ast):
 		""""""
-		#return self.compile(self.transpile(func))
-		return self.compile(*self.transpile(func))
+		#return self.compile(self.transpile(ast))
+		#return self.compile(*self.transpile(ast))
+
+		transpiler = JITTranspiler()
+		source = transpiler.transpile(ast)
+		branches = transpiler.branches.copy()
+		del transpiler
+		print('Beginning to compile!')
+		compiler = JITCompiler()
+		print('Compiling')
+		proto = compiler.compile(source)
+		del compiler
+		print('Returning JITFunction')
+		return JITFunction(proto, branches)
 
 
 
 
 
 if __name__ == '__main__':
+	from concurrent.futures import ThreadPoolExecutor, as_completed
 	from craft_parser 		import *
 	#from craft_exceptions 	import *
 	#from craft_cli 			import *
@@ -533,16 +544,48 @@ if __name__ == '__main__':
 	'''
 	# endregion
 
-	for i in range(4):
+
+		
+
+	# Test Setup
+	def tmp_func(ast):
 		jit = JIT()
-		func = craft_parse(hello)
+		b = jit.compile_function(ast)
+		del jit
+		return b
+
+	jit = JIT()
+	setup_sym_tab()
+	func = craft_parse(fibo)
+
+	for i in range(2):
+		
 		#c_code = jit.transpile(func)
 		#__code__ = jit.compile(c_code)
 		__code__ = jit.compile_function(func)
-		setup_sym_tab()
 		craft_set(getvalue(func)[0][0], __code__)
 		print('Running...')
 		print('\n------------------------')
 		ret = __code__(10)
 		print('------------------------\nDone.')
 		print(f'Return Value: {repr(ret)}')
+
+	print('\n\n\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+	from multiprocessing.pool import ThreadPool
+
+	pool = ThreadPool(processes=1)
+
+	results = [pool.apply_async(tmp_func, (func,)) for i in range(2)]
+	values = []
+	for i in results:
+		ret = i.get()
+		print(ret)
+		res = ret(10)
+		values.append(res)
+		print(res)
+
+	print('DONE!!!')
+	expected = [55, 55]
+	print(f'{expected} == {values}: {expected == values}')
+
+
