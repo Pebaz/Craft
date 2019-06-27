@@ -5,7 +5,7 @@ Can JIT compile any user-defined Craft function. For debugging or curiosity,
 can 
 """
 
-import ctypes, pathlib, itertools, traceback  # Utilities
+import ctypes, pathlib, itertools, traceback, sys  # Utilities
 from pytcc import TCC  # C compiler as library
 from j2do import j2do  # C code snippets
 from craft_core import *  # craft_raise, BRANCH_FUNCTIONS, SYMBOL_TABLE
@@ -18,6 +18,9 @@ class JITFunction:
 		""""""
 		self.func = func
 		self.branches = branches
+
+	def __repr__(self):
+		return f'<{self.__class__.__name__} the_name:[]>'
 
 	def __call__(self, *args):
 		""""""
@@ -50,10 +53,11 @@ class JITCompiler:
 
 	def compile(self, code):
 		""""""
+		python_dir = pathlib.Path(sys.exec_prefix)
 		comp = TCC()
-		comp.add_include_path('C:/Python36/include')
-		comp.add_library_path('C:/Python36')
-		comp.add_library('python36')
+		comp.add_include_path(str(python_dir / 'include'))
+		comp.add_library_path(str(python_dir))
+		comp.add_library('python3')
 		ret = None
 		try:
 			print('Compiling...')
