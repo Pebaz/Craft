@@ -581,11 +581,24 @@ class Function(list):
 	of the function asynchronously.
 	"""
 	def __init__(self, *args):
-		list.__init__(self, *args)
-		self.pool = ThreadPoolExecutor(max_workers=1)
-		self.__jit__ = self.pool.submit(lambda func: lambda x: 'JITTED', self)
+		global JIT_COMPILER
+		self.name = args[0]
+		list_args = args[1]
+		list.__init__(self, list_args)
+		self.__jit__ = JIT_COMPILER.compile({
+			'def' : [
+				[self.name] + self[0],
+				self[1]
+			]
+		})
 		self.__code__ = None
 		self.saved_hash = hash(self)
+
+	def __repr__(self):
+		if self.__code__:
+			return repr(self.__code__)
+		else:
+			return f'<{self.__class__.__name__} {self.name}:[]>'
 
 	def __call__(self, *args):
 		"""
@@ -596,15 +609,15 @@ class Function(list):
 		
 		# If the hash changed, we need to recompile
 		if hash(self) != self.saved_hash:
-			self.__code__ = self.__jit__.submit(COMPILE_FUNC, ARGS)
+			self.__code__ = JIT_COMPILER.compile(self)
 
 		# Call the JIT func if it is done compiling, else interpret self
-		if self.__jit__.running():
+		if not self.__jit__.ready():
 			return craft_exec(self, args)
 
 		# Whether done or already done, update the callable and call it
 		else:
-			self.__code__ = self.__jit__.result()
+			self.__code__ = self.__jit__.get()
 			#return self.__code__(args)
 			return craft_exec(self, args)
 
@@ -679,6 +692,9 @@ TRACEBACK = Trace()
 CRAFT_PATH = [os.getcwd(), 'stdlib']
 DEBUG = False
 BRANCH_FUNCTIONS = []
+
+from craft_jit import JIT
+JIT_COMPILER = JIT()
 
 
 def branch(name=None):

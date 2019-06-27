@@ -296,7 +296,9 @@ class JIT:
 
 	def __compile(self, ast):
 		""""""
+		from craft_core import getvalue
 		name = getvalue(ast)[0][0]
+		print(f'Compiling {name}')
 		transpiler = JITTranspiler()
 		source = transpiler.transpile(ast)
 		branches = transpiler.branches.copy()
@@ -355,6 +357,7 @@ if __name__ == '__main__':
 	setup_sym_tab()
 	jit = JIT()
 	func = craft_parse(fibo)
+	print(func)
 
 	a = jit.compile(func)
 	b = jit.compile(func)

@@ -667,7 +667,7 @@ def craft_def(*args):
     func_definition = args[1:]
 
     #craft_set(func_name, [func_args, func_definition])
-    craft_set(func_name, Function([func_args, func_definition]))
+    craft_set(func_name, Function(func_name, [func_args, func_definition]))
 
 
 def craft_return(*args):
@@ -693,7 +693,7 @@ def craft_lambda(*args):
     arguments = get_arg_value(args[0])
     definition = args[1:]
     #return [arguments, definition]
-    return Function([func_args, func_definition])
+    return Function('lambda', [func_args, func_definition])
 
 
 def craft_struct(*args):
@@ -758,7 +758,7 @@ def craft_program(*args):
     # NOTE(Pebaz): To show a Python internal error, simply call: get_args(args)
     # TODO(Pebaz): Make it so that a command line switch can show the traceback
 
-    if True:
+    if False:
         try:
             get_args(args)
         except Exception as e:
