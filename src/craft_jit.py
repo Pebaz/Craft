@@ -58,16 +58,16 @@ class JITCompiler:
 		try:
 			print('Compiling...')
 			comp.compile_string(code)
-			print('Relocating...')
+			#print('Relocating...')
 			comp.relocate()
-			print('Prototyping...')
+			#print('Prototyping...')
 			func_proto = ctypes.CFUNCTYPE(
 				ctypes.py_object,  # Return type
 				ctypes.py_object,  # ARGS
 				ctypes.py_object,  # SYMBOL_TABLE
 				ctypes.py_object,  # BRANCHES
 			)
-			print('Getting Symbol...')
+			#print('Getting Symbol...')
 			craft_main = comp.get_symbol('craft_main')
 			ret = func_proto(craft_main)
 		except:
@@ -213,9 +213,9 @@ class JITTranspiler:
 		body = getvalue(ast)[1:]
 		counter = itertools.count()
 
-		print(':: Transpiling            ::')
-		print(ast, '\n\n')
-		print('=-' * 20)
+		#print(':: Transpiling            ::')
+		#print(ast, '\n\n')
+		#print('=-' * 20)
 
 		self.emit('#include <stdio.h>')
 		self.emit_template('header.j2', {})
@@ -256,7 +256,7 @@ class JITTranspiler:
 		# Close output file if set
 		self.emit_file = self.emit_file.close() if self.emit_file else None
 
-		print('-=' * 20)
+		#print('-=' * 20)
 		return '\n'.join(self.source)
 
 
@@ -497,12 +497,12 @@ class JIT:
 		source = transpiler.transpile(ast)
 		branches = transpiler.branches.copy()
 		del transpiler
-		print('Beginning to compile!')
+		#print('Beginning to compile!')
 		compiler = JITCompiler()
-		print('Compiling')
+		#print('Compiling')
 		proto = compiler.compile(source)
 		del compiler
-		print('Returning JITFunction')
+		#print('Returning JITFunction')
 		return JITFunction(proto, branches)
 
 
@@ -570,22 +570,34 @@ if __name__ == '__main__':
 		print('------------------------\nDone.')
 		print(f'Return Value: {repr(ret)}')
 
-	print('\n\n\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+	print('\n\n\n\n\n\n\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
 	from multiprocessing.pool import ThreadPool
 
 	pool = ThreadPool(processes=1)
 
-	results = [pool.apply_async(tmp_func, (func,)) for i in range(2)]
+	results = [pool.apply_async(tmp_func, (func,)) for i in range(4)]
 	values = []
-	for i in results:
-		ret = i.get()
-		print(ret)
-		res = ret(10)
-		values.append(res)
-		print(res)
+	# for i in results:
+	# 	ret = i.get()
+	# 	print(ret)
+	# 	res = ret(10)
+	# 	values.append(res)
+	# 	print(res)
+
+	import time
+	while results:
+		for i in range(len(results)):
+			thread = results[i]
+			if thread.ready():
+				values.append(thread.get())
+				results.pop(i)
+				break
+		print('.', end='')
+		time.sleep(0.1)
+	print()
+
 
 	print('DONE!!!')
-	expected = [55, 55]
-	print(f'{expected} == {values}: {expected == values}')
+	print(f'All values == 55: {all([i == 55 for i in values])}')
 
 
