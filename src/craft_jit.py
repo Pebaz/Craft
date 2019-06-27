@@ -501,8 +501,9 @@ class JIT:
 		compiler = JITCompiler()
 		#print('Compiling')
 		proto = compiler.compile(source)
-		del compiler
+		#del compiler
 		#print('Returning JITFunction')
+		print(dir(proto))
 		return JITFunction(proto, branches)
 
 
@@ -598,6 +599,16 @@ if __name__ == '__main__':
 
 
 	print('DONE!!!')
+	print(values)
+	#values = [i(10) for i in values]
+	tmp = []
+	for i in values:
+		try:
+			tmp.append(i(10))
+		except OSError:
+			tmp.append(-1)
+	values = tmp
+	print(values)
 	print(f'All values == 55: {all([i == 55 for i in values])}')
 
 
