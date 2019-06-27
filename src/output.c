@@ -1,9 +1,9 @@
-#include <stdio.h>#define PY_SSIZE_T_CLEAN
+#define PY_SSIZE_T_CLEAN
 #include "Python.h"
 //#include "jit/craft_common.c"
 
 
-PyObject * craft_main_2da57718990a11e98ee63c18a040d0f4(
+PyObject * craft_main_bcfc0998990c11e983a33c18a040d0f4(
     PyObject * ARGS,
     PyObject * SYMBOL_TABLE,
     PyObject * BRANCHES
