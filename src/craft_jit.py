@@ -14,10 +14,11 @@ from craft_core import *  # craft_raise, BRANCH_FUNCTIONS, SYMBOL_TABLE
 class JITFunction:
 	""""""
 
-	def __init__(self, func: dict, branches: list):
+	def __init__(self, func: dict, branches: list, buffer):
 		""""""
 		self.func = func
 		self.branches = branches
+		self.code_buffer = buffer
 
 	def __repr__(self):
 		return f'<{self.__class__.__name__} the_name:[]>'
@@ -81,7 +82,7 @@ class JITCompiler:
 			traceback.print_exc()
 		finally:
 			del comp
-			return ret
+			return ret, self.code_buffer
 
 
 
@@ -507,10 +508,10 @@ class JIT:
 		#print('Beginning to compile!')
 		compiler = JITCompiler()
 		#print('Compiling')
-		proto = compiler.compile(source)
+		proto, buffer = compiler.compile(source)
 		del compiler
 		#print('Returning JITFunction')
-		return JITFunction(proto, branches)
+		return JITFunction(proto, branches, buffer)
 
 
 
