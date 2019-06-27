@@ -504,7 +504,6 @@ class JIT:
 		transpiler = JITTranspiler()
 		source = transpiler.transpile(ast)
 		branches = transpiler.branches.copy()
-		del transpiler
 		#print('Beginning to compile!')
 		compiler = JITCompiler()
 		#print('Compiling')
@@ -566,7 +565,7 @@ if __name__ == '__main__':
 	setup_sym_tab()
 	func = craft_parse(fibo)
 
-	for i in range(2):
+	for i in range(100):
 		
 		#c_code = jit.transpile(func)
 		#__code__ = jit.compile(c_code)
@@ -577,8 +576,10 @@ if __name__ == '__main__':
 		ret = __code__(10)
 		print('------------------------\nDone.')
 		print(f'Return Value: {repr(ret)}')
+		assert(ret == 55)
 
 	print('\n\n\n\n\n\n\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+	exit()
 	from multiprocessing.pool import ThreadPool
 
 	pool = ThreadPool(processes=1)
