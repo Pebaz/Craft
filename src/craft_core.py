@@ -585,18 +585,14 @@ class Function(list):
 		self.name = args[0]
 		list_args = args[1]
 		list.__init__(self, list_args)
-		self.__jit__ = JIT_COMPILER.compile({
-			'def' : [
-				[self.name] + self[0],
-				*self[1]
-			]
-		})
+		self.__jit__ = self.compile_self()
 		self.__code__ = None
 		self.saved_hash = hash(self)
 
+
 	def __repr__(self):
 		if self.__code__:
-			return repr(self.__code__)
+			return f'<{self.__code__.__class__.__name__} {self.name}:[]>'
 		else:
 			return f'<{self.__class__.__name__} {self.name}:[]>'
 
@@ -608,8 +604,8 @@ class Function(list):
 		"""
 		
 		# If the hash changed, we need to recompile
-		if hash(self) != self.saved_hash:
-			self.__code__ = JIT_COMPILER.compile(self)
+		#if hash(self) != self.saved_hash:
+		#	self.__code__ = self.compile_self()
 
 		# Call the JIT func if it is done compiling, else interpret self
 		if not self.__jit__.ready():
@@ -618,8 +614,12 @@ class Function(list):
 		# Whether done or already done, update the callable and call it
 		else:
 			self.__code__ = self.__jit__.get()
-			#return self.__code__(args)
-			return craft_exec(self, args)
+			# Guard against OSError: Access Violation Writing ...
+			try:
+				return self.__code__(args)
+				#return craft_exec(self, args)
+			except OSError:
+				return craft_exec(self, args)
 
 	def __hash__(self):
 		"""
@@ -627,6 +627,13 @@ class Function(list):
 		"""
 		return hash(str(self))
 
+	def compile_self(self):
+		return JIT_COMPILER.compile({
+			'def' : [
+				[self.name] + self[0],
+				*self[1]
+			]
+		})
 
 class Trace:
 	def __init__(self, history=100):

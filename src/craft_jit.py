@@ -16,18 +16,14 @@ from craft_parser 		import *
 class JITFunction:
 	""""""
 
-	def __init__(self, name, func: dict, branches: list, buffer):
+	def __init__(self, func: dict, branches: list, buffer):
 		""""""
 		self.func = func
 		self.branches = branches
 		self.code_buffer = buffer
-		self.name = name
 
 	def __repr__(self):
-		return f'<{self.__class__.__name__} {self.name}:[]>'
-
-	def __repr__(self):
-		return f'<JITFunction {self.name}:[]>'
+		return f'<{self.__class__.__name__}>'
 
 	def __call__(self, *args):
 		""""""
@@ -278,10 +274,37 @@ class JITTranspiler:
 		return '\n'.join(self.source)
 
 
+class ApplyResultGhost:
+	"""
+	When running `JIT` in single threaded mode, it still needs to return an
+	object that resembles a `multiprocessing.pool.ApplyResult`.
+	"""
+	def __init__(self, function):
+		"""
+		The JIT function to store until the caller needs it.
+		"""
+		self.function = function
+
+	def ready(self):
+		"""
+		It's always ready since `JIT` is assumed to not be running in another
+		thread if this class is ever instantiated.
+		"""
+		return True
+
+	def get(self):
+		"""
+		Returns the JIT-compiled function, just not in an asynchronous way.
+		"""
+		return self.function
+
+
 class JIT:
 	"""
 	Allows many compilation jobs to run at the same time concurrently.
 	"""
+
+	USE_SINGLE_THREAD = True
 
 	def __init__(self):
 		""""""
@@ -291,21 +314,22 @@ class JIT:
 		"""
 		The `function` is a Dictionary containing a valid Craft function.
 		"""
-		return self.pool.apply_async(self.__compile, (function,))
-		#return self.__compile(function)
+		if JIT.USE_SINGLE_THREAD:
+			jit_func = self.__compile(function)
+			return ApplyResultGhost(jit_func)
+		else:
+			return self.pool.apply_async(self.__compile, (function,))
 
 	def __compile(self, ast):
 		""""""
 		from craft_core import getvalue
-		name = getvalue(ast)[0][0]
-		print(f'Compiling {name}')
 		transpiler = JITTranspiler()
 		source = transpiler.transpile(ast)
 		branches = transpiler.branches.copy()
 		compiler = JITCompiler()
 		proto, buffer = compiler.compile(source)
 		del compiler
-		return JITFunction(name, proto, branches, buffer)
+		return JITFunction(proto, branches, buffer)
 		
 
 
