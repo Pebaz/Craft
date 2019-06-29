@@ -588,7 +588,7 @@ class Function(list):
 		self.__jit__ = JIT_COMPILER.compile({
 			'def' : [
 				[self.name] + self[0],
-				self[1]
+				*self[1]
 			]
 		})
 		self.__code__ = None

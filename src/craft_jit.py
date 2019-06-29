@@ -27,7 +27,7 @@ class JITFunction:
 		return f'<{self.__class__.__name__} {self.name}:[]>'
 
 	def __repr__(self):
-		return f'<JITFunction {self.name}>'
+		return f'<JITFunction {self.name}:[]>'
 
 	def __call__(self, *args):
 		""""""
@@ -257,7 +257,8 @@ class JITTranspiler:
 			if is_statement(statement):
 				self.emit(f'\n// {statement}')
 			else:
-				raise CraftException('SyntaxError', {}, {})
+				import ipdb; ipdb.set_trace()
+				raise CraftException(f'SyntaxError: {statement}', {}, {})
 
 			# Make sure to interpret branching code
 			if getkey(statement) not in self.branch_functions:
@@ -284,15 +285,14 @@ class JIT:
 
 	def __init__(self):
 		""""""
-		#self.pool = ThreadPoolExecutor(max_workers=multiprocessing.cpu_count())
 		self.pool = ThreadPool(processes=1)
 
 	def compile(self, function):
 		"""
 		The `function` is a Dictionary containing a valid Craft function.
 		"""
-		#return self.pool.submit(self.__compile, function)
 		return self.pool.apply_async(self.__compile, (function,))
+		#return self.__compile(function)
 
 	def __compile(self, ast):
 		""""""
@@ -313,7 +313,7 @@ class JIT:
 
 
 if __name__ == '__main__':
-
+	JITTranspiler.PATH_PREFIX = pathlib.Path() / 'jit'
 
 	# region
 	fibo = '''

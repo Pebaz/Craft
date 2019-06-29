@@ -1,0 +1,17 @@
+Program:
+[
+    def:
+    [
+        [hi person]
+        prin: ["Hello "]
+        print: [$person]
+    ]
+
+    hi: [Pebaz]
+    print: [$hi]
+    hi: [Protodip]
+    hi: [Yelbu]
+    sleep: [2]
+    hi: [Nodibu]
+    print: [$hi]
+]
