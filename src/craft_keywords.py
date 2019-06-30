@@ -975,50 +975,15 @@ def craft_format(*args):
 	return args[0].format(*args[1:])
 
 
-def jit(func):
-	print(f'Need to remove {func.__name__}() from builtins!')
-	return func
-
-
-
-
-class Blubber:
-	def __init__(self, func):
-		self.func = func
-		self.pool = ThreadPoolExecutor(max_workers=1)
-		self.__jit__ = self.pool.submit(self.compile, self.func)
-	
-	def __del__(self):
-		self.pool.shutdown()
-
-	def __call__(self, *args, **kwargs):
-		if self.__jit__.done():
-			self.func = self.__jit__.result()
-		self.func(*args, **kwargs)
-
-	def compile(self, func):
-		import time; time.sleep(10)
-		def wrap(x):
-			print('WRAPPER')
-		return wrap
-
-
-@jit
-def getL(*args):
-	args = get_args(args)
-	print(args[0])
-	return args[0]
-
-
-class Result:
-	def __init__(self, value, err=False):
-		self.value = value
-		self.err = err
-
-@jit
 def get_result(*args):
+	"""
+	Args:
+		val(object): the object to return from a JIT-compiled function.
+		err(Exception): the error that occurred.
+	"""
 	args = get_args(args)
-	return Result(args[0], args[1])
+	val, err = args
+	return Result(val, err)
 
 
 def craft_eval(*args):
@@ -1057,7 +1022,6 @@ def craft_sleep(*args):
 
 __craft__ = {
 	# Built-Ins
-	'getL' : getL,
 	'type'                  : craft_type,
 	'eval'                  : craft_eval,
 	'exec'                  : craft_exec,

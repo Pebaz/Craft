@@ -8,7 +8,6 @@ can
 import ctypes, pathlib, itertools, traceback, sys  # Utilities
 from multiprocessing.pool import ThreadPool
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from pytcc import TCCState as TCC  # C compiler as library
 from j2do import j2do  # C code snippets
 from craft_core import *  # craft_raise, BRANCH_FUNCTIONS, SYMBOL_TABLE
 from craft_parser 		import *
@@ -58,6 +57,7 @@ class JITCompiler:
 
 	def compile(self, code):
 		""""""
+		from pytcc import TCCState as TCC
 		python_dir = pathlib.Path(sys.exec_prefix)
 		comp = TCC()
 		comp.add_include_path(str(python_dir / 'include'))
@@ -65,7 +65,7 @@ class JITCompiler:
 		comp.add_library('python3')
 		ret = None
 		try:
-			print('Compiling...', id(self))
+			#print('Compiling...', id(self))
 			comp.compile_string(code)
 			#print('Relocating...')
 			#comp.relocate()
@@ -303,16 +303,24 @@ class JIT:
 	Allows many compilation jobs to run at the same time concurrently.
 	"""
 
+	ENABLED = True
 	USE_SINGLE_THREAD = False
 
 	def __init__(self):
 		""""""
+		try:
+			from pytcc import TCCState as TCC
+		except:
+			JIT.ENABLED = False
 		self.pool = ThreadPool(processes=1)
 
 	def compile(self, function):
 		"""
 		The `function` is a Dictionary containing a valid Craft function.
 		"""
+		if not JIT.ENABLED:
+			raise Exception('JIT Compilation is disabled since LibTCC cannot be found on Path.')
+
 		if JIT.USE_SINGLE_THREAD:
 			jit_func = self.__compile(function)
 			return ApplyResultGhost(jit_func)

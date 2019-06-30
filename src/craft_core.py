@@ -574,6 +574,16 @@ def craft_raise(error_code, *args):
 # -----------------------------------------------------------------------------
 
 
+class Result:
+	"""
+	Used within JIT compiled functions to return either an error or a value
+	back to Python.
+	"""
+	def __init__(self, value, err=False):
+		self.value = value
+		self.err = err
+
+
 class Function(list):
 	"""
 	Since `craft_def()` defines functions as lists in SYMBOL_TABLE, it need to
@@ -585,7 +595,7 @@ class Function(list):
 		self.name = args[0]
 		list_args = args[1]
 		list.__init__(self, list_args)
-		self.__jit__ = self.compile_self()
+		self.__jit__ = self.compile_self() if JIT_COMPILER.ENABLED else None
 		self.__code__ = None
 		self.saved_hash = hash(self)
 
@@ -602,9 +612,12 @@ class Function(list):
 		need to only call the JIT compiled function if the hash hasn't changed.
 		If it has, just `craft_exec(self, args)` which should do the trick.
 		"""
+		if not JIT_COMPILER.ENABLED:
+			return craft_exec(self, args)
 		
 		# If the hash changed, we need to recompile
 		#if hash(self) != self.saved_hash:
+		#   if JIT_COMPILER.ENABLED: !!!
 		#	self.__code__ = self.compile_self()
 
 		# Call the JIT func if it is done compiling, else interpret self
@@ -630,6 +643,7 @@ class Function(list):
 		return hash(str(self))
 
 	def compile_self(self):
+		global JIT_COMPILER
 		return JIT_COMPILER.compile({
 			'def' : [
 				[self.name] + self[0],
