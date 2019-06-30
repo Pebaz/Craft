@@ -616,8 +616,10 @@ class Function(list):
 			self.__code__ = self.__jit__.get()
 			# Guard against OSError: Access Violation Writing ...
 			try:
-				return self.__code__(args)
 				#return craft_exec(self, args)
+				# To call __code__, JITFunction.__call__(*args) is defined.
+				# So unpack the tuple of arguments for __call__().
+				return self.__code__(*args)
 			except OSError:
 				return craft_exec(self, args)
 

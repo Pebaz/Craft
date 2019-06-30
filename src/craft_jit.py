@@ -253,7 +253,6 @@ class JITTranspiler:
 			if is_statement(statement):
 				self.emit(f'\n// {statement}')
 			else:
-				import ipdb; ipdb.set_trace()
 				raise CraftException(f'SyntaxError: {statement}', {}, {})
 
 			# Make sure to interpret branching code
@@ -304,7 +303,7 @@ class JIT:
 	Allows many compilation jobs to run at the same time concurrently.
 	"""
 
-	USE_SINGLE_THREAD = True
+	USE_SINGLE_THREAD = False
 
 	def __init__(self):
 		""""""

@@ -7,12 +7,6 @@ Program:
         print: [$person]
     ]
 
-    def:
-    [
-        [add x y]
-        return: [+: [$x $y]]
-    ]
-
     hi: [Pebaz]
     print: [$hi]
     hi: [Protodip]
@@ -20,14 +14,6 @@ Program:
     sleep: [2]
     hi: [Nodibu]
     print: [$hi]
-
-    prin: [$add]
-    prin: [" should print 3:\n-> "]
-    print: [add: [1 2]]
-
-    sleep: [2]
-
-    prin: [$add]
-    prin: [" should print 3:\n-> "]
-    print: [add: [1 2]]
+    
+    print: [Done.]
 ]
