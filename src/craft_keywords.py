@@ -758,7 +758,7 @@ def craft_program(*args):
 	# NOTE(Pebaz): To show a Python internal error, simply call: get_args(args)
 	# TODO(Pebaz): Make it so that a command line switch can show the traceback
 
-	if False:
+	if True:
 		try:
 			get_args(args)
 		except Exception as e:

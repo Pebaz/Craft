@@ -18,6 +18,7 @@ from craft_colors import *
 
 def is_identifier(string):
 	"""
+	Checks to see if a given string is a proper Craft identifier.
 	"""
 	Identifier = pyp.Word(
 		pyp.alphas + '_', bodyChars=pyp.alphanums + '_-.'
@@ -29,8 +30,12 @@ def is_identifier(string):
 	except:
 		return False
 
+
 def dict_recursive_peek(dictn, keys):
 	"""
+	Checks to see if a given set of keys can index a dictionary.
+
+	If there is an issue with even one of the keys, return False, else True.
 	"""
 	try:
 		if len(keys) == 1:
@@ -40,6 +45,7 @@ def dict_recursive_peek(dictn, keys):
 		return True
 	except:
 		return False
+
 
 def dict_recursive_get(dictn, keys):
 	"""
@@ -60,8 +66,10 @@ def dict_recursive_get(dictn, keys):
 	else:
 		return get(dictn[keys[0]], keys[1:])
 
+
 def get_arg_value(arg):
 	"""
+	Returns the value of or evaluates a given function argument.
 	"""
 	if isinstance(arg, dict):
 		return handle_expression(arg)
@@ -84,6 +92,11 @@ def get_args(args):
 
 def getkey(symbol):
 	"""
+	Returns the key of a one-element dictionary.
+
+	Since Craft functions are represented like so in AST:
+	{'func-name' : [arg1, 'arg2', 3, 4.0]}
+	There needs to be a way of getting the key of the dictionary.
 	"""
 	#return [i for i in symbol.keys()][0]
 	for i in symbol.keys():
@@ -92,6 +105,11 @@ def getkey(symbol):
 
 def getvalue(symbol):
 	"""
+	Returns the value of a one-element dictionary.
+
+	Since Craft functions are represented like so in AST:
+	{'func-name' : [arg1, 'arg2', 3, 4.0]}
+	There needs to be a way of getting the value of the dictionary.
 	"""
 	#return symbol[getkey(symbol)]
 	for i in symbol.values():
@@ -129,21 +147,6 @@ def handle_value(value):
 	string value is being passed, not a variable.
 	"""
 
-	# # Is it a variable:
-	# if isinstance(value, str):
-
-	# 	# Treat as variable if not second $
-	# 	if value.startswith('$'):
-	# 		if value[1] != '$':
-	# 			return query_symbol_table(value[1:], SCOPE)
-
-	# 		# Shorthand syntax for passing by value: $$var_name
-	# 		else:
-	# 			return value[1:]
-
-	# # Just return the value if there is nothing special about it
-	# return value
-
 	global SCOPE
 
 	try:
@@ -169,6 +172,14 @@ def handle_value(value):
 
 def handle_expression(dictn):
 	"""
+	Core interpreter functionality. Interprets a given function call.
+	
+	Uses the current scope and symbol table to lookup names and set values.
+
+	When a Craft function is called, if it is a Python `callable` object, it
+	will be called rather than interpreted.
+
+	JITted functions will appear as callables before and after compilation.
 	"""
 	global SCOPE, DEBUG, TRACEBACK
 	func = query_symbol_table(getkey(dictn), SCOPE)
@@ -188,37 +199,6 @@ def handle_expression(dictn):
 
 	# Function is Python built-in function or operator
 	# This is for argument passing
-	'''
-	if callable(func):
-
-		# TODO(Pebaz): Handle Python exceptions here and translate to Craft ones
-		try:
-			return func(*getvalue(dictn))
-		except (CraftFunctionReturnException, CraftLoopBreakException, CraftLoopContinueException) as e:
-			raise e
-		except Exception as e:
-			register_pyexception(e)
-			craft_raise(type(e).__name__)
-
-	# Function is defined in Craft
-	# Pass it's name to the call function
-	else:
-
-		# TODO(Pebaz): Handle Craft exceptions here
-		# TODO(Pebaz): If CraftException is returned, how to fix all the other
-		# functions from catching it before here? Will this `try` be able to
-		# capture it?
-
-		try:
-			return craft_call(getkey(dictn), *getvalue(dictn))
-		except (CraftFunctionReturnException, CraftLoopBreakException, CraftLoopContinueException) as e:
-			raise e
-		except Exception as e:
-			register_pyexception(e)
-			craft_raise(type(e).__name__)
-
-	# TODO(Pebaz): Fix the code to say this instead:
-	'''
 	try:
 		# Python function
 		if callable(func):
@@ -329,6 +309,7 @@ def craft_exec(*args):
 
 def craft_call(*args):
 	"""
+	Call a Craft function by name with arguments.
 	"""
 	global SCOPE
 
@@ -336,19 +317,6 @@ def craft_call(*args):
 	func_name = args[0]
 	func_args = args[1:]
 	arg_names, func_definition = query_symbol_table(func_name, SCOPE)
-
-	# NEED TO ADD (None, None) to craft_def!
-	# Need to also add a counter for how many times a function has been called
-	# So that JIT can compile funcs in the hotpath!
-	#arg_names, func_definition, __jit__, __jcode__, times_been_called = query_symbol_table(
-	# 	func_name, SCOPE)
-
-	"""
-	if not __jit__:
-		'''jit in background'''
-	else:
-		'''ret = __jcode__(func_args)'''
-	"""
 
 	return craft_exec([arg_names, func_definition], func_args)
 
@@ -391,71 +359,79 @@ def craft_set(name, value):
 	else:
 		SYMBOL_TABLE[SCOPE][var_name] = value
 
+
 def craft_create_named_scope(*args):
 	"""
+	Creates a new scope with a given name.
+
+	Args:
+		name(str): the name of the new scope.
 	"""
 	args = get_args(args)
 	global SCOPE, SYMBOL_TABLE
-	SYMBOL_TABLE[SCOPE][args[0]] = dict()
-
-
-def craft_push_named_scope(name):
-	"""
-	Used in classes:
-	push "this"
-
-	this.name
-	this.age
-
-	Note that this is pushed DURING execution of a class constructor or method.
-	"""
-	# TODO(Pebaz): Do I want to keep this? Would make namespaces easier
-
-
-def craft_pop_named_scope(name):
-	"""
-	Used to remove a named scope temporarily?
-	"""
-	# TODO(Pebaz): Do I want to keep this? Would make namespaces easier
+	name = args[0]
+	SYMBOL_TABLE[SCOPE][name] = dict()
 
 
 def craft_get_symbol_table(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global SYMBOL_TABLE
 	return SYMBOL_TABLE
 
 
 def craft_get_scope(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global SCOPE
 	return SCOPE
 
 
 def craft_get_return_points(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global RETURN_POINTS
 	return RETURN_POINTS
 
 
 def craft_get_exceptions(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global EXCEPTIONS
 	return EXCEPTIONS
 
 
 def craft_get_traceback(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global TRACEBACK
 	return TRACEBACK
 
 
 def craft_get_path(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global CRAFT_PATH
 	return CRAFT_PATH
 
 
 def craft_get_is_debug(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global IS_DEBUG
 	return IS_DEBUG
 
 
 def craft_push_scope():
 	"""
+	Create a new scope in the symbol table.
 	"""
 	global SCOPE, SYMBOL_TABLE
 	SCOPE += 1
@@ -467,6 +443,7 @@ def craft_push_scope():
 
 def craft_pop_scope():
 	"""
+	Delete a scope from the symbol table.
 	"""
 	global SCOPE, SYMBOL_TABLE, TRACEBACK
 	SCOPE -= 1
@@ -536,14 +513,6 @@ def register_pyexception(exception):
 def craft_raise(error_code, *args):
 	"""
 	Raises the given exception if it exists in the EXCEPTION list.
-
-	<Long Description>
-
-	Args:
-		<Argument List>
-
-	Returns:
-		<Description of Return Value>
 	"""
 	global EXCEPTIONS, SCOPE
 
@@ -566,12 +535,6 @@ def craft_raise(error_code, *args):
 	)
 
 	raise craft_exception
-
-
-
-# -----------------------------------------------------------------------------
-#             W I N G   I N I T I A L   S Y M B O L   T A B L E
-# -----------------------------------------------------------------------------
 
 
 class Result:
@@ -599,8 +562,13 @@ class Function(list):
 		self.__code__ = None
 		self.saved_hash = hash(self)
 
-
 	def __repr__(self):
+		"""
+		Returns either the repr of `Function` or `JITFunction`.
+		
+		Proves useful when wanting a visible confirmation that a function has
+		successfully been JITted.
+		"""
 		if self.__code__:
 			return f'<{self.__code__.__class__.__name__} {self.name}:[]>'
 		else:
@@ -643,6 +611,9 @@ class Function(list):
 		return hash(str(self))
 
 	def compile_self(self):
+		"""
+		Convenience method to recompile the function defined within `self`.
+		"""
 		global JIT_COMPILER
 		return JIT_COMPILER.compile({
 			'def' : [
@@ -650,74 +621,6 @@ class Function(list):
 				*self[1]
 			]
 		})
-
-class Trace:
-	def __init__(self, history=100):
-		self.traceback = list()
-		self.history = history
-
-	def reset(self):
-		self.traceback = list()
-
-	def banner(self, text):
-		print(_CLRfr, end='')
-		print('-' * (len(text) + 2), file=sys.stderr)
-		print('', text, file=sys.stderr)
-		print('-' * (len(text) + 2), file=sys.stderr, end='')
-		print(_CLRreset, file=sys.stderr)
-
-	def add_trace(self, func_name, args):
-		self.traceback.append((func_name, args))
-		if len(self.traceback) > self.history:
-			self.traceback = self.traceback[1:]
-
-	def set_scope(self, scope):
-		self.traceback.append(scope)
-
-	def show_trace(self, error):
-		print()
-		self.banner(f'{error.name}: {error.desc}')
-		print('\nCall stack trace:\n')
-
-		# The index of the last function call (not scope popping)
-		last_func_call_index = -1
-
-		# Since both func calls and scope indexes are present, find a func call
-		while isinstance(self.traceback[last_func_call_index], int):
-			last_func_call_index -= 1
-
-		tab = 0
-		for i in self.traceback[1:last_func_call_index]:
-			if isinstance(i, int):
-				tab = i
-				continue
-			print(('    ' * tab), f'{_CLRfg}{i[0]}{_CLRreset}\t', *i[1:])
-
-		# Get the function call that caused the error:
-		fcall = self.traceback[last_func_call_index]
-
-		# Print a customized stacktrace that shows the function call that failed
-		print(('    ' * tab), f'{_CLRfg}{fcall[0]}{_CLRreset}\t', *fcall[1:])
-		print()
-		print(('    ' * tab), '^')
-		for i in range(4):
-			print(('    ' * tab), '|')
-		print()
-		print(('    ' * tab), f'{_CLRfg}Responsible Function Call{_CLRreset}')
-
-
-# Represents a list of lists of key-value pairs (variables/names)
-SYMBOL_TABLE = []
-SCOPE = 0 # For now, functions have to increment and decrement scope
-RETURN_POINTS = []
-EXCEPTIONS = dict()
-TRACEBACK = Trace()
-CRAFT_PATH = [os.getcwd(), 'stdlib']
-DEBUG = False
-BRANCH_FUNCTIONS = []
-
-import craft_jit
-JIT_COMPILER = craft_jit.JIT()
 
 
 def branch(name=None):
@@ -748,7 +651,110 @@ def branch(name=None):
 	return inner
 
 
+class Trace:
+	"""
+	Provides a nice looking traceback when an exception happens.
+
+	Shows every function call including the actual values passed to those
+	functions since the error occurred up to `history` entries.
+	"""
+	def __init__(self, history=100):
+		self.traceback = list()
+		self.history = history
+
+	def reset(self):
+		self.traceback = list()
+
+	def banner(self, text):
+		print(_CLRfr, end='')
+		print('-' * (len(text) + 2), file=sys.stderr)
+		print('', text, file=sys.stderr)
+		print('-' * (len(text) + 2), file=sys.stderr, end='')
+		print(_CLRreset, file=sys.stderr)
+
+	def add_trace(self, func_name, args):
+		"""
+		Append a new function call to the history list for displaying later.
+		"""
+		self.traceback.append((func_name, args))
+		if len(self.traceback) > self.history:
+			self.traceback = self.traceback[1:]
+
+	def set_scope(self, scope):
+		self.traceback.append(scope)
+
+	def show_trace(self, error):
+		"""
+		Display a nice-looking "stack trace".
+		"""
+
+		print()
+		self.banner(f'{error.name}: {error.desc}')
+		print('\nCall stack trace:\n')
+
+		# The index of the last function call (not scope popping)
+		last_func_call_index = -1
+
+		# Since both func calls and scope indexes are present, find a func call
+		while isinstance(self.traceback[last_func_call_index], int):
+			last_func_call_index -= 1
+
+		tab = 0
+		for i in self.traceback[1:last_func_call_index]:
+			if isinstance(i, int):
+				tab = i
+				continue
+			print(('    ' * tab), f'{_CLRfy}{i[0]}{_CLRreset}\t', *i[1:])
+
+		# Get the function call that caused the error:
+		fcall = self.traceback[last_func_call_index]
+
+		# Print a customized stacktrace that shows the function call that failed
+		print(('    ' * tab), f'{_CLRfy}{fcall[0]}{_CLRreset}\t', *fcall[1:])
+		print()
+		print(('    ' * tab), '^')
+		for i in range(4):
+			print(('    ' * tab), '|')
+		print()
+		print(('    ' * tab), f'{_CLRfy}Responsible Function Call{_CLRreset}')
+
+
+
+# -----------------------------------------------------------------------------
+#             W I N G   I N I T I A L   S Y M B O L   T A B L E
+# -----------------------------------------------------------------------------
+
+# Represents a list of lists of key-value pairs (variables/names)
+SYMBOL_TABLE = []
+
+# The current scope (used as index to SYMBOL_TABLE)
+SCOPE = 0
+
+# Function call save points
+RETURN_POINTS = []
+
+# List of all recorded exceptions for raising and catching
+EXCEPTIONS = dict()
+
+# Global traceback object for printing tracebacks
+TRACEBACK = Trace()
+
+# Preset path of the Craft interpreter
+CRAFT_PATH = [os.getcwd(), 'stdlib']
+
+# Internal debugging flag
+DEBUG = False
+
+# List of functions that need to skip JIT compilation due to branching logic
+BRANCH_FUNCTIONS = []
+
+# Global JIT compiler object
+import craft_jit; JIT_COMPILER = craft_jit.JIT()
+
+
 def setup_sym_tab():
+	"""
+	"""
 	# TODO(Pebaz): What else needs to be cleared?
 	SYMBOL_TABLE.clear()
 	RETURN_POINTS.clear()
