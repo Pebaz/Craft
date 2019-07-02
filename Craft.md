@@ -88,3 +88,23 @@ while True:
 After creating a lot of different language features, I started feeling like the project would be better served having it's own syntax since I was already referring to it by its own name: Craft.
 
 I built the entire parser in just a few lines of code using the [PyParsing](https://github.com/pyparsing) library.  This library is by far the best parsing library for Python in my opinion, but it did require an enormous amount of study in order to get it to work great.  In the end, I had a parser that did the equivalent of the YAML parser, but for the new Craft syntax.
+
+
+
+### JIT Compilation
+
+This was by far the most difficult undertaking during the course of Craft's development.  I had found [Python bindings to LibTCC](https://github.com/thgcode/pytcc) which is the accompanying library for [Tiny C Compiler](<https://bellard.org/tcc/>).  Immediately, I knew that I wanted to attempt to transpile Craft source code to C and then compile that C at runtime to increase performance.
+
+I set out to make a proof of concept.  After many hours of tinkering, I was finally able to JIT compile a string of C source code that included the `Python.h` header to make use of Python types and functions within the JITted code.
+
+Once I had a working example that I could consult, I began working on a JIT compiler for Craft that would:
+
+1. Accept Craft AST
+2. Transpile it at runtime to C source code containing Python API calls
+3. Compile it at runtime
+4. Copy the memory containing the executable code to a Python object
+5. Bundle the C code buffer with a Python callable to produce a "function" that could be called from Python
+6. Asynchronously JIT compile any user defined function in the background seamlessly
+
+I accomplished all of those goals.  User defined functions seamlessly without interruption get compiled to C and then compiled using LibTCC which then get called when they are finished compiling.
+
