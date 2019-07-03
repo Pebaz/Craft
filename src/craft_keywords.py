@@ -736,11 +736,7 @@ def craft_new(*args):
 	struct = dict(zip(definition, member_values))
 	return struct
 
-"""@jit_compiled('''
-while (1) {
-	int x = 0;
-}
-''')"""
+
 def craft_program(*args):
 	"""
 	<Short Description>
@@ -783,6 +779,9 @@ def craft_byref(*args):
 
 
 def craft_dir(value):
+	"""
+	Equivalent to `dir()` in Python.
+	"""
 	global pp
 	if isinstance(value, str):
 		pp.pprint(get_arg_value(value))

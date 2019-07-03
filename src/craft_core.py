@@ -1,5 +1,5 @@
 
-import sys, os, os.path, traceback, imp
+import sys, os, os.path, traceback, imp, inspect
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -651,6 +651,24 @@ def branch(name=None):
 	return inner
 
 
+def expose(name=None):
+	def builtin(func):
+		nonlocal name
+
+		frame_records = inspect.stack()[1]
+		current_module = inspect.getmodule(frame_records[0])
+
+		if '__craft__' not in dir(current_module):
+			setattr(current_module, '__craft__', dict())
+
+		if not name:
+			name = func.__name__.replace('craft_', '').replace('_', '-')
+
+		current_module.__craft__[name] = func
+		return func
+	return builtin
+
+
 class Trace:
 	"""
 	Provides a nice looking traceback when an exception happens.
@@ -754,6 +772,8 @@ import craft_jit; JIT_COMPILER = craft_jit.JIT()
 
 def setup_sym_tab():
 	"""
+	Sets up the symbol table with all of the builtin functions, operators, and
+	anything else it needs in order to be in a default state.
 	"""
 	# TODO(Pebaz): What else needs to be cleared?
 	SYMBOL_TABLE.clear()
