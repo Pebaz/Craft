@@ -5,6 +5,7 @@
 from craft_core import *
 
 
+@expose('+')
 def craft_add(*args):
 	"""
 	Addition operator.
@@ -16,6 +17,7 @@ def craft_add(*args):
 	return v
 
 
+@expose('+=')
 def craft_add_equal(*args):
 	"""
 	Usage:
@@ -37,6 +39,7 @@ def craft_add_equal(*args):
 	craft_set(var_name, v)
 
 
+@expose('-')
 def craft_sub(*args):
 	"""
 	Subtraction operator.
@@ -48,6 +51,7 @@ def craft_sub(*args):
 	return v
 
 
+@expose('-=')
 def craft_sub_equal(*args):
 	"""
 	"""
@@ -60,6 +64,7 @@ def craft_sub_equal(*args):
 	craft_set(var_name, v)
 
 
+@expose('*')
 def craft_mul(*args):
 	"""
 	Multiplication operator.
@@ -71,6 +76,7 @@ def craft_mul(*args):
 	return v
 
 
+@expose('*=')
 def craft_mul_equal(*args):
 	"""
 	"""
@@ -83,6 +89,7 @@ def craft_mul_equal(*args):
 	craft_set(var_name, v)
 
 
+@expose('/')
 def craft_div(*args):
 	"""
 	Division operator.
@@ -94,6 +101,7 @@ def craft_div(*args):
 	return v
 
 
+@expose('/=')
 def craft_div_equal(*args):
 	"""
 	"""
@@ -106,6 +114,7 @@ def craft_div_equal(*args):
 	craft_set(var_name, v)
 
 
+@expose('%')
 def craft_mod(*args):
 	"""
 	Modulus operator.
@@ -117,6 +126,7 @@ def craft_mod(*args):
 	return v
 
 
+@expose('%=')
 def craft_mod_equal(*args):
 	"""
 	"""
@@ -129,6 +139,7 @@ def craft_mod_equal(*args):
 	craft_set(var_name, v)
 
 
+@expose('**')
 def craft_exp(*args):
 	"""
 	Exponent operator.
@@ -140,6 +151,7 @@ def craft_exp(*args):
 	return v
 
 
+@expose('**=')
 def craft_exp_equal(*args):
 	"""
 	"""
@@ -152,6 +164,7 @@ def craft_exp_equal(*args):
 	craft_set(var_name, v)
 
 
+@expose('=')
 def craft_equals(*args):
 	"""
 	Equality operator.
@@ -160,6 +173,7 @@ def craft_equals(*args):
 	return len(set(args)) <= 1
 
 
+@expose('!=')
 def craft_not_equals(*args):
 	"""
 	Inequality operator.
@@ -168,6 +182,7 @@ def craft_not_equals(*args):
 	return not len(set(args)) <= 1
 
 
+@expose('>')
 def craft_greater_than(*args):
 	"""
 	Greater than operator.
@@ -179,6 +194,7 @@ def craft_greater_than(*args):
 	])
 
 
+@expose('<')
 def craft_less_than(*args):
 	"""
 	Less than operator.
@@ -190,6 +206,7 @@ def craft_less_than(*args):
 	])
 
 
+@expose('>=')
 def craft_greater_than_or_equal_to(*args):
 	"""
 	Greater than or equal to operator.
@@ -201,6 +218,7 @@ def craft_greater_than_or_equal_to(*args):
 	])
 
 
+@expose('<=')
 def craft_less_than_or_equal_to(*args):
 	"""
 	Less than or equal to operator.
@@ -212,6 +230,7 @@ def craft_less_than_or_equal_to(*args):
 	])
 
 
+@expose('&')
 def craft_bitwise_and(*args):
 	"""
 	Bitwise AND operator.
@@ -223,6 +242,7 @@ def craft_bitwise_and(*args):
 	return v
 
 
+@expose('&=')
 def craft_bitwise_and_equal(*args):
 	"""
 	"""
@@ -235,6 +255,7 @@ def craft_bitwise_and_equal(*args):
 	craft_set(var_name, v)
 
 
+@expose('|')
 def craft_bitwise_or(*args):
 	"""
 	Bitwise OR operator.
@@ -245,6 +266,8 @@ def craft_bitwise_or(*args):
 		v |= i
 	return v
 
+
+@expose('|=')
 def craft_bitwise_or_equal(*args):
 	"""
 	"""
@@ -257,6 +280,7 @@ def craft_bitwise_or_equal(*args):
 	craft_set(var_name, v)
 
 
+@expose('^')
 def craft_bitwise_xor(*args):
 	"""
 	Bitwise XOR operator.
@@ -268,6 +292,7 @@ def craft_bitwise_xor(*args):
 	return v
 
 
+@expose('^=')
 def craft_bitwise_xor_equal(*args):
 	"""
 	"""
@@ -280,6 +305,7 @@ def craft_bitwise_xor_equal(*args):
 	craft_set(var_name, v)
 
 
+@expose('~')
 def craft_bitwise_complement(*args):
 	"""
 	Bitwise complement operator.
@@ -292,6 +318,7 @@ def craft_bitwise_complement(*args):
 	return ~get_arg_value(args[0])
 
 
+@expose('<<')
 def craft_bitwise_left_shift(*args):
 	"""
 	Bitwise left shift operator.
@@ -303,6 +330,7 @@ def craft_bitwise_left_shift(*args):
 	return v
 
 
+@expose('<<=')
 def craft_bitwise_left_shift_equal(*args):
 	"""
 	"""
@@ -315,6 +343,7 @@ def craft_bitwise_left_shift_equal(*args):
 	craft_set(var_name, v)
 
 
+@expose('>>')
 def craft_bitwise_right_shift(*args):
 	"""
 	Bitwise right shift operator.
@@ -326,6 +355,7 @@ def craft_bitwise_right_shift(*args):
 	return v
 
 
+@expose('>>=')
 def craft_bitwise_right_shift_equal(*args):
 	"""
 	"""
@@ -338,6 +368,7 @@ def craft_bitwise_right_shift_equal(*args):
 	craft_set(var_name, v)
 
 
+@expose('neg')
 def craft_negative(*args):
 	"""
 	Looks like I can't parse negative numbers :(
@@ -348,6 +379,8 @@ def craft_negative(*args):
 
 	return -args[0]
 
+
+'''
 __craft__ = {
 	'neg'    : craft_negative,
 	'+'      : craft_add,
@@ -381,3 +414,4 @@ __craft__ = {
 	'>='     : craft_greater_than_or_equal_to,
 	'<='     : craft_less_than_or_equal_to,
 }
+'''
