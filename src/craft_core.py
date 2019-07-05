@@ -602,6 +602,7 @@ class Function(list):
 				# So unpack the tuple of arguments for __call__().
 				return self.__code__(*args)
 			except OSError:
+				print('_' * 200)
 				return craft_exec(self, args)
 
 	def __hash__(self):
@@ -662,7 +663,7 @@ def expose(name=None):
 	"""
 	def builtin(func):
 		nonlocal name
-		print(f'Exposing {func.__name__} to Craft')
+		#print(f'Exposing {func.__name__} to Craft')
 
 		frame_records = inspect.stack()[1]
 		current_module = inspect.getmodule(frame_records[0])

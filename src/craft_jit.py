@@ -10,7 +10,7 @@ from multiprocessing.pool import ThreadPool
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from j2do import j2do  # C code snippets
 from craft_core import *  # craft_raise, BRANCH_FUNCTIONS, SYMBOL_TABLE
-from craft_parser 		import *
+from craft_parser import *
 
 class JITFunction:
 	""""""

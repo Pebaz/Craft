@@ -11,7 +11,7 @@
 
 - [x] Push scope
 - [x] Pop scope
-- [ ] Variables
+- [x] Variables
 - [ ] Structs
 - [ ] Functions
 - [ ] Named scopes
@@ -20,9 +20,9 @@
 
 #### Printing
 
-- [ ] values
-- [ ] variables
-- [ ] by value variables
+- [x] values
+- [x] variables
+- [x] by value variables
 
 
 
@@ -169,3 +169,8 @@
 #### The Parser
 
 - [ ] Parse *everything*
+
+
+#### JIT Compilation
+
+- [x] Jit user-defined function

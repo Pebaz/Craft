@@ -6,6 +6,39 @@ finally:
 	from craft_test_utils import *
 
 
+
+def test_print_var():
+	"""
+	Test to see if the print function will print a string value.
+	"""
+	source = \
+	"""
+	Program:
+	[
+		set: [age 24]
+		print: [$age]
+	]
+	"""
+	result = '24\n'
+	assert(capture_stdout(parse_source(source)) == result)
+
+
+def test_print_byval_var():
+	"""
+	Test to see if the print function will print a string value.
+	"""
+	source = \
+	"""
+	Program:
+	[
+		set: [age 24]
+		print: [$$age]
+	]
+	"""
+	result = '$age\n'
+	assert(capture_stdout(parse_source(source)) == result)
+
+
 def test_print_str():
 	"""
 	Test to see if the print function will print a string value.
@@ -82,6 +115,6 @@ def test_print_dict():
 
 
 if __name__ == '__main__':
-	test_print_str()
-	test_print_int()
-	test_print_float()
+	for test in dir():
+		if test.startswith('test_'):
+			globals()[test]()
