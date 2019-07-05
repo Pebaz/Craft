@@ -652,8 +652,17 @@ def branch(name=None):
 
 
 def expose(name=None):
+	"""
+	Add a given function to the `__craft__` variable of a given Python module.
+
+	Creates the variable if it is nonexistent. Useful for preventing adding a
+	large `__craft__` dict at the end of every Python extension file.
+	In addition, `expose()` can be used to quickly create a function that can
+	be imported straight into Craft.
+	"""
 	def builtin(func):
 		nonlocal name
+		print(f'Exposing {func.__name__} to Craft')
 
 		frame_records = inspect.stack()[1]
 		current_module = inspect.getmodule(frame_records[0])

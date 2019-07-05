@@ -6,6 +6,27 @@ import pyparsing as pyp
 from craft_core import *
 from craft_parser import *
 
+
+# Since craft_core.py doesn't define it's own __craft__ variable, we'll do it.
+# NOTE(pebaz): This is defined up top because when the `@expose()` decorators
+# are run, they will overwrite names defined within here.
+__craft__ = {
+	'set' : craft_set,
+	'raise' : craft_raise,
+	'call' : craft_call,
+	'exec' : craft_exec,
+	'create-named-scope' : craft_create_named_scope,
+	'get-symbol-table' : craft_get_symbol_table,
+	'get-scope' : craft_get_scope,
+	'get-return-points' : craft_get_return_points,
+	'get-traceback' : craft_get_traceback,
+	'get-path' : craft_get_path,
+	'get-is-debug' : craft_get_is_debug,
+	'push-scope' : craft_push_scope,
+	'pop-scope' : craft_pop_scope,
+}
+
+
 pp = pprint.PrettyPrinter(width=1)
 
 # -----------------------------------------------------------------------------
@@ -13,6 +34,7 @@ pp = pprint.PrettyPrinter(width=1)
 # -----------------------------------------------------------------------------
 
 @branch()
+@expose()
 def craft_try(*args):
 	"""
 	<Short Description>
@@ -82,6 +104,7 @@ def craft_try(*args):
 
 
 @branch()
+@expose()
 def craft_catch(*args):
 	"""
 	<Short Description>
@@ -101,6 +124,7 @@ def craft_catch(*args):
 
 
 @branch()
+@expose()
 def craft_finally(*args):
 	"""
 	<Short Description>
@@ -118,6 +142,7 @@ def craft_finally(*args):
 	craft_pop_scope()
 
 
+@expose()
 def craft_exception(*args):
 	"""
 	<Short Description>
@@ -134,6 +159,7 @@ def craft_exception(*args):
 
 
 @branch()
+@expose()
 def craft_switch(*args):
 	"""
 	<Short Description>
@@ -173,6 +199,7 @@ def craft_switch(*args):
 
 
 @branch()
+@expose()
 def craft_case(*args):
 	"""
 	Ignores the first argument since it is a value to use with `switch`.
@@ -181,6 +208,7 @@ def craft_case(*args):
 
 
 @branch()
+@expose()
 def craft_default(*args):
 	"""
 	Run the code therein since there is no match condition
@@ -188,6 +216,7 @@ def craft_default(*args):
 	get_args(args)
 
 
+@expose()
 def craft_break(*args):
 	"""
 	<Short Description>
@@ -203,6 +232,7 @@ def craft_break(*args):
 	raise CraftLoopBreakException()
 
 
+@expose()
 def craft_continue(*args):
 	"""
 	<Short Description>
@@ -219,6 +249,7 @@ def craft_continue(*args):
 
 
 @branch()
+@expose()
 def craft_while(*args):
 	"""
 	<Short Description>
@@ -249,6 +280,7 @@ def craft_while(*args):
 
 
 @branch()
+@expose()
 def craft_until(*args):
 	"""
 	<Short Description>
@@ -303,6 +335,7 @@ def __craft_import__query_dir(filename):
 	raise Exception(f'Cannot import name: {filename}. No matching .CRAFT, .YAML or .PY was found in CRAFT_PATH.')
 
 
+@expose()
 def craft_import(*args):
 	"""
 	1. YAML import
@@ -357,6 +390,8 @@ def craft_import(*args):
 					for name in impp[1:]:
 						craft_set(name, pymod.__craft__[name])
 
+
+@expose()
 def craft_and(*args):
 	"""
 	Logical AND operator.
@@ -368,6 +403,7 @@ def craft_and(*args):
 	return args[0] and args[1]
 
 
+@expose()
 def craft_or(*args):
 	"""
 	Logical OR operator.
@@ -379,6 +415,7 @@ def craft_or(*args):
 	return args[0] or args[1]
 
 
+@expose()
 def craft_not(*args):
 	"""
 	Logical NOT operator.
@@ -390,6 +427,7 @@ def craft_not(*args):
 
 
 @branch()
+@expose()
 def craft_foreach(*args):
 	"""
 	<Short Description>
@@ -422,6 +460,7 @@ def craft_foreach(*args):
 
 
 @branch()
+@expose()
 def craft_for(*args):
 	"""
 	<Short Description>
@@ -469,6 +508,7 @@ def craft_for(*args):
 
 
 @branch()
+@expose()
 def craft_if(*args):
 	"""
 	<Short Description>
@@ -501,6 +541,7 @@ def craft_if(*args):
 
 
 @branch()
+@expose()
 def craft_unless(*args):
 	"""
 	<Short Description>
@@ -533,6 +574,7 @@ def craft_unless(*args):
 
 
 @branch()
+@expose()
 def craft_then(*args):
 	"""
 	<Short Description>
@@ -549,6 +591,7 @@ def craft_then(*args):
 
 
 @branch()
+@expose()
 def craft_else(*args):
 	"""
 	<Short Description>
@@ -564,6 +607,7 @@ def craft_else(*args):
 	args = get_args(args)
 
 
+@expose()
 def craft_globals(*args):
 	"""
 	<Short Description>
@@ -580,6 +624,7 @@ def craft_globals(*args):
 	pp.pprint(EXCEPTIONS)
 
 
+@expose()
 def craft_locals(*args):
 	"""
 	<Short Description>
@@ -596,6 +641,7 @@ def craft_locals(*args):
 	pp.pprint(SYMBOL_TABLE[SCOPE])
 
 
+@expose()
 def craft_exit(*args):
 	"""
 	<Short Description>
@@ -611,6 +657,7 @@ def craft_exit(*args):
 	sys.exit()
 
 
+@expose()
 def craft_comment(*args):
 	"""
 	<Short Description>
@@ -625,6 +672,7 @@ def craft_comment(*args):
 	"""
 
 
+@expose()
 def craft_print(*args):
 	"""
 	<Short Description>
@@ -640,6 +688,7 @@ def craft_print(*args):
 	print(*get_args(args))
 
 
+@expose()
 def craft_prin(*args):
 	"""
 	<Short Description>
@@ -656,6 +705,7 @@ def craft_prin(*args):
 
 
 @branch()
+@expose()
 def craft_def(*args):
 	"""
 	Bind function name to variable in current scope. This will allow it to be
@@ -670,6 +720,7 @@ def craft_def(*args):
 	craft_set(func_name, Function(func_name, [func_args, func_definition]))
 
 
+@expose()
 def craft_return(*args):
 	"""
 	The `craft_call` function will catch this exception and then return the
@@ -686,6 +737,7 @@ def craft_return(*args):
 	raise CraftFunctionReturnException(value)
 
 
+@expose()
 def craft_lambda(*args):
 	"""
 	TODO(Pebaz): Fix `craft_call` to be able to handle lambdas.
@@ -696,6 +748,7 @@ def craft_lambda(*args):
 	return Function('lambda', [arguments, definition])
 
 
+@expose()
 def craft_struct(*args):
 	"""
 	<Short Description>
@@ -714,6 +767,7 @@ def craft_struct(*args):
 	craft_set(struct_name, struct_members)
 
 
+@expose()
 def craft_new(*args):
 	"""
 	Must be able to be extended to build classes/types later.
@@ -737,6 +791,7 @@ def craft_new(*args):
 	return struct
 
 
+@expose('Program')
 def craft_program(*args):
 	"""
 	<Short Description>
@@ -763,6 +818,7 @@ def craft_program(*args):
 		get_args(args)
 
 
+@expose()
 def craft_byval(*args):
 	"""
 	Since functions only try one round of evaluation for arguments, arguments
@@ -771,6 +827,7 @@ def craft_byval(*args):
 	return args[0]
 
 
+@expose()
 def craft_byref(*args):
 	"""
 	Wrap the dictionary in a protective layer.
@@ -778,6 +835,7 @@ def craft_byref(*args):
 	return get_args(args)
 
 
+@expose()
 def craft_dir(value):
 	"""
 	Equivalent to `dir()` in Python.
@@ -789,10 +847,114 @@ def craft_dir(value):
 		pp.pprint(dict)
 
 
+@expose('fmt')
+def craft_format(*args):
+	"""
+	Formats a given string with the given arguments.
+
+	<Long Description>
+
+	Args:
+	  <Argument List>
+
+	Returns:
+	  <Description of Return Value>
+	"""
+	args = get_args(args)
+	return args[0].format(*args[1:])
+
+
+@expose()
+def get_result(*args):
+	"""
+	Args:
+		val(object): the object to return from a JIT-compiled function.
+		err(Exception): the error that occurred.
+	"""
+	args = get_args(args)
+	val, err = args
+	return Result(val, err)
+
+
+@expose()
+def craft_eval(*args):
+	"""
+	Evaluate a given chunk of code, without introducing a new scope and without
+	capturing errors. Propogates errors up so that they can be caught
+	elsewhere.
+
+	Primary use case of this function is via the Jit compiler. Code branches
+	are evaluated using this function and errors need to be caught by the one
+	who called this function, not this function itself.
+
+	It is important to note that this function can access names within the
+	scope that called it.
+	"""
+	get_args(args)
+
+
+@expose()
+def craft_type(*args):
+	"""
+	Args:
+		obj(object): return the type name of this object's class.
+	"""
+	obj = get_args(args)[0]
+	return type(obj).__name__
+
+
+@expose()
+def craft_sleep(*args):
+	"""
+	Args:
+		duration_in_seconds(float): the amount of time to sleep in seconds.
+	"""
+	duration_in_seconds = get_args(args)[0]
+	time.sleep(duration_in_seconds)
+
+
+@expose()
+def craft_get(*args):
+	"""
+	<Short Description>
+
+	<Long Description>
+
+	Args:
+	  <Argument List>
+
+	Returns:
+	  <Description of Return Value>
+	"""
+	if len(args) > 2:
+		raise Exception(f'Too many arguments supplied, got: {len(args)}')
+
+	args = get_args(args)
+	return args[0][args[1]]
+
+
+@expose()
+def craft_cut(*args):
+	"""
+	<Short Description>
+
+	<Long Description>
+
+	Args:
+	  <Argument List>
+
+	Returns:
+	  <Description of Return Value>
+	"""
+	args = get_args(args)
+	raise Exception('Not implemented yet: cut')
+
+
 # -----------------------------------------------------------------------------
 # Data Types
 # -----------------------------------------------------------------------------
 
+@expose()
 def craft_hash(*args):
 	"""
 	<Short Description>
@@ -816,42 +978,9 @@ def craft_hash(*args):
 	}
 
 	return ret
+	
 
-def craft_get(*args):
-	"""
-	<Short Description>
-
-	<Long Description>
-
-	Args:
-	  <Argument List>
-
-	Returns:
-	  <Description of Return Value>
-	"""
-	if len(args) > 2:
-		raise Exception(f'Too many arguments supplied, got: {len(args)}')
-
-	args = get_args(args)
-	return args[0][args[1]]
-
-
-def craft_cut(*args):
-	"""
-	<Short Description>
-
-	<Long Description>
-
-	Args:
-	  <Argument List>
-
-	Returns:
-	  <Description of Return Value>
-	"""
-	args = get_args(args)
-	raise Exception('Not implemented yet: cut')
-
-
+@expose()
 def craft_str(*args):
 	"""
 	<Short Description>
@@ -867,6 +996,7 @@ def craft_str(*args):
 	return str(get_arg_value(args[0]))
 
 
+@expose()
 def craft_int(*args):
 	"""
 	<Short Description>
@@ -881,6 +1011,8 @@ def craft_int(*args):
 	"""
 	return int(get_arg_value(args[0]))
 
+
+@expose()
 def craft_bool(*args):
 	"""
 	<Short Description>
@@ -896,6 +1028,7 @@ def craft_bool(*args):
 	return bool(get_arg_value(args[0]))
 
 
+@expose()
 def craft_float(*args):
 	"""
 	<Short Description>
@@ -911,6 +1044,7 @@ def craft_float(*args):
 	return float(get_arg_value(args[0]))
 
 
+@expose()
 def craft_tuple(*args):
 	"""
 	<Short Description>
@@ -928,6 +1062,7 @@ def craft_tuple(*args):
 	return tuple(get_arg_value(args[0]))
 
 
+@expose()
 def craft_list(*args):
 	"""
 	<Short Description>
@@ -943,6 +1078,7 @@ def craft_list(*args):
 	return list(get_arg_value(args[0]))
 
 
+@expose()
 def craft_collected_set(*args):
 	"""
 	<Short Description>
@@ -958,73 +1094,13 @@ def craft_collected_set(*args):
 	return set(get_arg_value(args[0]))
 
 
-def craft_format(*args):
-	"""
-	Formats a given string with the given arguments.
-
-	<Long Description>
-
-	Args:
-	  <Argument List>
-
-	Returns:
-	  <Description of Return Value>
-	"""
-	args = get_args(args)
-	return args[0].format(*args[1:])
-
-
-def get_result(*args):
-	"""
-	Args:
-		val(object): the object to return from a JIT-compiled function.
-		err(Exception): the error that occurred.
-	"""
-	args = get_args(args)
-	val, err = args
-	return Result(val, err)
-
-
-def craft_eval(*args):
-	"""
-	Evaluate a given chunk of code, without introducing a new scope and without
-	capturing errors. Propogates errors up so that they can be caught
-	elsewhere.
-
-	Primary use case of this function is via the Jit compiler. Code branches
-	are evaluated using this function and errors need to be caught by the one
-	who called this function, not this function itself.
-
-	It is important to note that this function can access names within the
-	scope that called it.
-	"""
-	get_args(args)
-
-
-def craft_type(*args):
-	"""
-	Args:
-		obj(object): return the type name of this object's class.
-	"""
-	obj = get_args(args)[0]
-	return type(obj).__name__
-
-
-def craft_sleep(*args):
-	"""
-	Args:
-		duration_in_seconds(float): the amount of time to sleep in seconds.
-	"""
-	duration_in_seconds = get_args(args)[0]
-	time.sleep(duration_in_seconds)
-
-
+'''
 __craft__ = {
 	# Built-Ins
 	'type'                  : craft_type,
 	'eval'                  : craft_eval,
 	'exec'                  : craft_exec,
-	'sleep'                 : craft_sleep,
+	#'sleep'                 : craft_sleep,
 	'get-result'            : get_result,
 	'push-return-point'     : push_return_point,
 	'pop-return-point'      : pop_return_point,
@@ -1091,11 +1167,4 @@ __craft__ = {
 	'raise'                 : craft_raise,
 	'format'                : craft_format,
 }
-
-__jit__ = {
-	'Program'               : None
-}
-
-'''__code__ = {                : None
-	
-}'''
+'''
