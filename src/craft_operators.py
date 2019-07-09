@@ -363,7 +363,7 @@ def craft_bitwise_right_shift_equal(*args):
 	args = get_args(args)
 	v = get_arg_value(args[0])
 	for i in args[1:]:
-		v -= i
+		v >>= i
 
 	craft_set(var_name, v)
 

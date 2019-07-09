@@ -788,31 +788,468 @@ def test_mod_eq_neg_float():
 	)
 
 
+def test_exp_int():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [**: [10 2]]
+		""",
+		"""
+		100
+		"""
+	)
+
+
+def test_exp_eq_int():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var 10]
+		**=: [$var 2]
+		print: [$var]
+		""",
+		"""
+		100
+		"""
+	)
+
+
+def test_exp_float():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [**: [3.14 2]]
+		""",
+		"""
+		9.8596
+		"""
+	)
+
+
+def test_exp_eq_float():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var 3.14]
+		**=: [$var 2]
+		print: [$var]
+		""",
+		"""
+		9.8596
+		"""
+	)
+
+
+def test_exp_neg_int():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [**: [neg: [10] 4]]
+		""",
+		"""
+		10000
+		"""
+	)
+
+
+def test_exp_eq_neg_int():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var neg: [10]]
+		**=: [$var 4]
+		print: [$var]
+		""",
+		"""
+		10000
+		"""
+	)
+
+
+def test_exp_neg_float():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [**: [neg: [3.14] 2]]
+		""",
+		"""
+		9.8596
+		"""
+	)
+
+
+def test_exp_eq_neg_float():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var neg: [3.14]]
+		**=: [$var 2]
+		print: [$var]
+		""",
+		"""
+		9.8596
+		"""
+	)
+
+
+def test_equals():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [=: [a a]]
+		print: [=: [a b]]
+		print: [=: [1 1.0]]
+		print: [=: ["1" 1]]
+		""",
+		"""
+		True
+		False
+		True
+		False
+		"""
+	)
+
+
+def test_not_equals():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [!=: [a a]]
+		print: [!=: [a b]]
+		print: [!=: [1 1.0]]
+		print: [!=: ["1" 1]]
+		""",
+		"""
+		False
+		True
+		False
+		True
+		"""
+	)
+
+
+def test_greater_than():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [>: [2 1]]
+		print: [>: [2.0 1.0]]
+		print: [>: [2.0 57]]
+		""",
+		"""
+		True
+		True
+		False
+		"""
+	)
+
+
+def test_less_than():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [<: [2 1]]
+		print: [<: [2.0 1.0]]
+		print: [<: [2.0 57]]
+		""",
+		"""
+		False
+		False
+		True
+		"""
+	)
+
+
+def test_greater_than_or_equal_to():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [>=: [2 1]]
+		print: [>=: [2.0 1.0]]
+		print: [>=: [2.0 57]]
+		print: [>=: [2 2]]
+		print: [>=: [2.0 2.0]]
+		""",
+		"""
+		True
+		True
+		False
+		True
+		True
+		"""
+	)
+
+
+def test_less_than_or_equal_to():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [<=: [2 1]]
+		print: [<=: [2.0 1.0]]
+		print: [<=: [2.0 57]]
+		print: [<=: [2 2]]
+		print: [<=: [2.0 2.0]]
+		""",
+		"""
+		False
+		False
+		True
+		True
+		True
+		"""
+	)
+
+
+def test_bitwise_and():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [&: [2 1]]
+		print: [&: [100 101]]
+		print: [&: [101 neg: [1]]]
+		print: [&: [101 100]]
+		""",
+		"""
+		0
+		100
+		101
+		100
+		"""
+	)
+
+
+def test_bitwise_and_eq():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var 2]
+		&=: [$var 1]
+		print: [$var]
+		set: [var 100]
+		&=: [$var 101]
+		print: [$var]
+		set: [var 101]
+		&=: [$var neg: [1]]
+		print: [$var]
+		set: [var 101]
+		&=: [$var 100]
+		print: [$var]
+		""",
+		"""
+		0
+		100
+		101
+		100
+		"""
+	)
+
+
+def test_bitwise_or():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [|: [2 1]]
+		print: [|: [100 101]]
+		print: [|: [101 neg: [1]]]
+		print: [|: [101 100]]
+		""",
+		"""
+		3
+		101
+		-1
+		101
+		"""
+	)
+
+
+def test_bitwise_or_eq():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var 2]
+		|=: [$var 1]
+		print: [$var]
+		set: [var 100]
+		|=: [$var 101]
+		print: [$var]
+		set: [var 101]
+		|=: [$var neg: [1]]
+		print: [$var]
+		set: [var 101]
+		|=: [$var 100]
+		print: [$var]
+		""",
+		"""
+		3
+		101
+		-1
+		101
+		"""
+	)
+
+
+def test_bitwise_xor():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [^: [2 1]]
+		print: [^: [100 101]]
+		print: [^: [101 neg: [1]]]
+		print: [^: [101 100]]
+		""",
+		"""
+		3
+		1
+		-102
+		1
+		"""
+	)
+
+
+def test_bitwise_xor_eq():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var 2]
+		^=: [$var 1]
+		print: [$var]
+		set: [var 100]
+		^=: [$var 101]
+		print: [$var]
+		set: [var 101]
+		^=: [$var neg: [1]]
+		print: [$var]
+		set: [var 101]
+		^=: [$var 100]
+		print: [$var]
+		""",
+		"""
+		3
+		1
+		-102
+		1
+		"""
+	)
+
+
+def test_bitwise_complement():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [~: [1]]
+		print: [~: [14]]
+		print: [~: [neg: [14]]]
+		""",
+		"""
+		-2
+		-15
+		13
+		"""
+	)
+
+
+def test_bitwise_left_shift():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [<<: [2 1]]
+		print: [<<: [100 101]]
+		print: [<<: [101 100]]
+		""",
+		"""
+		4
+		253530120045645880299340641075200
+		128032710623051169551167023742976
+		"""
+	)
+
+
+def test_bitwise_left_shift_eq():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var 2]
+		<<=: [$var 1]
+		print: [$var]
+		set: [var 100]
+		<<=: [$var 101]
+		print: [$var]
+		set: [var 101]
+		<<=: [$var 100]
+		print: [$var]
+		""",
+		"""
+		4
+		253530120045645880299340641075200
+		128032710623051169551167023742976
+		"""
+	)
 
 
 
+def test_bitwise_right_shift():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [>>: [2 1]]
+		print: [>>: [100 101]]
+		print: [>>: [101 100]]
+		""",
+		"""
+		1
+		0
+		0
+		"""
+	)
 
 
+def test_bitwise_right_shift_eq():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var 2]
+		>>=: [$var 1]
+		print: [$var]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		set: [var 100]
+		>>=: [$var 101]
+		print: [$var]
+		
+		set: [var 101]
+		>>=: [$var 100]
+		print: [$var]
+		""",
+		"""
+		1
+		0
+		0
+		"""
+	)
 
 
 
