@@ -1239,7 +1239,7 @@ def test_bitwise_right_shift_eq():
 		set: [var 100]
 		>>=: [$var 101]
 		print: [$var]
-		
+
 		set: [var 101]
 		>>=: [$var 100]
 		print: [$var]
@@ -1251,6 +1251,26 @@ def test_bitwise_right_shift_eq():
 		"""
 	)
 
+
+def test_negative():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [neg:[0]]
+		print: [neg:[1]]
+		print: [neg:[3.14]]
+		print: [neg: [neg:[3.14]]]
+		print: [neg: [neg:[2]]]
+		""",
+		"""
+		0
+		-1
+		-3.14
+		3.14
+		2
+		"""
+	)
 
 
 
