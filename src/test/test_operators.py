@@ -616,43 +616,14 @@ def test_mul_eq_tuple_int():
 	)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''
-def test_div_int():
-	"""
-	Description of test.
-	Func name must start with `test_`.
-	"""
+def test_div_eq_int():
+	""""""
 	
 	run_test_program(
 		"""
-		print: [/: [1 2]]
+		set: [var 1]
+		/=: [$var 2]
+		print: [$var]
 		""",
 		"""
 		0.5
@@ -660,15 +631,14 @@ def test_div_int():
 	)
 
 
-def test_div_float():
-	"""
-	Description of test.
-	Func name must start with `test_`.
-	"""
+def test_div_eq_float():
+	""""""
 	
 	run_test_program(
 		"""
-		print: [/: [1.1 2.1]]
+		set: [var 1.1]
+		/=: [$var 2.1]
+		print: [$var]
 		""",
 		"""
 		0.5238095238095238
@@ -676,15 +646,14 @@ def test_div_float():
 	)
 
 
-def test_div_neg_int():
-	"""
-	Description of test.
-	Func name must start with `test_`.
-	"""
+def test_div_eq_neg_int():
+	""""""
 	
 	run_test_program(
 		"""
-		print: [/: [neg: [1] 2]]
+		set: [var neg: [1]]
+		/=: [$var 2]
+		print: [$var]
 		""",
 		"""
 		-0.5
@@ -692,15 +661,14 @@ def test_div_neg_int():
 	)
 
 
-def test_div_neg_float():
-	"""
-	Description of test.
-	Func name must start with `test_`.
-	"""
+def test_div_eq_neg_float():
+	""""""
 	
 	run_test_program(
 		"""
-		print: [/: [neg: [1.1] 2.1]]
+		set: [var neg: [1.1]]
+		/=: [$var 2.1]
+		print: [$var]
 		""",
 		"""
 		-0.5238095238095238
@@ -708,8 +676,142 @@ def test_div_neg_float():
 	)
 
 
+def test_mod_int():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [%: [10 2]]
+		""",
+		"""
+		0
+		"""
+	)
 
-'''
+
+def test_mod_eq_int():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var 10]
+		%=: [$var 2]
+		print: [$var]
+		""",
+		"""
+		0
+		"""
+	)
+
+
+def test_mod_float():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [%: [3.14 2]]
+		""",
+		"""
+		1.1400000000000001
+		"""
+	)
+
+
+def test_mod_eq_float():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var 3.14]
+		%=: [$var 2]
+		print: [$var]
+		""",
+		"""
+		1.1400000000000001
+		"""
+	)
+
+
+def test_mod_neg_int():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [%: [neg: [10] 4]]
+		""",
+		"""
+		2
+		"""
+	)
+
+
+def test_mod_eq_neg_int():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var neg: [10]]
+		%=: [$var 4]
+		print: [$var]
+		""",
+		"""
+		2
+		"""
+	)
+
+
+def test_mod_neg_float():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [%: [neg: [3.14] 2]]
+		""",
+		"""
+		0.8599999999999999
+		"""
+	)
+
+
+def test_mod_eq_neg_float():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [var neg: [3.14]]
+		%=: [$var 2]
+		print: [$var]
+		""",
+		"""
+		0.8599999999999999
+		"""
+	)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
