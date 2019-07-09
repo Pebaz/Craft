@@ -58,6 +58,12 @@ def run_test(source, expected_result):
 	Test to see if the print function will print a string value.
 	"""
 	output = capture_stdout(parse_source(source)).strip()
+	if output != expected_result:
+		print('AssertionError:')
+		print('Expected:')
+		print(expected_result)
+		print('Instead Got:')
+		print(output)
 	assert(output == expected_result)
 
 
