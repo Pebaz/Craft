@@ -114,6 +114,21 @@ def test_print_dict():
 	assert(capture_stdout(parse_source(source)) == result)
 
 
+def test_print_list():
+	"""
+	Test to see if the print function will print a dict value.
+	"""
+	source = \
+	"""
+	Program:
+	[
+		print: [[name Pebaz age 23]]
+	]
+	"""
+	result = "['name', 'Pebaz', 'age', 23]\n"
+	assert(capture_stdout(parse_source(source)) == result)
+
+
 if __name__ == '__main__':
 	for test in dir():
 		if test.startswith('test_'):
