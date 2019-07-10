@@ -67,7 +67,7 @@ class SourceValidator:
 		return value
 
 	def panic(self):
-		msg = '\n'
+		msg = '\nSyntaxError:\n'
 		lines = iter(self.source.split('\n'))
 		pair = self.pairs[-1]
 		count = 0
@@ -80,7 +80,7 @@ class SourceValidator:
 		msg += f'{indent}^\n'
 		msg += f'{indent}|\n'
 		msg += f'{indent}|\n'
-		return Exception(msg)
+		return SyntaxError(msg)
 
 
 
@@ -136,7 +136,7 @@ def craft_parse(text):
 	Value.setParseAction(validator.validate)
 	List.setParseAction(validator.validate)
 	Identifier.addParseAction(validator.validate)
-	Comment.setParseAction(validator.validate)
+	#Comment.setParseAction(validator.validate)
 	Function.setParseAction(validator.validate)
 	Program.setParseAction(validator.validate)
 

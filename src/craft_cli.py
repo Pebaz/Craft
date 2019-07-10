@@ -61,13 +61,15 @@ def run_cli(yaml_lang):
 					output = handle_expression(ast)
 
 					if output:
-						if len(output) == 1:
+						if isinstance(output, list) and len(output) == 1:
 							print(f' -> {output[0]}')
 						else:
 							print(f' -> {output}')
 
+				except SyntaxError as e:
+					print(e.msg)
+
 				except Exception as e:
-					print('CRAFT ERROR:')
 					traceback.print_exc()
 					code = ''
 					continue

@@ -214,12 +214,10 @@ def test_byval():
 	
 	run_test_program(
 		"""
-		set: [foo 100]
+		set: [byval:[foo] 100]
 		print: [$foo]
-		print: [byval: [foo]]
 		""",
 		"""
-		100
 		100
 		"""
 	)
