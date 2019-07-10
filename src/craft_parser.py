@@ -62,23 +62,26 @@ class SourceValidator:
 		<parser>.setParseAction(<validator>.validate)
 		"""
 		self.source = string
-		print(line_number, value[0], '->', string[line_number])
+		#print(line_number, value[0], '->', string[line_number])
 		self.pairs.append([line_number, value[0]])
 		return value
 
 	def panic(self):
+		msg = '\n'
 		lines = iter(self.source.split('\n'))
 		pair = self.pairs[-1]
 		count = 0
 		while count < pair[0]:
 			line = next(lines)
-			print(line)
+			msg += f'{line}\n'
 			count += len(line) + 1  # Account for '\n'
-		indent = ' ' * (len(line) - 1)
-		print(indent, '^')
-		print(indent, '|')
-		print(indent, '|')
-		print('Syntax Error')
+
+		indent = ' ' * len(line)
+		msg += f'{indent}^\n'
+		msg += f'{indent}|\n'
+		msg += f'{indent}|\n'
+		return Exception(msg)
+
 
 
 def craft_parse(text):
@@ -137,12 +140,14 @@ def craft_parse(text):
 	Function.setParseAction(validator.validate)
 	Program.setParseAction(validator.validate)
 
+	syntax_error = None
 	try:
 		return __walk(Program.parseString(text)[0])
 	except Exception as e:
-		print(e)
-		validator.panic()
-		sys.exit()
+		syntax_error = validator.panic()
+
+	# Now raise the exception with a clean stack trace
+	raise syntax_error
 
 
 if __name__ == '__main__':

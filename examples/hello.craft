@@ -5,6 +5,7 @@ Program:
 	for: [
 		[i $count]
 		print: [$i]
+		[
 	]
 
 	def: [
