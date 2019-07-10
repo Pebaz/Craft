@@ -216,7 +216,7 @@ def craft_case(*args):
 @expose()
 def craft_default(*args):
 	"""
-	Run the code therein since there is no match condition
+	Run the code therein since there is no match condition.
 	"""
 	get_args(args)
 
@@ -816,11 +816,11 @@ def craft_program(*args):
 
 	if True:
 		try:
-			get_args(args)
+			return get_args(args)
 		except Exception as e:
 			TRACEBACK.show_trace(e)
 	else:
-		get_args(args)
+		return get_args(args)
 
 
 @expose()

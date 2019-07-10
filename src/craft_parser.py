@@ -127,5 +127,5 @@ def craft_parse(text):
 		return __walk(Program.parseString(text)[0])
 	except Exception as e:
 		print(e)
-		validator.panic()
+		#validator.panic()
 		sys.exit()

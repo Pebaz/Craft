@@ -60,8 +60,11 @@ def run_cli(yaml_lang):
 					ast = yaml.load(code) if yaml_lang else craft_parse(code)
 					output = handle_expression(ast)
 
-					if output != None:
-						print(f' -> {output}')
+					if output:
+						if len(output) == 1:
+							print(f' -> {output[0]}')
+						else:
+							print(f' -> {output}')
 
 				except Exception as e:
 					print('CRAFT ERROR:')
