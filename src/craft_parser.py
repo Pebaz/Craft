@@ -53,18 +53,32 @@ def _type_cast_value(x, y, value):
 class SourceValidator:
 	def __init__(self):
 		self.pairs = list()
+		self.source = ''
 
-	def validate(self, line_number, value):
+	def validate(self, string, line_number, value):
 		"""
 		This method is designed to be used from Pyparsing:
 
 		<parser>.setParseAction(<validator>.validate)
 		"""
-		self.pairs.append([line_number, value])
+		self.source = string
+		print(line_number, value[0], '->', string[line_number])
+		self.pairs.append([line_number, value[0]])
 		return value
 
 	def panic(self):
-		print("ERROR!")
+		lines = iter(self.source.split('\n'))
+		pair = self.pairs[-1]
+		count = 0
+		while count < pair[0]:
+			line = next(lines)
+			print(line)
+			count += len(line) + 1  # Account for '\n'
+		indent = ' ' * (len(line) - 1)
+		print(indent, '^')
+		print(indent, '|')
+		print(indent, '|')
+		print('Syntax Error')
 
 
 def craft_parse(text):
@@ -115,17 +129,26 @@ def craft_parse(text):
 	Program = pyp.OneOrMore(Comment | Function)
 
 	# Validate for syntax error messages:
-	#validator = SourceValidator()
-	#Value.setParseAction(validator.validate)
-	#List.setParseAction(validator.validate)
-	#Identifier.addParseAction(validator.validate)
-	#Comment.setParseAction(validator.validate)
-	#Function.setParseAction(validator.validate)
-	#Program.setParseAction(validator.validate)
+	validator = SourceValidator()
+	Value.setParseAction(validator.validate)
+	List.setParseAction(validator.validate)
+	Identifier.addParseAction(validator.validate)
+	Comment.setParseAction(validator.validate)
+	Function.setParseAction(validator.validate)
+	Program.setParseAction(validator.validate)
 
 	try:
 		return __walk(Program.parseString(text)[0])
 	except Exception as e:
 		print(e)
-		#validator.panic()
+		validator.panic()
 		sys.exit()
+
+
+if __name__ == '__main__':
+	craft_parse('''
+        Program:[
+            print: [hi]
+            [
+        ]
+	''')
