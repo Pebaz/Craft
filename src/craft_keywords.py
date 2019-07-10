@@ -175,16 +175,20 @@ def craft_switch(*args):
 	"""
 	match = get_arg_value(args[0])
 	cases = [i for i in args[1:] if getkey(i) == 'case']
-	default = [i for i in args[1:] if getkey(i) == 'default'][0]
-
-	# Handle malformed switch statement
-	if len(default) > 1:
-		ldefs = len(default)
-		raise Exception(f'Only 1 default clause excepted, found: {ldefs}')
+	default = [i for i in args[1:] if getkey(i) == 'default']
 
 	# Create a blank program function call if there is no default
 	if len(default) == 0:
 		default = { 'Program' : [] }
+
+	# Handle malformed switch statement
+	elif len(default) > 1:
+		ldefs = len(default)
+		raise Exception(f'Only 1 default clause excepted, found: {ldefs}')
+
+	# Get the only one that is there
+	else:
+		default = default[0]
 
 	# Run the case block if the value matches
 	for case in cases:

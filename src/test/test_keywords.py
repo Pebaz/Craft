@@ -127,6 +127,59 @@ def test_register_exception():
 	)
 
 
+def test_switch_case_default():
+	""""""
+	
+	run_test_program(
+		"""
+		foreach: [
+			[number [2 5 10]]
+
+			:: Test default switch-case-default syntax
+			switch: [$number
+				case: [2
+					print: [222]
+				]
+
+				case: [5
+					print: [555]
+				]
+
+				default: [
+					print: [$number]
+				]
+			]
+		]
+
+		:: Make sure malformed syntax errors out
+		try: [
+			switch: [5
+				default: [print: [Uh oh]]
+				default: [print: [Uh oh]]
+			]
+
+			catch: [[]
+				print: [MalformedSwitchStatement]
+			]
+		]
+
+		:: Make sure empty switch statements are supported
+		switch: [5
+			case: [2 print: ["Won't get here"]]
+			:: Empty default block is inserted here
+		]
+		print: [EmptyDefaultBlock]
+		""",
+		"""
+		222
+		555
+		10
+		MalformedSwitchStatement
+		EmptyDefaultBlock
+		"""
+	)
+
+
 if __name__ == '__main__':
 	for test in dir():
 		if test.startswith('test_'):
