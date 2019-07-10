@@ -788,6 +788,8 @@ def setup_sym_tab():
 	# TODO(Pebaz): What else needs to be cleared?
 	SYMBOL_TABLE.clear()
 	RETURN_POINTS.clear()
+	EXCEPTIONS.clear()
+	TRACEBACK.reset()
 
 	import craft_operators
 	import craft_keywords

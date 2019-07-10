@@ -22,6 +22,7 @@ __craft__ = {
 	'get-traceback' : craft_get_traceback,
 	'get-path' : craft_get_path,
 	'get-is-debug' : craft_get_is_debug,
+	'get-exceptions' : craft_get_exceptions,
 	'push-scope' : craft_push_scope,
 	'pop-scope' : craft_pop_scope,
 }
@@ -948,6 +949,23 @@ def craft_cut(*args):
 	"""
 	args = get_args(args)
 	raise Exception('Not implemented yet: cut')
+
+
+@expose()
+def craft_len(*args):
+	"""
+	<Short Description>
+
+	<Long Description>
+
+	Args:
+	  <Argument List>
+
+	Returns:
+	  <Description of Return Value>
+	"""
+	args = get_args(args)
+	return len(args[0])
 
 
 # -----------------------------------------------------------------------------
