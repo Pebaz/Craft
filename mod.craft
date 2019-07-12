@@ -1,0 +1,11 @@
+:>
+Test the import system to make sure it works.
+<:
+Program:
+[
+	def: [
+		[foo x]
+		prin: ["Hello "]
+		print: [$x]
+	]
+]

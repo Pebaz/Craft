@@ -214,11 +214,19 @@ def test_byval():
 	
 	run_test_program(
 		"""
-		set: [byval:[foo] 100]
-		print: [$foo]
+		set: [name Pebaz]
+		print: [name]
+		print: [$name]
+		print: [$$name]
+		print: [byval: [name]]
+		print: [byval: [$name]]
 		""",
 		"""
-		100
+		name
+		Pebaz
+		$name
+		name
+		$name
 		"""
 	)
 
@@ -228,15 +236,50 @@ def test_byref():
 	
 	run_test_program(
 		"""
-		set: [foo 100]
-		print: [$$foo]
-		print: [byref: [$foo]]
+		struct: [point x y]
+		def: [
+			[show-point the-point]
+			print: [$the-point.x $the-point.y]
+		]
+		def: [
+			[move-point the-point]
+			+=: [$the-point.x 4]
+		]
+		set: [a new: [$point 0 0]]
+		move-point: [byref: [$a]]
+		show-point: [byref: [$a]]
 		""",
 		"""
-		$foo
-		$foo
+		4 0
 		"""
 	)
+
+
+def test_struct():
+	""""""
+	
+	run_test_program(
+		"""
+		struct: [point x y]
+		def: [
+			[show-point the-point]
+			print: [$the-point.x $the-point.y]
+		]
+		def: [
+			[move-point the-point]
+			+=: [$the-point.x 4]
+		]
+		set: [a new: [$point 0 0]]
+		show-point: [$a]
+		move-point: [$a]
+		show-point: [$a]
+		""",
+		"""
+		0 0
+		4 0
+		"""
+	)
+
 
 
 

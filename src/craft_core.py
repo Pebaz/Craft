@@ -135,7 +135,12 @@ def query_symbol_table(name, scope):
 		if scope > 0:
 			return query_symbol_table(name, scope - 1)
 		else:
-			raise Exception(f'"{var_name}" not found.') from e
+			if len(keys) > 1:
+				dot_parent = '.'.join(keys[:-1])
+				msg = f'"{var_name}" not found in: "{dot_parent}"'
+			else:
+				msg = f'"{var_name}" not found in any scope'
+			raise Exception(msg) from e
 
 
 def handle_value(value):

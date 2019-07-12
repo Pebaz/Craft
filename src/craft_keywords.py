@@ -321,7 +321,7 @@ def __craft_import__query_dir(filename):
 	"""
 	global CRAFT_PATH
 
-	for path in CRAFT_PATH:
+	for path in CRAFT_PATH + [str(Path())]:
 		p = Path(path)
 		mod_yaml = p / f'{filename}.yaml'
 		mod_craft = p / f'{filename}.craft'
@@ -837,7 +837,7 @@ def craft_byref(*args):
 	"""
 	Wrap the dictionary in a protective layer.
 	"""
-	return get_args(args)
+	return get_args(args)[0]
 
 
 @expose()

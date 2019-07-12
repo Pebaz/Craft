@@ -303,7 +303,7 @@ class JIT:
 	Allows many compilation jobs to run at the same time concurrently.
 	"""
 
-	ENABLED = True
+	ENABLED = False
 	USE_SINGLE_THREAD = False
 
 	def __init__(self):
