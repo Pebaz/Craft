@@ -725,8 +725,99 @@ def test_fmt():
 	)
 
 
+def test_hash():
+	""""""
+
+	run_test_program(
+		"""
+		print: [hash: [a 1 b 2 c 3]]
+		""",
+		"""
+		{'a': 1, 'b': 2, 'c': 3}
+		"""
+	)
 
 
+def test_str():
+	""""""
+
+	run_test_program(
+		"""
+		print: [str: [14]]
+		""",
+		"""
+		14
+		"""
+	)
+
+
+def test_int():
+	""""""
+
+	run_test_program(
+		"""
+		print: [int: ["14"]]
+		print: [int: [14.0]]
+		""",
+		"""
+		14
+		14
+		"""
+	)
+
+
+def test_float():
+	""""""
+
+	run_test_program(
+		"""
+		print: [float: ["14"]]
+		print: [float: [14]]
+		""",
+		"""
+		14.0
+		14.0
+		"""
+	)
+
+
+def test_tuple():
+	""""""
+
+	run_test_program(
+		"""
+		print: [tuple: [[1 2 3 4]]]
+		""",
+		"""
+		(1, 2, 3, 4)
+		"""
+	)
+
+
+def test_list():
+	""""""
+
+	run_test_program(
+		"""
+		print: [list: [tuple: [[1 2 3 4]]]]
+		""",
+		"""
+		[1, 2, 3, 4]
+		"""
+	)
+
+
+def test_set():
+	""""""
+
+	run_test_program(
+		"""
+		print: [collected-set: [[1 2 3 4]]]
+		""",
+		"""
+		{1, 2, 3, 4}
+		"""
+	)
 
 
 if __name__ == '__main__':

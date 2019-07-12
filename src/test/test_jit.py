@@ -6,7 +6,7 @@ finally:
 	from craft_test_utils import *
 
 
-def test_jit_1():
+def test_jit():
 	"""
 	"""
 	
@@ -33,7 +33,7 @@ def test_jit_1():
 		""",
 		"""
 		<Function hello:[]>
-		<JITFunction hello:[]>
+		<Function hello:[]>
 		Hello Pebaz
 		"""
 	)
