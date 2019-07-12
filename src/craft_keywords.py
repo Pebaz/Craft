@@ -569,7 +569,7 @@ def craft_unless(*args):
 	  <Description of Return Value>
 	"""
 	if len(args) > 3 or len(args) < 2:
-		raise Exception(f'Malformed if statement at:\n{args}')
+		raise Exception(f'Malformed unless statement at:\n{args}')
 
 	# Testing condition
 	c = args[0]
@@ -634,8 +634,9 @@ def craft_globals(*args):
 	Returns:
 	  <Description of Return Value>
 	"""
-	pp.pprint(SYMBOL_TABLE)
-	pp.pprint(EXCEPTIONS)
+	#pp.pprint(SYMBOL_TABLE)
+	#pp.pprint(EXCEPTIONS)
+	return SYMBOL_TABLE, EXCEPTIONS
 
 
 @expose()
@@ -652,7 +653,8 @@ def craft_locals(*args):
 	  <Description of Return Value>
 	"""
 	global SYMBOL_TABLE, SCOPE
-	pp.pprint(SYMBOL_TABLE[SCOPE])
+	#pp.pprint(SYMBOL_TABLE[SCOPE])
+	return SYMBOL_TABLE[SCOPE]
 
 
 @expose()
@@ -751,7 +753,7 @@ def craft_return(*args):
 	raise CraftFunctionReturnException(value)
 
 
-@expose()
+@expose('fn')
 def craft_lambda(*args):
 	"""
 	TODO(Pebaz): Fix `craft_call` to be able to handle lambdas.
@@ -854,11 +856,12 @@ def craft_dir(value):
 	"""
 	Equivalent to `dir()` in Python.
 	"""
-	global pp
+	#global pp
 	if isinstance(value, str):
-		pp.pprint(get_arg_value(value))
-	elif isinstance(value, dict):
-		pp.pprint(dict)
+		#pp.pprint(get_arg_value(value))
+		return get_arg_value(value)
+	#elif isinstance(value, dict):
+	#	pp.pprint(dict)
 
 
 @expose('fmt')

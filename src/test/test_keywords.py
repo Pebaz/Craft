@@ -379,24 +379,273 @@ def test_import():
 	CRAFT_PATH.pop()
 
 
+def test_and():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [
+			and: [1 1]
+			and: [1 2]
+			and: [1 False]
+			and: [3.14 asdf]
+			and: [False False]
+			and: [tuple: [[]] hash: []]
+		]
+		try: [
+			and: [too many args passed to function]
+		]
+		""",
+		"""
+		1 2 False asdf False ()
+		"""
+	)
+
+
+def test_or():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [
+			or: [1 1]
+			or: [1 2]
+			or: [1 False]
+			or: [3.14 asdf]
+			or: [False False]
+			or: [tuple: [[]] hash: []]
+		]
+		try: [
+			or: [too many args passed to function]
+		]
+		""",
+		"""
+		1 1 1 3.14 False {}
+		"""
+	)
+
+
+def test_not():
+	""""""
+	
+	run_test_program(
+		"""
+		print: [
+			not: [1]
+			not: [asdf]
+			not: [True]
+			not: [3.14]
+			not: [False]
+			not: [hash: []]
+		]
+		try: [
+			not: [too many args passed to function]
+		]
+		""",
+		"""
+		False False False False True True
+		"""
+	)
+
+
+def test_not():
+	""""""
+	
+	run_test_program(
+		"""
+		foreach: [[name [Pebaz Nodibu Protodip Yelbu Drohar]]
+			if: [=: [$name Nodibu] then: [
+				continue: []
+			]]
+			if: [=: [$name Drohar] then: [
+				break: []
+			]]
+			print: [$name]
+		]
+		""",
+		"""
+		Pebaz
+		Protodip
+		Yelbu
+		"""
+	)
+
+
+def test_if_then_else():
+	""""""
+	
+	run_test_program(
+		"""	
+		if: [True then: [
+			print: [True]
+		] else: [
+			print: [False]
+		]]
+
+		if: [False then: [
+			print: [True]
+		] else: [
+			print: [False]
+		]]
+		""",
+		"""
+		True
+		False
+		"""
+	)
+
+
+def test_unless_then_else():
+	""""""
+	
+	run_test_program(
+		"""	
+		unless: [True then: [
+			print: [True]
+		] else: [
+			print: [False]
+		]]
+
+		unless: [False then: [
+			print: [True]
+		] else: [
+			print: [False]
+		]]
+		""",
+		"""
+		False
+		True
+		"""
+	)
+
+
+def test_globals():
+	""""""
+	run_test_program(
+		"""	
+		if: [globals: [] then: [
+			print: [True]
+		]]
+		""",
+		"""
+		True
+		"""
+	)
 
 
 
+def test_locals():
+	""""""
+	run_test_program(
+		"""	
+		if: [locals: [] then: [
+			print: [True]
+		]]
+		""",
+		"""
+		True
+		"""
+	)
+
+
+def test_exit():
+	""""""
+	
+	try:
+		run_test_program('exit: []', '')
+	except SystemExit:
+		assert(True)
+
+
+def test_comment():
+	""""""
+	run_test_program(
+		"""	
+		comment: [one]
+		comment: [2]
+		comment: [3.0]
+		comment: [print: [What]]
+		comment: [this: [func: [does: [not: [exist: []]]]]]
+		comment: [comment: [comment: [foo]]]
+		comment: []
+		""",
+		"""
+		"""
+	)
 
 
 
+def test_def():
+	""""""
+	run_test_program(
+		"""	
+		def: [
+			[my-func some-thing]
+			print: [$some-thing]
+		]
+		my-func: [Pebaz]
+		def: [
+			[other-func obj]
+			return: [$obj]
+		]
+		print: [
+			other-func: [3.14]
+		]
+		""",
+		"""
+		Pebaz
+		3.14
+		"""
+	)
 
 
 
+def test_fn():
+	""""""
+	run_test_program(
+		"""	
+		set: [bubbles fn: [
+			[x y]
+			print: [X $x Y $y]
+		]]
+		bubbles: [2 4]
+		""",
+		"""
+		X 2 Y 4
+		"""
+	)
 
 
+def test_struct():
+	""""""
+	
+	run_test_program(
+		"""
+		struct: [point x y]
+		def: [
+			[show-point the-point]
+			print: [$the-point.x $the-point.y]
+		]
+		def: [
+			[move-point the-point]
+			+=: [$the-point.x 4]
+		]
+		set: [a new: [$point 0 0]]
+		show-point: [$a]
+		move-point: [$a]
+		show-point: [$a]
 
-
-
-
-
-
-
+		:: Test default values
+		show-point: [
+			new: [$point]
+		]
+		""",
+		"""
+		0 0
+		4 0
+		None None
+		"""
+	)
 
 
 def test_byval():
@@ -445,34 +694,36 @@ def test_byref():
 	)
 
 
-
-
-
-
-def test_struct():
+def test_dir():
 	""""""
-	
+
 	run_test_program(
 		"""
-		struct: [point x y]
-		def: [
-			[show-point the-point]
-			print: [$the-point.x $the-point.y]
-		]
-		def: [
-			[move-point the-point]
-			+=: [$the-point.x 4]
-		]
-		set: [a new: [$point 0 0]]
-		show-point: [$a]
-		move-point: [$a]
-		show-point: [$a]
+		struct: [foo a b]
+		print: [dir: [$foo]]
 		""",
 		"""
-		0 0
-		4 0
+		['a', 'b']
 		"""
 	)
+
+
+def test_fmt():
+	""""""
+
+	run_test_program(
+		"""
+		print: [fmt: ["{}" Hello]]
+		print: [fmt: ["{}!" "Hello World"]]
+		print: [fmt: ["{}.son" 14]]
+		""",
+		"""
+		Hello
+		Hello World!
+		14.son
+		"""
+	)
+
 
 
 
