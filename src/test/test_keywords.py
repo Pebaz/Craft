@@ -180,6 +180,22 @@ def test_switch_case_default():
 	)
 
 
+def test_case():
+	run_test_program(
+		"""
+		case: [
+			comment: ["Skip Me"]
+			print: [Hello]
+			print: [World]
+		]
+		""",
+		"""
+		Hello
+		World
+		"""
+	)
+
+
 
 def test_break():
 	"""
@@ -207,6 +223,180 @@ def test_break():
 		5
 		"""
 	)
+
+
+def test_continue():
+	"""
+	Description of test.
+	Func name must start with `test_`.
+	"""
+	
+	run_test_program(
+		"""
+		for: [[i 10]
+			if: [=: [%: [$i 2] 0] then: [
+				continue: []
+			]]
+
+			print: [$i]
+		]
+		""",
+		"""
+		1
+		3
+		5
+		7
+		9
+		"""
+	)
+
+
+def test_while():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [count 0]
+		while: [
+			<: [$count 10]
+			print: [Go]
+			+=: [$count 1]
+			if: [=: [%: [$count 2] 0] then: [
+				continue: []
+			]]
+
+			if: [=: [$count 7] then: [
+				break: []
+			]]
+		]
+		""",
+		"""
+		Go
+		Go
+		Go
+		Go
+		Go
+		Go
+		Go
+		"""
+	)
+
+
+def test_until():
+	""""""
+	
+	run_test_program(
+		"""
+		set: [count 0]
+		until: [
+			>: [$count 10]
+			print: [Go]
+			+=: [$count 1]
+			if: [=: [%: [$count 2] 0] then: [
+				continue: []
+			]]
+
+			if: [=: [$count 7] then: [
+				break: []
+			]]
+		]
+		""",
+		"""
+		Go
+		Go
+		Go
+		Go
+		Go
+		Go
+		Go
+		"""
+	)
+
+
+
+def test_import():
+	""""""
+
+	global CRAFT_PATH
+	CRAFT_PATH.append('src/test')
+
+	run_test_program(
+		"""
+		import: [mods.mod1]
+		foo: [Craft]
+		import: [mods.mod2]
+		foo: [YAML]
+		import: [mods.mod3]
+		foo: [Python]
+
+		:: Test Module Existence
+		try: [
+			import: [does-not-exist]
+			catch: [[]
+				print: ["Module doesn't exist :("]
+			]
+		]
+
+		:: Test import Python without __craft__
+		try: [
+			import: [mods.mod4]
+			catch: [[]
+				print: ["Module doesn't define __craft__"]
+				print: ["So we can't import Python funcs"]
+			]
+		]
+
+		:: Test import multiple mods
+		import: [
+			mods.mod5
+			mods.mod6
+			mods.mod7
+		]
+
+		:: Test "from import" functionality
+		import: [[mods.mod8 foo]]
+		foo: [Python]
+		""",
+		"""
+		Imported module: mod1
+		Hello Craft
+		Imported module: mod2
+		Hello YAML
+		Imported module: mod3
+		Hello Python
+		Module doesn't exist :(
+		Imported module: mod4
+		Module doesn't define __craft__
+		So we can't import Python funcs
+		mod5
+		mod6
+		mod7
+		Imported module: mod8
+		Hello Python
+		"""
+	)
+
+	CRAFT_PATH.pop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def test_byval():
@@ -253,6 +443,10 @@ def test_byref():
 		4 0
 		"""
 	)
+
+
+
+
 
 
 def test_struct():

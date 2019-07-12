@@ -34,6 +34,15 @@ pp = pprint.PrettyPrinter(width=1)
 #            S T A N D A R D   L I B R A R Y   F U N C T I O N S
 # -----------------------------------------------------------------------------
 
+
+@branch()
+@expose()
+def craft_debug(*args):
+	"""
+	"""
+	import ipdb; ipdb.set_trace()
+
+
 @branch()
 @expose()
 def craft_try(*args):
