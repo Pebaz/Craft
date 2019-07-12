@@ -7,5 +7,5 @@ Used to test when there is no __craft__ variable defined.
 print('Imported module: mod4')
 
 #@expose()
-def foo(x):
-	print(f'Hello {x}')
+#def foo(x):
+#	print(f'Hello {x}')
