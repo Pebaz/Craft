@@ -14,7 +14,7 @@ a = Analysis(['src\\craft.py'],
 				 ('README.md', '.'),
 				 (os.path.dirname(hy.__file__), 'hy'),
 				 (os.path.dirname(j2do.__file__), 'j2do'),
-				 ('src', '.'),  # https://stackoverflow.com/questions/40646744/inspect-module-issues-in-pyinstaller-frozen-app
+				 #('src', '.'),  # https://stackoverflow.com/questions/40646744/inspect-module-issues-in-pyinstaller-frozen-app
 			 ],
              hiddenimports=['pathlib', 'yaml', 'jinja2', 'docopt', 'colorama'],
              hookspath=[],
