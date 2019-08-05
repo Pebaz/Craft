@@ -670,8 +670,9 @@ def expose(name=None):
 		nonlocal name
 		#print(f'Exposing {func.__name__} to Craft')
 
-		frame_records = inspect.stack()[1]
-		current_module = inspect.getmodule(frame_records[0])
+		#frame_records = inspect.stack()[1]
+		#current_module = inspect.getmodule(frame_records[0])
+		current_module = inspect.getmodule(func)
 
 		if '__craft__' not in dir(current_module):
 			setattr(current_module, '__craft__', dict())

@@ -37,14 +37,6 @@ pp = pprint.PrettyPrinter(width=1)
 
 @branch()
 @expose()
-def craft_debug(*args):
-	"""
-	"""
-	import ipdb; ipdb.set_trace()
-
-
-@branch()
-@expose()
 def craft_try(*args):
 	"""
 	<Short Description>
@@ -83,8 +75,6 @@ def craft_try(*args):
 				continue
 			exceptions = get_args(getvalue(catch)[0])
 			except_matches = any(i in [error_code, e.name] for i in exceptions)
-
-			#import ipdb; ipdb.set_trace()
 
 			# This is the `as` functionality
 			the_as = getvalue(catch)[1]

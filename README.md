@@ -5,6 +5,7 @@ Craft is an interpreted, high-level scripting language.
 # Features
 
 * 100% equivalent Craft or YAML syntax
+* REPL
 * Import Craft/YAML/Python modules
 * JIT-Compile user-defined functions to C asynchronously at runtime
 * Try/Catch/Finally
@@ -18,6 +19,40 @@ Craft is an interpreted, high-level scripting language.
 * String formatting
 * 100% equivalent Python data types
 * Python math operators
+
+# Getting Started
+
+### Hello World Craft Syntax
+
+```
+:: hello.craft
+Program:
+[
+    set: [name Pebaz]  :: Strings don't need to be quoted
+    print: [$name]     :: Lookup variables using: `$` character
+    
+    :: For loop
+    for: [
+        [i 10]
+        print: [$i]
+    ]
+]
+```
+
+### Hello World YAML Syntax
+
+```yaml
+# hello.yaml
+Program:
+  - set: [name, Pebaz]
+  - print: [$name]
+  
+  - for:
+    - [i, 10]
+    - print: [$i]
+```
+
+More examples can be found in the `examples` directory.  In addition, look at the `src/test` directory for unit tests that test all the language features if you get stuck.
 
 ## Craft Roadmap
 
