@@ -22,6 +22,25 @@ Craft is an interpreted, high-level scripting language.
 
 # Getting Started
 
+### Command Line
+
+```bash
+# Launch REPL
+python src/craft.py
+
+# Run .craft script
+python src/craft.py hello.craft
+
+# Run .yaml script
+python src/craft.py -y hello.yaml
+
+# Time the execution of script
+python src/craft.py -t hello.craft
+
+# Get Craft interpreter version
+python src/craft.py -v
+```
+
 ### Hello World Craft Syntax
 
 ```

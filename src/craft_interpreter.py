@@ -14,7 +14,7 @@ def run_file(filename):
 		ast = None
 
 		if extension.lower() == '.yaml':
-			ast = yaml.load(file)
+			ast = yaml.load(file, Loader=yaml.FullLoader)
 
 		elif extension.lower() == '.craft':
 			ast = craft_parse(file.read())
