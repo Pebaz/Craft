@@ -47,7 +47,7 @@ python src/craft.py -v
 :: hello.craft
 Program:
 [
-    set: [name Pebaz]  :: Strings don't need to be quoted
+    set: [name Pebaz]  :: Single-word strings don't need to be quoted
     print: [$name]     :: Lookup variables using: `$` character
     
     :: For loop
