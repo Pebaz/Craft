@@ -1,9 +1,41 @@
 
-	// Return Result<None> if no return function is called
-	PyObject * RET_result = PyObject_Call(get_result, Py_BuildValue("(O, O)", Py_None, Py_None), NULL);
+    // Return Result<None> if no return function is called
+	RET_result = PyObject_Call(get_result, Py_BuildValue("(O, O)", Py_None, Py_None), NULL);
     PyGILState_Release(gstate);
     //return Py_None;
+    return RET_result;
+	
+	// ------------------------------------------------------------------------
+	// Error Label
+	craft_error:
+	//PyErr_Print();
+	PyErr_Fetch(&ERROR_TYPE, &ERROR, &traceback);
+	PyErr_Clear();
+
+	PyObject * RETURN_VALUE = Py_None;
+	PyObject * RETURN_ERROR = Py_None;
+
+	// Check and see if it's a return/break/etc. exception or normal error
+	if (PyErr_GivenExceptionMatches(ERROR_TYPE, CraftFunctionReturnException))
+	{
+		//printf("    CraftFunctionReturnException\n");
+		RETURN_VALUE = PyObject_GetAttrString(ERROR, "return_value");
+	}
+	
+	// Real Exception. This makes sure an Exception object is returned.
+	else
+	{
+		PyObject * py_dict = PyDict_New();
+		PyObject * py_list = PyList_New(1);
+		PyList_SetItem(py_list, 0, ERROR);
+		PyDict_SetItemString(py_dict, "args", py_list);
+		RETURN_ERROR = PyErr_NewException("builtins.Exception", NULL, py_dict);
+	}
+
+	RET_result = PyObject_Call(get_result, Py_BuildValue("(O, O)", RETURN_VALUE, RETURN_ERROR), NULL);
+
+	PyGILState_Release(gstate);
 	return RET_result;
 }
 
-int main(int argc, char** argv) { }
+int main() { }

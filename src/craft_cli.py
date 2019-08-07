@@ -29,7 +29,7 @@ def __cli_sanitize_craft_code(code):
 def run_cli(yaml_lang):
 	"""
 	"""
-	global TRACEBACK
+	global TRACEBACK, EXCEPTIONS
 	print('Craft Programming Language')
 	print('Version: 0.1.0\n')
 	print('Press <enter> twice for running single commands.')
@@ -42,6 +42,7 @@ def run_cli(yaml_lang):
 		code = ''
 		while True:
 			TRACEBACK.reset()
+			EXCEPTIONS.clear()
 			line = input('>>> ') if code == '' else input('... ')
 
 			if line.strip() != '':
@@ -59,11 +60,16 @@ def run_cli(yaml_lang):
 					ast = yaml.load(code) if yaml_lang else craft_parse(code)
 					output = handle_expression(ast)
 
-					if output != None:
-						print(f' -> {output}')
+					if output:
+						if isinstance(output, list) and len(output) == 1:
+							print(f' -> {output[0]}')
+						else:
+							print(f' -> {output}')
+
+				except SyntaxError as e:
+					print(e.msg)
 
 				except Exception as e:
-					print('CRAFT ERROR:')
 					traceback.print_exc()
 					code = ''
 					continue

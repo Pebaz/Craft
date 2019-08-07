@@ -6,6 +6,7 @@ import io
 from contextlib import redirect_stdout
 from craft_core import *
 from craft_parser import *
+from craft_colors import *
 import textwrap
 
 
@@ -58,6 +59,12 @@ def run_test(source, expected_result):
 	Test to see if the print function will print a string value.
 	"""
 	output = capture_stdout(parse_source(source)).strip()
+	if output != expected_result:
+		print(f'AssertionError - Expected:{_CLRfg}')
+		print(expected_result)
+		print(f'{_CLRfreset}Instead Got:{_CLRfr}')
+		print(output)
+		print(_CLRfreset)
 	assert(output == expected_result)
 
 

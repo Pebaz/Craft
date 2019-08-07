@@ -1,6 +1,7 @@
 
-import sys, os, os.path, traceback, imp
+import sys, os, os.path, traceback, imp, inspect
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import yaml
 import pyparsing as pyp
@@ -17,6 +18,7 @@ from craft_colors import *
 
 def is_identifier(string):
 	"""
+	Checks to see if a given string is a proper Craft identifier.
 	"""
 	Identifier = pyp.Word(
 		pyp.alphas + '_', bodyChars=pyp.alphanums + '_-.'
@@ -28,8 +30,12 @@ def is_identifier(string):
 	except:
 		return False
 
+
 def dict_recursive_peek(dictn, keys):
 	"""
+	Checks to see if a given set of keys can index a dictionary.
+
+	If there is an issue with even one of the keys, return False, else True.
 	"""
 	try:
 		if len(keys) == 1:
@@ -39,6 +45,7 @@ def dict_recursive_peek(dictn, keys):
 		return True
 	except:
 		return False
+
 
 def dict_recursive_get(dictn, keys):
 	"""
@@ -59,8 +66,10 @@ def dict_recursive_get(dictn, keys):
 	else:
 		return get(dictn[keys[0]], keys[1:])
 
+
 def get_arg_value(arg):
 	"""
+	Returns the value of or evaluates a given function argument.
 	"""
 	if isinstance(arg, dict):
 		return handle_expression(arg)
@@ -83,6 +92,11 @@ def get_args(args):
 
 def getkey(symbol):
 	"""
+	Returns the key of a one-element dictionary.
+
+	Since Craft functions are represented like so in AST:
+	{'func-name' : [arg1, 'arg2', 3, 4.0]}
+	There needs to be a way of getting the key of the dictionary.
 	"""
 	#return [i for i in symbol.keys()][0]
 	for i in symbol.keys():
@@ -91,6 +105,11 @@ def getkey(symbol):
 
 def getvalue(symbol):
 	"""
+	Returns the value of a one-element dictionary.
+
+	Since Craft functions are represented like so in AST:
+	{'func-name' : [arg1, 'arg2', 3, 4.0]}
+	There needs to be a way of getting the value of the dictionary.
 	"""
 	#return symbol[getkey(symbol)]
 	for i in symbol.values():
@@ -116,7 +135,12 @@ def query_symbol_table(name, scope):
 		if scope > 0:
 			return query_symbol_table(name, scope - 1)
 		else:
-			raise Exception(f'"{var_name}" not found.') from e
+			if len(keys) > 1:
+				dot_parent = '.'.join(keys[:-1])
+				msg = f'"{var_name}" not found in: "{dot_parent}"'
+			else:
+				msg = f'"{var_name}" not found in any scope'
+			raise Exception(msg) from e
 
 
 def handle_value(value):
@@ -127,21 +151,6 @@ def handle_value(value):
 	suspected, check to see if a leading tick: '$' is used, denoting that a
 	string value is being passed, not a variable.
 	"""
-
-	# # Is it a variable:
-	# if isinstance(value, str):
-
-	# 	# Treat as variable if not second $
-	# 	if value.startswith('$'):
-	# 		if value[1] != '$':
-	# 			return query_symbol_table(value[1:], SCOPE)
-
-	# 		# Shorthand syntax for passing by value: $$var_name
-	# 		else:
-	# 			return value[1:]
-
-	# # Just return the value if there is nothing special about it
-	# return value
 
 	global SCOPE
 
@@ -168,6 +177,14 @@ def handle_value(value):
 
 def handle_expression(dictn):
 	"""
+	Core interpreter functionality. Interprets a given function call.
+	
+	Uses the current scope and symbol table to lookup names and set values.
+
+	When a Craft function is called, if it is a Python `callable` object, it
+	will be called rather than interpreted.
+
+	JITted functions will appear as callables before and after compilation.
 	"""
 	global SCOPE, DEBUG, TRACEBACK
 	func = query_symbol_table(getkey(dictn), SCOPE)
@@ -187,37 +204,6 @@ def handle_expression(dictn):
 
 	# Function is Python built-in function or operator
 	# This is for argument passing
-	'''
-	if callable(func):
-
-		# TODO(Pebaz): Handle Python exceptions here and translate to Craft ones
-		try:
-			return func(*getvalue(dictn))
-		except (CraftFunctionReturnException, CraftLoopBreakException, CraftLoopContinueException) as e:
-			raise e
-		except Exception as e:
-			register_pyexception(e)
-			craft_raise(type(e).__name__)
-
-	# Function is defined in Craft
-	# Pass it's name to the call function
-	else:
-
-		# TODO(Pebaz): Handle Craft exceptions here
-		# TODO(Pebaz): If CraftException is returned, how to fix all the other
-		# functions from catching it before here? Will this `try` be able to
-		# capture it?
-
-		try:
-			return craft_call(getkey(dictn), *getvalue(dictn))
-		except (CraftFunctionReturnException, CraftLoopBreakException, CraftLoopContinueException) as e:
-			raise e
-		except Exception as e:
-			register_pyexception(e)
-			craft_raise(type(e).__name__)
-
-	# TODO(Pebaz): Fix the code to say this instead:
-	'''
 	try:
 		# Python function
 		if callable(func):
@@ -265,32 +251,20 @@ def cull_scopes(return_point):
 		craft_pop_scope()
 
 
-def craft_call(*args):
+def craft_exec(*args):
 	"""
-	"""
-	global SCOPE
+	Call a function definition.
 
+	A function definition is defined as:
+	[[arg-name1 arg-name2] [body body body]]
+	"""
 	args = get_args(args)
-	func_name = args[0]
-	func_args = args[1:]
-	arg_names, func_definition = query_symbol_table(func_name, SCOPE)
-
-	# NEED TO ADD (None, None) to craft_def!
-	# Need to also add a counter for how many times a function has been called
-	# So that JIT can compile funcs in the hotpath!
-	#arg_names, func_definition, __jit__, __jcode__, times_been_called = query_symbol_table(
-	# 	func_name, SCOPE)
-
-	"""
-	if not __jit__:
-		'''jit in background'''
-	else:
-		'''ret = __jcode__(func_args)'''
-	"""
+	func_def, func_args = args
+	arg_names, func_definition = func_def
 
 	if len(arg_names) != len(func_args):
 		err = f'Argument count mismatch for function: '
-		err += f'{func_name}. Expected {len(arg_names)}, got {len(func_args)}.'
+		err += f'Expected {len(arg_names)}, got {len(func_args)}.'
 		raise Exception(err)
 
 	# Scope index to return to after call is done
@@ -324,15 +298,6 @@ def craft_call(*args):
 
 		# A real error has occurred :(
 		except Exception as e:
-
-			# TODO(Pebaz): Remove this and raise new exception for
-			# handle_expression() to handle.
-			# raise CraftException("SOMETHING TERRIBLE HAS HAPPENED", e)
-			# -----> traceback.print_exc()
-			# -----> break
-
-			# TODO(Pebaz): Exit early and raise a new CraftException now.
-			# It will be caught by handle_expression.
 			raise e from e
 
 
@@ -345,6 +310,21 @@ def craft_call(*args):
 
 	# Return the value returned from the function (if any)
 	return return_value
+
+
+def craft_call(*args):
+	"""
+	Call a Craft function by name with arguments.
+	"""
+	global SCOPE
+
+	args = get_args(args)
+	func_name = args[0]
+	func_args = args[1:]
+	arg_names, func_definition = query_symbol_table(func_name, SCOPE)
+
+	return craft_exec([arg_names, func_definition], func_args)
+
 
 def craft_set(name, value):
 	"""
@@ -361,77 +341,102 @@ def craft_set(name, value):
 	value = get_arg_value(value)
 	keys = name.split('.')
 	var_name = keys[-1]
+	scope = SCOPE + 0
 
+	# Look for an existing value to override
+	while scope > 0:
+		if len(keys) > 1:
+			try:
+				if var_name in dict_recursive_get(SYMBOL_TABLE[scope], keys[:-1])[var_name]:
+					dict_recursive_get(SYMBOL_TABLE[scope], keys[:-1])[var_name] = value
+					return
+			except:
+				pass
+		else:
+			if var_name in SYMBOL_TABLE[scope]:
+				SYMBOL_TABLE[scope][var_name] = value
+				return
+		scope -= 1
+
+	# If it doesn't exist, just set a new one
 	if len(keys) > 1:
 		dict_recursive_get(SYMBOL_TABLE[SCOPE], keys[:-1])[var_name] = value
 	else:
 		SYMBOL_TABLE[SCOPE][var_name] = value
 
+
 def craft_create_named_scope(*args):
 	"""
+	Creates a new scope with a given name.
+
+	Args:
+		name(str): the name of the new scope.
 	"""
 	args = get_args(args)
 	global SCOPE, SYMBOL_TABLE
-	SYMBOL_TABLE[SCOPE][args[0]] = dict()
-
-
-def craft_push_named_scope(name):
-	"""
-	Used in classes:
-	push "this"
-
-	this.name
-	this.age
-
-	Note that this is pushed DURING execution of a class constructor or method.
-	"""
-	# TODO(Pebaz): Do I want to keep this? Would make namespaces easier
-
-
-def craft_pop_named_scope(name):
-	"""
-	Used to remove a named scope temporarily?
-	"""
-	# TODO(Pebaz): Do I want to keep this? Would make namespaces easier
+	name = args[0]
+	SYMBOL_TABLE[SCOPE][name] = dict()
 
 
 def craft_get_symbol_table(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global SYMBOL_TABLE
 	return SYMBOL_TABLE
 
 
 def craft_get_scope(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global SCOPE
 	return SCOPE
 
 
 def craft_get_return_points(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global RETURN_POINTS
 	return RETURN_POINTS
 
 
 def craft_get_exceptions(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global EXCEPTIONS
 	return EXCEPTIONS
 
 
 def craft_get_traceback(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global TRACEBACK
 	return TRACEBACK
 
 
 def craft_get_path(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global CRAFT_PATH
 	return CRAFT_PATH
 
 
 def craft_get_is_debug(*args):
+	"""
+	Convenience function for the JIT compilation process.
+	"""
 	global IS_DEBUG
 	return IS_DEBUG
 
 
 def craft_push_scope():
 	"""
+	Create a new scope in the symbol table.
 	"""
 	global SCOPE, SYMBOL_TABLE
 	SCOPE += 1
@@ -443,6 +448,7 @@ def craft_push_scope():
 
 def craft_pop_scope():
 	"""
+	Delete a scope from the symbol table.
 	"""
 	global SCOPE, SYMBOL_TABLE, TRACEBACK
 	SCOPE -= 1
@@ -458,9 +464,9 @@ def register_exception(name, desc, *args):
 	An error code is added by default.
 
 	 1. Register the exception as a variable with the exact name in scope level
-	    zero.
+		zero.
 	 2. The exception can be raised using the name:
-	 		raise: [CraftException]
+			 raise: [CraftException]
 
 		Using the error code:
 			raise: [1]
@@ -512,14 +518,6 @@ def register_pyexception(exception):
 def craft_raise(error_code, *args):
 	"""
 	Raises the given exception if it exists in the EXCEPTION list.
-
-	<Long Description>
-
-	Args:
-		<Argument List>
-
-	Returns:
-		<Description of Return Value>
 	"""
 	global EXCEPTIONS, SCOPE
 
@@ -544,13 +542,156 @@ def craft_raise(error_code, *args):
 	raise craft_exception
 
 
+class Result:
+	"""
+	Used within JIT compiled functions to return either an error or a value
+	back to Python.
+	"""
+	def __init__(self, value, err=False):
+		self.value = value
+		self.err = err
 
-# -----------------------------------------------------------------------------
-#             W I N G   I N I T I A L   S Y M B O L   T A B L E
-# -----------------------------------------------------------------------------
+
+class Function(list):
+	"""
+	Since `craft_def()` defines functions as lists in SYMBOL_TABLE, it need to
+	keep compatibility with this. However, it also need to JIT compile the body
+	of the function asynchronously.
+	"""
+	def __init__(self, *args):
+		global JIT_COMPILER
+		self.name = args[0]
+		list_args = args[1]
+		list.__init__(self, list_args)
+		self.__jit__ = self.compile_self() if JIT_COMPILER.ENABLED else None
+		self.__code__ = None
+		self.saved_hash = hash(self)
+
+	def __repr__(self):
+		"""
+		Returns either the repr of `Function` or `JITFunction`.
+		
+		Proves useful when wanting a visible confirmation that a function has
+		successfully been JITted.
+		"""
+		if self.__code__:
+			return f'<{self.__code__.__class__.__name__} {self.name}:[]>'
+		else:
+			return f'<{self.__class__.__name__} {self.name}:[]>'
+
+	def __call__(self, *args):
+		"""
+		Since calling a user-defined function will always call a callable, it
+		need to only call the JIT compiled function if the hash hasn't changed.
+		If it has, just `craft_exec(self, args)` which should do the trick.
+		"""
+		if not JIT_COMPILER.ENABLED:
+			return craft_exec(self, args)
+		
+		# If the hash changed, we need to recompile
+		#if hash(self) != self.saved_hash:
+		#   if JIT_COMPILER.ENABLED: !!!
+		#	self.__code__ = self.compile_self()
+
+		# Call the JIT func if it is done compiling, else interpret self
+		if not self.__jit__.ready():
+			return craft_exec(self, args)
+
+		# Whether done or already done, update the callable and call it
+		else:
+			self.__code__ = self.__jit__.get()
+			# Guard against OSError: Access Violation Writing ...
+			try:
+				#return craft_exec(self, args)
+				# To call __code__, JITFunction.__call__(*args) is defined.
+				# So unpack the tuple of arguments for __call__().
+				return self.__code__(*args)
+			except OSError:
+				print('_' * 200)
+				return craft_exec(self, args)
+
+	def __hash__(self):
+		"""
+		The string representation of the function body is fine for hashing.
+		"""
+		return hash(str(self))
+
+	def compile_self(self):
+		"""
+		Convenience method to recompile the function defined within `self`.
+		"""
+		global JIT_COMPILER
+		return JIT_COMPILER.compile({
+			'def' : [
+				[self.name] + self[0],
+				*self[1]
+			]
+		})
+
+
+def branch(name=None):
+	"""
+	Mark built-in function as branches so that they will be interpreted rather
+	than JIT-compiled.
+
+	Usage:
+
+	>>> @branch()  # Don't forget to call it
+	>>> def craft_something(*args):
+	...     pass
+
+	>>> @branch('some')  # Explicit name given
+	>>> def craft_something(*args):
+	...     pass
+	"""
+	def inner(func):
+		nonlocal name
+		if not name:
+			name = func.__name__.replace('craft_', '')
+
+		global BRANCH_FUNCTIONS
+		BRANCH_FUNCTIONS.append(name)
+		def wrapper(*args, **kwargs):
+			func(*args, **kwargs)
+		return wrapper
+	return inner
+
+
+def expose(name=None):
+	"""
+	Add a given function to the `__craft__` variable of a given Python module.
+
+	Creates the variable if it is nonexistent. Useful for preventing adding a
+	large `__craft__` dict at the end of every Python extension file.
+	In addition, `expose()` can be used to quickly create a function that can
+	be imported straight into Craft.
+	"""
+	def builtin(func):
+		nonlocal name
+		#print(f'Exposing {func.__name__} to Craft')
+
+		#frame_records = inspect.stack()[1]
+		#current_module = inspect.getmodule(frame_records[0])
+		current_module = inspect.getmodule(func)
+
+		if '__craft__' not in dir(current_module):
+			setattr(current_module, '__craft__', dict())
+
+		if not name:
+			name = func.__name__.replace('craft_', '').replace('_', '-')
+
+		current_module.__craft__[name] = func
+		return func
+	return builtin
 
 
 class Trace:
+	"""
+	Provides a nice looking traceback when an exception happens.
+
+	Shows every function call including the actual values passed to those
+	functions since the error occurred up to `history` entries.
+	"""
 	def __init__(self, history=100):
 		self.traceback = list()
 		self.history = history
@@ -566,6 +707,9 @@ class Trace:
 		print(_CLRreset, file=sys.stderr)
 
 	def add_trace(self, func_name, args):
+		"""
+		Append a new function call to the history list for displaying later.
+		"""
 		self.traceback.append((func_name, args))
 		if len(self.traceback) > self.history:
 			self.traceback = self.traceback[1:]
@@ -574,6 +718,10 @@ class Trace:
 		self.traceback.append(scope)
 
 	def show_trace(self, error):
+		"""
+		Display a nice-looking "stack trace".
+		"""
+
 		print()
 		self.banner(f'{error.name}: {error.desc}')
 		print('\nCall stack trace:\n')
@@ -590,34 +738,64 @@ class Trace:
 			if isinstance(i, int):
 				tab = i
 				continue
-			print(('    ' * tab), f'{_CLRfg}{i[0]}{_CLRreset}\t', *i[1:])
+			print(('    ' * tab), f'{_CLRfy}{i[0]}{_CLRreset}\t', *i[1:])
 
 		# Get the function call that caused the error:
 		fcall = self.traceback[last_func_call_index]
 
 		# Print a customized stacktrace that shows the function call that failed
-		print(('    ' * tab), f'{_CLRfg}{fcall[0]}{_CLRreset}\t', *fcall[1:])
+		print(('    ' * tab), f'{_CLRfy}{fcall[0]}{_CLRreset}\t', *fcall[1:])
 		print()
 		print(('    ' * tab), '^')
 		for i in range(4):
 			print(('    ' * tab), '|')
 		print()
-		print(('    ' * tab), f'{_CLRfg}Responsible Function Call{_CLRreset}')
+		print(('    ' * tab), f'{_CLRfy}Responsible Function Call{_CLRreset}')
 
+
+
+# -----------------------------------------------------------------------------
+#             W I N G   I N I T I A L   S Y M B O L   T A B L E
+# -----------------------------------------------------------------------------
 
 # Represents a list of lists of key-value pairs (variables/names)
 SYMBOL_TABLE = []
-SCOPE = 0 # For now, functions have to increment and decrement scope
+
+# The current scope (used as index to SYMBOL_TABLE)
+SCOPE = 0
+
+# Function call save points
 RETURN_POINTS = []
+
+# List of all recorded exceptions for raising and catching
 EXCEPTIONS = dict()
+
+# Global traceback object for printing tracebacks
 TRACEBACK = Trace()
+
+# Preset path of the Craft interpreter
 CRAFT_PATH = [os.getcwd(), 'stdlib']
+
+# Internal debugging flag
 DEBUG = False
 
+# List of functions that need to skip JIT compilation due to branching logic
+BRANCH_FUNCTIONS = []
+
+# Global JIT compiler object
+import craft_jit; JIT_COMPILER = craft_jit.JIT()
+
+
 def setup_sym_tab():
+	"""
+	Sets up the symbol table with all of the builtin functions, operators, and
+	anything else it needs in order to be in a default state.
+	"""
 	# TODO(Pebaz): What else needs to be cleared?
 	SYMBOL_TABLE.clear()
 	RETURN_POINTS.clear()
+	EXCEPTIONS.clear()
+	TRACEBACK.reset()
 
 	import craft_operators
 	import craft_keywords

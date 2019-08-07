@@ -53,18 +53,35 @@ def _type_cast_value(x, y, value):
 class SourceValidator:
 	def __init__(self):
 		self.pairs = list()
+		self.source = ''
 
-	def validate(self, line_number, value):
+	def validate(self, string, line_number, value):
 		"""
 		This method is designed to be used from Pyparsing:
 
 		<parser>.setParseAction(<validator>.validate)
 		"""
-		self.pairs.append([line_number, value])
+		self.source = string
+		#print(line_number, value[0], '->', string[line_number])
+		self.pairs.append([line_number, value[0]])
 		return value
 
 	def panic(self):
-		print("ERROR!")
+		msg = '\nSyntaxError:\n'
+		lines = iter(self.source.split('\n'))
+		pair = self.pairs[-1]
+		count = 0
+		while count < pair[0]:
+			line = next(lines)
+			msg += f'{line}\n'
+			count += len(line) + 1  # Account for '\n'
+
+		indent = ' ' * len(line)
+		msg += f'{indent}^\n'
+		msg += f'{indent}|\n'
+		msg += f'{indent}|\n'
+		return SyntaxError(msg)
+
 
 
 def craft_parse(text):
@@ -115,17 +132,28 @@ def craft_parse(text):
 	Program = pyp.OneOrMore(Comment | Function)
 
 	# Validate for syntax error messages:
-	#validator = SourceValidator()
-	#Value.setParseAction(validator.validate)
-	#List.setParseAction(validator.validate)
-	#Identifier.addParseAction(validator.validate)
+	validator = SourceValidator()
+	Value.setParseAction(validator.validate)
+	List.setParseAction(validator.validate)
+	Identifier.addParseAction(validator.validate)
 	#Comment.setParseAction(validator.validate)
-	#Function.setParseAction(validator.validate)
-	#Program.setParseAction(validator.validate)
+	Function.setParseAction(validator.validate)
+	Program.setParseAction(validator.validate)
 
+	syntax_error = None
 	try:
 		return __walk(Program.parseString(text)[0])
 	except Exception as e:
-		print(e)
-		validator.panic()
-		sys.exit()
+		syntax_error = validator.panic()
+
+	# Now raise the exception with a clean stack trace
+	raise syntax_error
+
+
+if __name__ == '__main__':
+	craft_parse('''
+        Program:[
+            print: [hi]
+            [
+        ]
+	''')

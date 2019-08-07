@@ -1,0 +1,6 @@
+Program:
+    - print: ["Imported module: mod2"]
+    - def:
+        - [foo x]
+        - prin: ["Hello "]
+        - print: [$x]

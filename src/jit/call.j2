@@ -5,3 +5,4 @@
     PyTuple_SET_ITEM({{ func_var_args }}, {{ (loop.index - 1) }}, {{ aname }});
 {%- endfor %}
     PyObject * {{ ret_name }} = PyObject_Call({{ func_var }}, {{ func_var_args }}, NULL);
+{% include 'error_check.j2' %}

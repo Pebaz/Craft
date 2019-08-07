@@ -1,0 +1,2 @@
+    PyObject * {{ lookup }} = PyObject_Call(query, Py_BuildValue("(O, O)", Py_BuildValue("s", "{{ name }}"), PyObject_Call(scope, PyTuple_New(0), NULL)), NULL);
+{% include 'error_check.j2' %}

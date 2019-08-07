@@ -1,0 +1,12 @@
+:>
+Test the import system to make sure it works.
+<:
+Program:
+[
+	print: ["Imported module: mod1"]
+	def: [
+		[foo x]
+		prin: ["Hello "]
+		print: [$x]
+	]
+]
