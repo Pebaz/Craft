@@ -31,7 +31,7 @@ def run_cli(yaml_lang):
 	"""
 	global TRACEBACK, EXCEPTIONS
 	print('Craft Programming Language')
-	print('Version: 0.1.0\n')
+	print('Version: 0.2.0\n')
 	print('Press <enter> twice for running single commands.')
 	print('Type "quit: []" or press CTCL > C to leave the program.\n')
 

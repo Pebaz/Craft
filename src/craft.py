@@ -51,7 +51,7 @@ def main(args):
 
 	# Make the docstring .EXE friendly
 	usage = __doc__.format(args[0])
-	arguments = docopt(usage, argv=args[1:], version='Craft 0.1.0')
+	arguments = docopt(usage, argv=args[1:], version='Craft 0.2.0')
 
 	if arguments['FILENAME'] != None:
 		DEBUG = arguments['--debug']
