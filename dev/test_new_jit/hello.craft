@@ -1,4 +1,0 @@
-Program : [
-	set: [name 'Pebaz']
-	print : [$name]
-]
