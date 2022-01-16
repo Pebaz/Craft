@@ -12,7 +12,7 @@ Craft is an interpreted, high-level scripting language.
 * Switch/Case/Default
 * For/While/Until
 * And/Or/Not
-* If/Unles/Then/Else
+* If/Unless/Then/Else
 * Lambdas
 * Structs
 * Quoting
@@ -49,7 +49,7 @@ Program:
 [
     set: [name Pebaz]  :: Single-word strings don't need to be quoted
     print: [$name]     :: Lookup variables using: `$` character
-    
+
     :: For loop
     for: [
         [i 10]
@@ -65,7 +65,7 @@ Program:
 Program:
   - set: [name, Pebaz]
   - print: [$name]
-  
+
   - for:
     - [i, 10]
     - print: [$i]
